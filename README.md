@@ -38,3 +38,26 @@ This repository contains a Django-based application developed for managing pet a
 - Database file `db.sqlite3` is ignored by default.
 
 Feel free to explore the `pet_rescue_app` package for models, views, and serializers. Tests are defined in `pet_rescue_app/tests.py`.
+
+## Frontend (React + TypeScript)
+
+A simple React application using TypeScript and Tailwind CSS provides a landing page plus login and registration forms. The source is located under `pet_rescue_frontend/`.
+
+### Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd pet_rescue_frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   npm install react-router-dom@6
+   npm install --save-dev @types/react-router-dom
+   ```
+3. Run the development server:
+   ```bash
+   npm start
+   ```
+
+By default the landing page will load at `http://localhost:3000/`. Use the links to access the login and registration screens; form submissions currently log values to the console and can be wired to the Django REST API.

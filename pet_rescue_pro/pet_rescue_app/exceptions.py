@@ -16,7 +16,7 @@ def custom_exception_handler(exc, context):
             status=response.status_code
         )
 
-    print("🔥 UNHANDLED EXCEPTION:", exc)
+    print("UNHANDLED EXCEPTION:", exc)
     traceback.print_exc()
 
     return Response(
