@@ -43,8 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'pet_rescue_app',
     'corsheaders',
+    'users',
+    'pets',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -139,16 +141,19 @@ STATIC_URL = 'static/'
 
 # Default key for rest framework
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "pet_rescue_app.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "core.exceptions.custom_exception_handler",
     
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "pet_rescue_app.authentication.CustomJWTAuthentication",
+        "core.authentication.CustomJWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],  
 
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardResultsSetPagination",
+    "PAGE_SIZE": 10,
 }
 
 

@@ -1,9 +1,10 @@
 import re
 
 from rest_framework import serializers
-from .models import Pet, PetReport, User
+from .models import PetReport, User
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework_simplejwt.tokens import RefreshToken       
+from rest_framework_simplejwt.tokens import RefreshToken
+from core.constants import USER_ROLE_CHOICES     
 
 class UserWriteSerializer(serializers.ModelSerializer):
 
@@ -12,7 +13,7 @@ class UserWriteSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True, min_length=5)
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
-    role = serializers.ChoiceField(choices=User.USER_ROLE_CHOICES, default="User")
+    role = serializers.ChoiceField(choices=USER_ROLE_CHOICES, default="User")
 
     class Meta:
         model = User
@@ -90,13 +91,6 @@ class LoginSerializer(serializers.Serializer):
             "access": str(refresh.access_token),
             "refresh": str(refresh),
         }
-    
-
-
-class PetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Pet
-        fields = '__all__'
 
 class PetReportSerializer(serializers.ModelSerializer):
     class Meta:

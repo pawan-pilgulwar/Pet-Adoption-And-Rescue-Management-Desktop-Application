@@ -29,6 +29,6 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # api endpoints
-    path('api/v1/', include('pet_rescue_app.urls')),
+    path('api/v1/', include([path('', include('users.urls')), path('', include('pets.urls'))])),
     
 ]
