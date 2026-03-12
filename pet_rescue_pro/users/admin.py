@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import User, Notification
+from django.contrib.auth.hashers import make_password
 
 
 # Register your models here.
@@ -52,6 +53,13 @@ class UserAdmin(admin.ModelAdmin):
             "fields": ("role", "created_at")
         }),
     )
+
+    def save_model(self, request, obj, form, change):
+        # If password is not hashed yet
+        if not obj.password.startswith('pbkdf2_'):
+            obj.password = make_password(obj.password)
+
+        super().save_model(request, obj, form, change)
 
 
 admin.site.register(Notification)
