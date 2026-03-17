@@ -87,7 +87,7 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
             value = serializer.validated_data['access'],
             httponly=True,
             secure=os.getenv('ENVIRONMENT')!='development',
-            samesite="Lax",
+            samesite="None",
             max_age=3600
         )
 
@@ -96,7 +96,7 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
             value = serializer.validated_data['refresh'],
             httponly=True,
             secure=os.getenv('ENVIRONMENT')!='development',
-            samesite="Lax",
+            samesite="None",
             max_age=86400
         )
 

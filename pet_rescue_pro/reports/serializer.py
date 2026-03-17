@@ -43,7 +43,12 @@ class PetReportSerializer(serializers.ModelSerializer):
 
 
 class PetReportCreateSerializer(serializers.ModelSerializer):
-    pet_data = PetSerializer(write_only=True)
+    name = serializers.CharField(write_only=True)
+    pet_type = serializers.CharField(write_only=True)
+    breed = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    color = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    image = serializers.ImageField(write_only=True, required=False)
+    
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -52,7 +57,11 @@ class PetReportCreateSerializer(serializers.ModelSerializer):
         model = PetReport
         fields = [
             "user",
-            "pet_data",
+            "name",
+            "pet_type",
+            "breed",
+            "color",
+            "image",
             "location",
             "description",
             "admin_comment",
@@ -64,10 +73,16 @@ class PetReportCreateSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        pet_data = validated_data.pop('pet_data')
+        # Extract pet data from validated_data
+        pet_fields = ['name', 'pet_type', 'breed', 'color', 'image']
+        pet_data = {field: validated_data.pop(field) for field in pet_fields if field in validated_data}
+        
         # Assign the user who reported as the one who 'created' the pet object initially
         user = self.context['request'].user
         pet_data['created_by'] = user
+        # Set initial status for pet based on report or default
+        pet_data['status'] = validated_data.get('status', 'Lost') 
+        
         pet = Pet.objects.create(**pet_data)
         
         report = PetReport.objects.create(pet=pet, **validated_data)

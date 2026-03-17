@@ -9,21 +9,21 @@ const ReportPet: React.FC = () => {
 
     const handleSubmit = async (formData: any) => {
         try {
-            // Reformat payload according to backend PetReportCreateSerializer structure
-            const payload = {
-                pet_data: {
-                    name: formData.name || 'Unknown',
-                    pet_type: formData.pet_type,
-                    breed: formData.breed,
-                    color: formData.color,
-                    status: formData.status,
-                },
-                location: formData.location,
-                description: formData.description || '',
-            };
+            const data = new FormData();
+            data.append('name', formData.name || 'Unknown');
+            data.append('pet_type', formData.pet_type);
+            data.append('breed', formData.breed || '');
+            data.append('color', formData.color || '');
+            data.append('status', formData.status);
+            data.append('location', formData.location);
+            data.append('description', formData.description || '');
+            
+            if (formData.image) {
+                data.append('image', formData.image);
+            }
 
-            await reportService.create(payload);
-            navigate('/rescue'); // Redirect to Rescue page where verifed reports show up
+            await reportService.create(data);
+            navigate('/rescue'); // Redirect to Rescue page where verified reports show up
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to report pet. Please try again.');
         }

@@ -53,7 +53,7 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
         return self.success_response(
             data={
                 "count": queryset.count(),
-                "Pets": serializer.data
+                "pets": serializer.data
             },
             message="Pets fetched successfully",
             status_code = status.HTTP_200_OK

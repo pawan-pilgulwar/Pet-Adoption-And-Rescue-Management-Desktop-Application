@@ -13,11 +13,20 @@ import Adoption from './pages/Adoption';
 import Rescue from './pages/Rescue';
 import Profile from './pages/Profile';
 import { authService } from './services/api';
+import About from './pages/About';
 
-// Protected Route Component
+// Protected Route Component (Requires Login)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = authService.getCurrentUser();
   if (!user) return <Navigate to="/login" />;
+  return <>{children}</>;
+};
+
+// User-Only Route Component (Prevents Admin access)
+const UserRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = authService.getCurrentUser();
+  if (!user) return <Navigate to="/login" />;
+  if (user.role === 'Admin' || user.role === 'SuperAdmin') return <Navigate to="/admin-dashboard" />;
   return <>{children}</>;
 };
 
@@ -28,49 +37,58 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminDashboardRedirect = () => {
+  const user = authService.getCurrentUser();
+  if (user && ['Admin', 'SuperAdmin'].includes(user.role)) {
+    return <Navigate to="/admin-dashboard" />;
+  }
+  return <Home />;
+};
+
 function App() {
   return (
-    <div className="App min-h-screen bg-gray-50">
+    <div className="App min-h-screen bg-white">
       <Navbar />
       <main>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<AdminDashboardRedirect />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
           <Route
             path="/adoption"
             element={
-              <ProtectedRoute>
+              <UserRoute>
                 <Adoption />
-              </ProtectedRoute>
+              </UserRoute>
             }
           />
 
           <Route
             path="/rescue"
             element={
-              <ProtectedRoute>
+              <UserRoute>
                 <Rescue />
-              </ProtectedRoute>
+              </UserRoute>
             }
           />
 
           <Route
             path="/report"
             element={
-              <ProtectedRoute>
+              <UserRoute>
                 <ReportPet />
-              </ProtectedRoute>
+              </UserRoute>
             }
           />
 
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <UserRoute>
                 <UserDashboard />
-              </ProtectedRoute>
+              </UserRoute>
             }
           />
 
@@ -93,6 +111,7 @@ function App() {
           />
         </Routes>
       </main>
+
 
       <footer className="bg-white border-t border-gray-100 py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 text-center">

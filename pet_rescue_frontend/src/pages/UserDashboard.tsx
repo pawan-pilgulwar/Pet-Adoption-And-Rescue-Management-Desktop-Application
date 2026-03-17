@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { reportService, authService } from '../services/api';
+import { reportService, authService, BASE_URL } from '../services/api';
 import DashboardTable from '../components/DashboardTable';
 
 const UserDashboard: React.FC = () => {
@@ -18,6 +18,7 @@ const UserDashboard: React.FC = () => {
             // Map the reports to format suitable for DashboardTable
             const formattedReports = response.data?.Reports?.map((report: any) => ({
                 id: report.id,
+                image: report.pet_detail?.image,
                 name: report.pet_detail?.name || 'Unknown',
                 pet_type: report.pet_detail?.pet_type || 'Unknown',
                 breed: report.pet_detail?.breed || 'Unknown',
@@ -63,10 +64,20 @@ const UserDashboard: React.FC = () => {
                     </div>
                 ) : (
                     <DashboardTable
-                        headers={['Name', 'Type', 'Breed', 'Status', 'Location', 'Actions']}
+                        headers={['ID', 'Image', 'Name', 'Type', 'Breed', 'Status', 'Location', 'Actions']}
                         data={pets}
                         renderRow={(pet) => (
                             <tr key={pet.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{pet.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {pet.image && (
+                                        <img 
+                                            src={pet.image.startsWith('http') ? pet.image : `${BASE_URL}${pet.image}`} 
+                                            alt="" 
+                                            className="h-10 w-10 object-cover rounded-lg border border-gray-100" 
+                                        />
+                                    )}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{pet.name}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{pet.pet_type}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{pet.breed}</td>
