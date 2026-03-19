@@ -1,8 +1,6 @@
 # core/constants.py
 
 PET_STATUS_CHOICES = [
-    ("Lost", "Lost"),
-    ("Found", "Found"),
     ("Adopted", "Adopted"),
     ("Available", "Available"),
 ]
@@ -18,3 +16,13 @@ REPORT_STATUS_CHOICES = [
     ("Rejected", "Rejected"),
     ("Closed", "Closed"),
 ]
+
+NOTIFICATION_TYPE_CHOICES = [
+    ("Adoption_Request", "Adoption Request"),
+    ("Report_Status", "Report Status"),
+    ("Adoption_Status", "Adoption Status"),
+    ("General", "General"),
+    ("Match_Found", "Match Found"),
+    ("Report_Creation", "Report Creation"),
+    ("Pet_Registration", "Pet Registration"),
+]   

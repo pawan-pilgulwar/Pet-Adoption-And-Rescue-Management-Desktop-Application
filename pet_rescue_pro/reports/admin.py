@@ -7,19 +7,22 @@ from .models import PetReport
 class PetReportAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "pet",
+        "pet_name",
+        "pet_type",
+        "pet_breed",
+        "pet_color",
+        "pet_image",
+        "pet_status",
         "user",
         "status",
-        "pet__status",
         "location",
         "created_at",
-        "reviewed_at"
     )   
 
     search_fields = (
-        "pet__name",
+        "pet_name",
         "user__username",
-        "pet__status",
+        "pet_status",
         "location",
         "status",
     )   
@@ -27,7 +30,7 @@ class PetReportAdmin(admin.ModelAdmin):
     list_filter = (
         "status",
         "created_at",
-        "pet__status"
+        "pet_status"
     )
 
     readonly_fields = ("created_at", "reviewed_at")

@@ -8,6 +8,8 @@ from core.mixins import ResponseMixin
 from .models import PetReport
 from .serializer import PetReportSerializer, PetReportCreateSerializer
 from core.permission import IsAdmin, IsUser
+from notifications.models import Notification
+from users.models import User
 
 # Create your views here.
 class PetReportViewSet(viewsets.ModelViewSet, ResponseMixin):
@@ -68,7 +70,17 @@ class PetReportViewSet(viewsets.ModelViewSet, ResponseMixin):
     def create_report(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        report = serializer.save()
+
+        admins = User.objects.filter(role="Admin")
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                notification_type="Report_Creation",
+                message=f"New report created by {report.user.username} for {report.pet_name}",
+                related_object=report
+            )
+
         return self.success_response(
             data=serializer.data,
             message="Pet and Report created successfully",
@@ -89,6 +101,40 @@ class PetReportViewSet(viewsets.ModelViewSet, ResponseMixin):
             },
             message="Reports fetched successfully",
             status_code = status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['get'] ,url_path='search', permission_classes=[IsAuthenticated])
+    def search_reports(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(status="Accepted")
+
+        # Get query params
+        pet_type = request.query_params.get('type')
+        breed = request.query_params.get('breed')
+        location = request.query_params.get('location')
+        color = request.query_params.get('color')
+
+        # Apply filters dynamically
+        if pet_type:
+            queryset = queryset.filter(pet__pet_type__icontains=pet_type)
+
+        if breed:
+            queryset = queryset.filter(pet__breed__icontains=breed)
+
+        if location:
+            queryset = queryset.filter(pet__location__icontains=location)
+
+        if color:
+            queryset = queryset.filter(pet__color__icontains=color)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.success_response(
+            data={
+                "Count": queryset.count(),
+                "Reports": serializer.data
+            },
+            message="Reports fetched successfully",
+            status_code=status.HTTP_200_OK
         )
     
     
@@ -119,9 +165,36 @@ class PetReportViewSet(viewsets.ModelViewSet, ResponseMixin):
     def update_report(self, request, *args, **kwargs):
         partial = request.method == "PATCH"
         instance = self.get_object()
+
+        old_status = instance.status
+        
         serializer = self.get_serializer(instance, data = request.data, partial = partial)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        report = serializer.save()
+
+        if old_status != report.status:
+            if report.status == "Accepted":
+                Notification.objects.create(
+                    user=report.user,
+                    notification_type="Report_Status",
+                    message=f"Report status changed from {old_status} to {report.status}",
+                    related_object=report
+                )
+            elif report.status == "Rejected":
+                Notification.objects.create(
+                    user=report.user,
+                    notification_type="Report_Status",
+                    message=f"Report status changed from {old_status} to {report.status}",
+                    related_object=report
+                )
+            elif report.status == "Closed":
+                Notification.objects.create(
+                    user=report.user,
+                    notification_type="Report_Status",
+                    message=f"Report status changed from {old_status} to {report.status}",
+                    related_object=report
+                )
+
         return self.success_response(
             data=serializer.data,
             message="Report updated successfully",

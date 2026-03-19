@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Notification
+from .models import User
 from django.contrib.auth.hashers import make_password
 
 
@@ -60,6 +60,3 @@ class UserAdmin(admin.ModelAdmin):
             obj.password = make_password(obj.password)
 
         super().save_model(request, obj, form, change)
-
-
-admin.site.register(Notification)

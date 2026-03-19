@@ -15,10 +15,9 @@ class PetReportSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    pet_detail = PetSerializer(
-        source="pet",
-        read_only=True
-    )
+    
+
+    pet_data = serializers.SerializerMethodField()
 
     class Meta:
         model = PetReport
@@ -26,8 +25,7 @@ class PetReportSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "user_detail",
-            "pet",
-            "pet_detail",
+            "pet_data",
             "location",
             "description",
             "admin_comment",
@@ -38,30 +36,32 @@ class PetReportSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "created_at",
             "reviewed_at",
-            "admin_comment",
+            "admin_comment", 
         ]
+
+    def get_pet_data(self, obj):
+        return {
+            "name": obj.pet_name,
+            "pet_type": obj.pet_type,
+            "breed": obj.pet_breed,
+            "color": obj.pet_color,
+            "status": obj.pet_status,
+            "image": obj.pet_image.url if obj.pet_image else None   
+        }
 
 
 class PetReportCreateSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(write_only=True)
-    pet_type = serializers.CharField(write_only=True)
-    breed = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    color = serializers.CharField(write_only=True, required=False, allow_blank=True)
-    image = serializers.ImageField(write_only=True, required=False)
-    
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+
+    pet_data = serializers.DictField(write_only=True)
 
     class Meta:
         model = PetReport
         fields = [
             "user",
-            "name",
-            "pet_type",
-            "breed",
-            "color",
-            "image",
+            "pet_data",   
             "location",
             "description",
             "admin_comment",
@@ -69,23 +69,24 @@ class PetReportCreateSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "admin_comment",
-            "status"
+            "status"    
         ]
 
     def create(self, validated_data):
-        # Extract pet data from validated_data
-        pet_fields = ['name', 'pet_type', 'breed', 'color', 'image']
-        pet_data = {field: validated_data.pop(field) for field in pet_fields if field in validated_data}
-        
-        # Assign the user who reported as the one who 'created' the pet object initially
-        user = self.context['request'].user
-        pet_data['created_by'] = user
-        # Set initial status for pet based on report or default
-        pet_data['status'] = validated_data.get('status', 'Lost') 
-        
-        pet = Pet.objects.create(**pet_data)
-        
-        report = PetReport.objects.create(pet=pet, **validated_data)
+        pet_data = validated_data.pop("pet_data")
+
+        report = PetReport.objects.create(
+            user=validated_data["user"],
+            pet_name=pet_data.get("name"),
+            pet_type=pet_data.get("pet_type"),
+            pet_breed=pet_data.get("breed"),
+            pet_color=pet_data.get("color"),
+            pet_image=pet_data.get("image"),
+            pet_status=pet_data.get("status", "Lost"),
+            location=validated_data.get("location"),
+            description=validated_data.get("description"),
+        )
+
         return report
 
 

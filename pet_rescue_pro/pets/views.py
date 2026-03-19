@@ -7,6 +7,8 @@ from .models import Pet
 from .serializer import PetSerializer
 from core.mixins import ResponseMixin
 from core.permission import IsAdmin
+from notifications.models import Notification
+from users.models import User
 
 # Create your views here.
 class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
@@ -41,6 +43,40 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
             message="Pet fetched successfully",
             status_code = status.HTTP_200_OK
         )
+
+    @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])
+    def search_pets(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(status='Available')
+        
+        # Get query params
+        pet_type = request.query_params.get('type')
+        breed = request.query_params.get('breed')
+        location = request.query_params.get('location')
+        color = request.query_params.get('color')
+
+        # Apply filters dynamically
+        if pet_type:
+            queryset = queryset.filter(pet_type__icontains=pet_type)
+
+        if breed:
+            queryset = queryset.filter(breed__icontains=breed)
+
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        if color:
+            queryset = queryset.filter(color__icontains=color)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return self.success_response(
+            data={
+                "Count": queryset.count(),
+                "Pets": serializer.data
+            },
+            message="Pets fetched successfully",
+            status_code=status.HTTP_200_OK
+        )
     
 
 
@@ -63,7 +99,17 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
     def register_pet(self, request, *args, **kwrags):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception = True)
-        serializer.save()
+        pet = serializer.save()
+
+        users = User.objects.filter(role="User")
+        for user in users:
+            Notification.objects.create(
+                user=user,
+                notification_type="Pet_Registration",
+                message=f"New pet registered by {pet.user.username} for {pet.pet_name}",
+                related_object=pet
+            )
+
         return self.success_response(
             data=serializer.data,
             message="Pet Registered Successfully",

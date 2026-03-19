@@ -21,7 +21,6 @@ class PetAdmin(admin.ModelAdmin):
         "image_preview",
         "created_by",
         "created_at",
-        "updated_at"
     )
 
     def image_preview(self, obj):
