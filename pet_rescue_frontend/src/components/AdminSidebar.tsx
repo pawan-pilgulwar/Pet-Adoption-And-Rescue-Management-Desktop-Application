@@ -3,10 +3,9 @@ import { NavLink } from 'react-router-dom';
 
 const AdminSidebar: React.FC = () => {
   const getActiveClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 font-bold text-sm ${
-      isActive
-        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20 translate-x-1'
-        : 'text-slate-500 hover:bg-orange-50 hover:text-orange-600'
+    `flex items-center gap-3 px-5 py-3 rounded-2xl transition-all duration-200 font-bold text-sm ${isActive
+      ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20 translate-x-1'
+      : 'text-slate-500 hover:bg-orange-50 hover:text-orange-600'
     }`;
 
   return (

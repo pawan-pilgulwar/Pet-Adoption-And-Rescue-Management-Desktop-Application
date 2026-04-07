@@ -103,6 +103,18 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         )
 
         return response
+
+    @action(detail=False, methods=['post'], url_path='logout', permission_classes=[IsAuthenticated])
+    def logout(self, request, *args, **kwargs):
+        response = self.success_response(
+            message="Logout successful",
+            status_code=status.HTTP_200_OK
+        )
+
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+        return response
         
 
     @action(detail=True, methods=['put', 'patch'], url_path='update-user', permission_classes=[IsAuthenticated])

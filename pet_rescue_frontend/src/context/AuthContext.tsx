@@ -45,7 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.post('/users/login/', { email, password });
       const loginData = response.data.data;
 
-      console.log(response);
       if (loginData) {
         await refreshUser();
         setIsLoading(false);
@@ -60,8 +59,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post('/users/logout/');
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
   return (

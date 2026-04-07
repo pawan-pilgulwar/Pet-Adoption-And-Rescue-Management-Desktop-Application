@@ -1,49 +1,100 @@
 # Pet Adoption and Rescue Management Portal
 
-This repository contains a Django-based application developed for managing pet adoptions and rescue operations. It includes models, views, serializers, and tests to handle pets, users, authentication, and related entities.
+A modern, full-stack web application designed to streamline pet adoption and rescue operations. This portal provides a comprehensive platform for users to find pets for adoption and report lost/found animals, while giving administrators the tools to manage these processes efficiently.
 
-## Getting Started
+## 🚀 Key Features
 
-### Prerequisites
+### 🐾 Pet Adoption Management
+- **Pet Listings**: Browse available pets with detailed information (breed, age, gender, vaccination status, etc.).
+- **Pet Registration**: Administrators can easily register new pets with high-quality images.
+- **Status Tracking**: Automated tracking of pet status (Available, Adopted).
 
-- Python 3.11+ (or compatible)
-- virtualenv or `venv` module
+### 🆘 Rescue & Reporting
+- **Lost and Found Reports**: Users can report lost or found pets with location data and descriptions.
+- **Report Status Tracking**: Real-time status updates (Pending, Accepted, Rejected, Closed) for reports.
+- **Admin Review**: Centralized system for administrators to review, comment on, and manage rescue reports.
 
-### Installation
+### 🔔 Smart Notifications
+- **Real-time Alerts**: Get notified about report status changes, adoption requests, and automated pet matches.
+- **Multi-type Notifications**: Categories include Adoption Status, Report Status, Match Found, and General updates.
 
-1. Clone the repository:
+### 🔐 Secure User Management
+- **Role-based Access**: Separate flows for standard Users and Administrators.
+- **JWT Authentication**: Secure login and registration using JSON Web Tokens with custom authentication middleware.
+- **Profile Management**: Customizable user accounts with profile pictures and contact information.
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework**: Django 6.0.2
+- **API**: Django REST Framework (DRF)
+- **Authentication**: Simple JWT + Custom CustomJWTAuthentication
+- **Database**: PostgreSQL (Production) / SQLite (Development)
+- **Utilities**: `python-dotenv`, `corsheaders`
+
+### Frontend
+- **Framework**: React 19 (TypeScript)
+- **Styling**: Tailwind CSS
+- **State/Data Fetching**: Axios
+- **Routing**: React Router 7
+- **Cookie Management**: `js-cookie`
+
+## 📂 Project Structure
+
+```text
+├── pet_rescue_pro/          # Django Backend
+│   ├── adoptions/           # Pet and Adoption management
+│   ├── reports/             # Lost and Found reporting
+│   ├── users/               # User models and authentication logic
+│   ├── notifications/       # Notification delivery system
+│   ├── core/                # Shared constants, exceptions, and pagination
+│   └── pet_rescue_pro/      # Project configuration (settings, root URLs)
+│
+├── pet_rescue_frontend/     # React Frontend
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/           # Page-level components
+│   │   ├── services/        # API service layers
+│   │   └── assets/          # Static files and styling
+│   └── ...
+└── venv/                    # Python virtual environment
+```
+
+## ⚙️ Installation & Setup
+
+### 1. Backend Setup (Django)
+
+1. Navigate to the backend directory:
    ```bash
-   git clone <repository-url>
-   cd Pet-Adoption-and-Rescue-Management-Portal_Feb_Batch-8.2_2026
+   cd pet_rescue_pro
    ```
 2. Create and activate a virtual environment:
    ```bash
    python -m venv venv
-   # Windows
-   venv\Scripts\activate
+   # On Windows:
+   .\venv\Scripts\activate
    ```
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Apply migrations and run the server:
+4. Configure environment variables (create a `.env` file):
+   ```env
+   SECRET_KEY=your_secret_key
+   DEBUG=True
+   POSTGRES_DB=pet_rescue_pro
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   ```
+5. Apply migrations and start the server:
    ```bash
    python manage.py migrate
    python manage.py runserver
    ```
 
-### Notes
-
-- A `.gitignore` file has been added to exclude virtual environments, cache files, and other common artifacts.
-- Database file `db.sqlite3` is ignored by default.
-
-Feel free to explore the `pet_rescue_app` package for models, views, and serializers. Tests are defined in `pet_rescue_app/tests.py`.
-
-## Frontend (React + TypeScript)
-
-A simple React application using TypeScript and Tailwind CSS provides a landing page plus login and registration forms. The source is located under `pet_rescue_frontend/`.
-
-### Setup
+### 2. Frontend Setup (React)
 
 1. Navigate to the frontend directory:
    ```bash
@@ -52,12 +103,20 @@ A simple React application using TypeScript and Tailwind CSS provides a landing 
 2. Install dependencies:
    ```bash
    npm install
-   npm install react-router-dom@6
-   npm install --save-dev @types/react-router-dom
    ```
-3. Run the development server:
+3. Start the development server:
    ```bash
    npm start
    ```
+   The portal will be available at `http://localhost:3000`.
 
-By default the landing page will load at `http://localhost:3000/`. Use the links to access the login and registration screens; form submissions currently log values to the console and can be wired to the Django REST API.
+## 🤝 Contributing
+
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+*Note: This project is part of a dedicated portal for pet management and rescue reporting.*
