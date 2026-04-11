@@ -17,6 +17,9 @@ class UserAdmin(admin.ModelAdmin):
         "role",
         "phone_number",
         "created_at",
+        "is_superuser",
+        "is_staff",
+        "is_active",
     )
 
     # Search bar

@@ -176,3 +176,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.31.75:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# Custom User Model
+AUTH_USER_MODEL = 'users.User'
+AUTHENTICATION_BACKENDS = {
+    "users.authentication.EmailBackend"
+}
