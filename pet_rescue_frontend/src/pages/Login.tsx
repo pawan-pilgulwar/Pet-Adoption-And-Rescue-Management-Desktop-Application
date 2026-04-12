@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { loginSchema } from '../utils/validation';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,6 +18,19 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    const res = loginSchema.safeParse({ email, password });
+
+    if (!res.success) {
+      const validationErrors = res.error.format();
+      setError(validationErrors.email? validationErrors.email._errors[0] 
+        : validationErrors.password 
+        ? validationErrors.password._errors[0] 
+        : 'Invalid input'
+      );
+      setLoading(false);
+      return;
+    }
 
     const result = await login(email, password);
 

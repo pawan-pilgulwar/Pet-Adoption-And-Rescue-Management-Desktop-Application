@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { registerSchema } from '../utils/validation';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,13 +12,14 @@ const Register: React.FC = () => {
     first_name: '',
     last_name: '',
     password: '',
-    confirmPassword: '',
+    confirm_password: '',
     phone_number: '',
     address: '',
     profile_picture: null as File | null,
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -37,6 +39,15 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
+      const result = registerSchema.safeParse(formData);
+
+      if(!result.success) {
+        const errors = result.error.format();
+        setValidationErrors(errors);
+        setError('Please fix the validation errors above.');
+        return;
+      }
+
       const fm = new FormData();
       fm.append('username', formData.username);
       fm.append('email', formData.email);
@@ -47,11 +58,6 @@ const Register: React.FC = () => {
       fm.append('address', formData.address);
       if (formData.profile_picture) {
         fm.append('profile_picture', formData.profile_picture);
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
       }
 
       await api.post('/users/register/', fm, {
@@ -101,15 +107,21 @@ const Register: React.FC = () => {
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input label="First Name" name="first_name" required value={formData.first_name} onChange={handleChange} />
+              {validationErrors.first_name && (<p className="text-red-500 text-sm">{validationErrors.first_name._errors[0]}</p>)}
               <Input label="Last Name" name="last_name" required value={formData.last_name} onChange={handleChange} />
+              {validationErrors.last_name && (<p className="text-red-500 text-sm">{validationErrors.last_name._errors[0]}</p>)}
             </div>
             <Input label="Username" name="username" required value={formData.username} onChange={handleChange} />
+            {validationErrors.email && (<p className="text-red-500 text-sm">{validationErrors.email._errors[0]}</p>)}
             <Input label="Email Address" type="email" name="email" required value={formData.email} onChange={handleChange} />
-            <Input label="Phone Number" name="phone_number" value={formData.phone_number} onChange={handleChange} />
+            {validationErrors.email && (<p className="text-red-500 text-sm">{validationErrors.email._errors[0]}</p>)}
+            <Input label="Phone Number" name="phone_number" required value={formData.phone_number} onChange={handleChange} />
             <Input label="Address" name="address" value={formData.address} onChange={handleChange} />
             <Input label="Profile Picture" type="file" name="profile_picture" onChange={handleChange} />
             <Input label="Password" type="password" name="password" required value={formData.password} onChange={handleChange} />
-            <Input label="Confirm Password" type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} />
+            {validationErrors.password && (<p className="text-red-500 text-sm">{validationErrors.password._errors[0]}</p>)}
+            <Input label="Confirm Password" type="password" name="confirm_password" required value={formData.confirm_password} onChange={handleChange} />
+            {validationErrors.confirm_password && (<p className="text-red-500 text-sm">{validationErrors.confirm_password._errors[0]}</p>)}
 
             <Button className="w-full mt-2" type="submit" disabled={loading}>
               {loading ? 'Creating account...' : 'Create Account'}

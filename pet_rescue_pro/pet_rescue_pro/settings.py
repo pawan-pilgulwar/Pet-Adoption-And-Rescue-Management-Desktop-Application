@@ -44,11 +44,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'users',
-    'adoptions',
-    'core',
-    'reports',
-    'notifications' 
+    'apps.users',
+    'apps.pets',
+    'apps.adoption',
+    'apps.core',
+    'apps.reports',
+    'apps.notifications',
+    'apps.rescue',
+    'apps.medical',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +96,9 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),  # Or the IP address of your PostgreSQL server
         'PORT': os.getenv('POSTGRES_PORT', '5432'),        # Or the port your PostgreSQL server is listening on
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
@@ -140,16 +146,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Default key for rest framework
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "core.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "apps.core.exceptions.custom_exception_handler",
     
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "core.authentication.CustomJWTAuthentication",
+        "apps.core.authentication.CustomJWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],  
 
@@ -157,7 +160,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
 
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardResultsSetPagination",
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardResultsSetPagination",
     "PAGE_SIZE": 10,
 }
 
@@ -180,5 +183,5 @@ CORS_ALLOW_CREDENTIALS = True
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = {
-    "users.authentication.EmailBackend"
+    "apps.users.authentication.EmailBackend"
 }

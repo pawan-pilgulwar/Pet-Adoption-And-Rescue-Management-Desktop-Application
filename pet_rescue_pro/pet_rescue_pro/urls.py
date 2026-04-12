@@ -30,10 +30,11 @@ urlpatterns = [
 
     # api endpoints
     path('api/v1/', include([
-        path('', include('users.urls')), 
-        path('', include('adoptions.urls')), 
-        path('', include('reports.urls')), 
-        path('', include('notifications.urls'))
+        path('', include('apps.users.urls')), 
+        path('', include('apps.adoption.urls')), 
+        path('', include('apps.reports.urls')), 
+        path('', include('apps.notifications.urls')),
+        path('', include('apps.pets.urls')),
         ])
     ),
 ]
