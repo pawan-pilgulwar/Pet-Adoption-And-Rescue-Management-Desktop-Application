@@ -9,7 +9,7 @@ const RescuePage: React.FC = () => {
   const { user } = useAuth();
   const [reports, setReports] = useState<PetReport[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchType, setSearchType] = useState('');
+  const [searchSpecies, setSearchSpecies] = useState('');
   const [searchBreed, setSearchBreed] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [searchColor, setSearchColor] = useState('');
@@ -34,7 +34,7 @@ const RescuePage: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (searchType) params.append('type', searchType);
+      if (searchSpecies) params.append('species', searchSpecies);
       if (searchBreed) params.append('breed', searchBreed);
       if (searchLocation) params.append('location', searchLocation);
       if (searchColor) params.append('color', searchColor);
@@ -49,7 +49,7 @@ const RescuePage: React.FC = () => {
   };
 
   const handleClear = () => {
-    setSearchType('');
+    setSearchSpecies('');
     setSearchBreed('');
     setSearchLocation('');
     setSearchColor('');
@@ -86,9 +86,9 @@ const RescuePage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
             <input
               type="text"
-              placeholder="Pet Type"
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
+              placeholder="Species"
+              value={searchSpecies}
+              onChange={(e) => setSearchSpecies(e.target.value)}
               className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
             <input

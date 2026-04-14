@@ -89,9 +89,9 @@ const AdminDashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Report Status Distribution */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 relative overflow-hidden">
-             {/* Decorative Background */}
-             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-50 rounded-full blur-3xl opacity-50"></div>
-             
+              {/* Decorative Background */}
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-50 rounded-full blur-3xl opacity-50"></div>
+
               <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 relative z-10">
                 <span className="p-2 bg-orange-100 rounded-lg text-lg">📊</span> Rescue Report Distribution
               </h2>
@@ -112,8 +112,8 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                      <div 
-                        className={`h-full ${item.color} transition-all duration-1000 ease-out`} 
+                      <div
+                        className={`h-full ${item.color} transition-all duration-1000 ease-out`}
                         style={{ width: `${item.percentage}%` }}
                       ></div>
                     </div>
@@ -187,23 +187,22 @@ const AdminDashboard: React.FC = () => {
                     stats.recent_activity.reports.map((r: any) => (
                       <tr key={r.id} className="hover:bg-slate-50/30 transition-colors group/row">
                         <td className="py-4 px-6">
-                           <div className="flex flex-col">
-                             <span className="font-bold text-slate-800 group-hover/row:text-orange-600 transition-colors">{r.pet_name}</span>
-                             <span className="text-[10px] text-slate-400">{new Date(r.created_at).toLocaleDateString()}</span>
-                           </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-800 group-hover/row:text-orange-600 transition-colors">{r.pet_name}</span>
+                            <span className="text-[10px] text-slate-400">{new Date(r.created_at).toLocaleDateString()}</span>
+                          </div>
                         </td>
                         <td className="py-4 px-6">
-                           <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{r.pet_type}</span>
+                          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{r.species}</span>
                         </td>
                         <td className="py-4 px-6 text-sm text-slate-500 font-medium">
                           {r.location}
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${
-                            r.status === 'Accepted' ? 'bg-teal-50 text-teal-600 border-teal-100' : 
-                            r.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-100' : 
-                            'bg-amber-50 text-amber-600 border-amber-100'
-                          }`}>
+                          <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${r.status === 'Accepted' ? 'bg-teal-50 text-teal-600 border-teal-100' :
+                              r.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-100' :
+                                'bg-amber-50 text-amber-600 border-amber-100'
+                            }`}>
                             {r.status.toUpperCase()}
                           </span>
                         </td>
@@ -214,7 +213,7 @@ const AdminDashboard: React.FC = () => {
               </table>
             </div>
             <div className="p-4 bg-slate-50/30 text-center border-t border-slate-50">
-               <p className="text-xs text-slate-400 font-bold">Showing the 5 most recent platform events</p>
+              <p className="text-xs text-slate-400 font-bold">Showing the 5 most recent platform events</p>
             </div>
           </div>
         </>

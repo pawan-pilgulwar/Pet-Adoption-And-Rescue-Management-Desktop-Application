@@ -74,7 +74,6 @@ const Navbar: React.FC = () => {
     logout();
     setProfileDropdownOpen(false);
     setMobileMenuOpen(false);
-    navigate('/');
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -185,8 +184,8 @@ const Navbar: React.FC = () => {
                   className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-orange-50 transition-all border border-transparent hover:border-orange-100"
                 >
                   <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-black overflow-hidden border-2 border-white shadow-sm">
-                    {user.profile_picture ? (
-                      <img src={formatImageUrl(user.profile_picture)} alt="" className="w-full h-full object-cover" />
+                    {user.profile_picture_url ? (
+                      <img src={formatImageUrl(user.profile_picture_url)} alt="" className="w-full h-full object-cover" />
                     ) : (
                       user.first_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()
                     )}

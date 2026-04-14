@@ -50,7 +50,7 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
         queryset = self.get_queryset().filter(status='Available')
         
         # Get query params
-        species = request.query_params.get('type')  # Mapping 'type' to 'species' for backward compatibility or updating frontend
+        species = request.query_params.get('species')
         breed = request.query_params.get('breed')
         color = request.query_params.get('color')
 

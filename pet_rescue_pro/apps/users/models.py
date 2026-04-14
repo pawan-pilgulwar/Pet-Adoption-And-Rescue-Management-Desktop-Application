@@ -1,6 +1,8 @@
 from django.db import models
 from apps.core.constants import USER_ROLE_CHOICES
 from django.contrib.auth.models import AbstractUser
+import cloudinary.uploader
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -36,7 +38,16 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
 
+    def delete(self, *args, **kwargs):
+        if self.profile_picture_public_id:
+            try:
+                cloudinary.uploader.destroy(self.profile_picture_public_id)
+            except Exception as e:
+                print(f"Error deleting profile picture from Cloudinary: {e}")
+        super().delete(*args, **kwargs)
+
     def __str__(self):
+
         return self.username
 
     class Meta:

@@ -5,6 +5,8 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import PetCard from '../../components/PetCard';
 import { useAuth } from '../../context/AuthContext';
+import { uploadImage } from '../../utils/uploadImage';
+
 
 const ManagePets: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +17,7 @@ const ManagePets: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    pet_type: '',
+    species: '',
     breed: '',
     color: '',
     age: '',
@@ -56,7 +58,7 @@ const ManagePets: React.FC = () => {
     setEditingPet(pet);
     setFormData({
       name: pet.name,
-      pet_type: pet.pet_type,
+      species: pet.species,
       breed: pet.breed || '',
       color: pet.color || '',
       age: pet.age?.toString() || '',
@@ -74,7 +76,7 @@ const ManagePets: React.FC = () => {
     setEditingPet(null);
     setFormData({
       name: '',
-      pet_type: '',
+      species: '',
       breed: '',
       color: '',
       age: '',
@@ -99,44 +101,45 @@ const ManagePets: React.FC = () => {
   const handleRegisterPet = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const fm = new FormData();
-      fm.append('name', formData.name);
-      fm.append('pet_type', formData.pet_type);
-      fm.append('breed', formData.breed);
-      fm.append('color', formData.color);
-      if (formData.age) fm.append('age', formData.age);
-      if (formData.gender) fm.append('gender', formData.gender);
-      if (formData.size) fm.append('size', formData.size);
-      if (formData.description) fm.append('description', formData.description);
-      if (formData.vaccination_status) fm.append('vaccination_status', formData.vaccination_status);
-      fm.append('status', formData.status);
-      if (formData.image) fm.append('image', formData.image);
+      let image_url = editingPet?.image_url || '';
+      let image_public_id = editingPet?.image_public_id || '';
+
+      if (formData.image) {
+        const uploadResult = await uploadImage(formData.image);
+        image_url = uploadResult.url;
+        image_public_id = uploadResult.public_id;
+      }
+
+      const payload = {
+        name: formData.name,
+        species: formData.species,
+        breed: formData.breed,
+        color: formData.color,
+        age: formData.age ? parseInt(formData.age) : null,
+        gender: formData.gender,
+        size: formData.size,
+        description: formData.description,
+        vaccination_status: formData.vaccination_status,
+        status: formData.status,
+        image_url,
+        image_public_id,
+      };
 
       let response: any;
       if (editingPet) {
-        // Update existing pet
-        response = await api.put(`/pets/${editingPet.id}/admin-update-pet/`, fm, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        // Update the pet in the list
+        response = await api.put(`/pets/${editingPet.id}/admin-update-pet/`, payload);
         setPets(pets.map(p => p.id === editingPet.id ? response.data.data : p));
       } else {
-        // Create new pet
-        response = await api.post('/pets/admin-register-pet/', fm, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        response = await api.post('/pets/admin-register-pet/', payload);
         setPets([...pets, response.data.data]);
       }
+
 
       setShowForm(false);
       setEditingPet(null);
       setFormData({
         name: '',
-        pet_type: '',
+        species: '',
         breed: '',
         color: '',
         age: '',
@@ -170,7 +173,7 @@ const ManagePets: React.FC = () => {
           <h2 className="text-lg font-bold text-slate-800">{editingPet ? 'Edit Pet' : 'Register a Pet for Adoption'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Pet Name" name="name" required value={formData.name} onChange={handleChange} />
-            <Input label="Pet Type (Dog, Cat...)" name="pet_type" required value={formData.pet_type} onChange={handleChange} />
+            <Input label="Species (Dog, Cat...)" name="species" required value={formData.species} onChange={handleChange} />
             <Input label="Breed" name="breed" value={formData.breed} onChange={handleChange} />
             <Input label="Color" name="color" value={formData.color} onChange={handleChange} />
             <Input label="Age" name="age" value={formData.age} onChange={handleChange} />

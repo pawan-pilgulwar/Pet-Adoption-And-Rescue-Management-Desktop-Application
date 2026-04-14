@@ -1,6 +1,7 @@
 ﻿import React, { createContext, useContext, useEffect, useState } from 'react';
 import api from '../services/api';
 import { User } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const refreshUser = async () => {
     setIsLoading(true);
@@ -61,8 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await api.post('/users/logout/');
-      setUser(null);
+      const response = await api.post('/users/logout/');
+      if (response.data.success) {
+        setUser(null);
+        navigate('/login');
+      }
     } catch (error) {
       console.error("Logout failed", error);
     }

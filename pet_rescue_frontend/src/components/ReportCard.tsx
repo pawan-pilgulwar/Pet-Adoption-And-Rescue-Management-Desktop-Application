@@ -8,11 +8,12 @@ interface ReportCardProps {
 }
 
 const ReportCard: React.FC<ReportCardProps> = ({ report, children }) => {
-  // The API returns pet data either flat or nested - handle both
-  const petName = report.pet_data?.name || report.pet_name || 'Unknown';
-  const petType = report.pet_data?.pet_type || report.pet_type || 'Unknown';
-  const petStatus = report.pet_data?.status || report.pet_status || 'Lost';
-  const petImage = report.pet_data?.image || report.pet_image;
+  // Use data from the linked pet if available, otherwise fallback to report fields
+  const petName = report.pet?.name || report.pet_name || 'Unknown';
+  const petSpecies = report.pet?.species || report.species || 'Unknown';
+  const petStatus = report.pet?.status || report.pet_status || 'Lost';
+  const petImage = report.image_url || report.pet?.image_url;
+
 
   const imageUrl = formatImageUrl(petImage, 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=800&q=70');
 
@@ -25,11 +26,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, children }) => {
           alt={petName}
           className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
-        <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${
-          petStatus === 'Found'
+        <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${petStatus === 'Found'
             ? 'bg-teal-500 text-white'
             : 'bg-orange-500 text-white'
-        }`}>
+          }`}>
           {petStatus}
         </span>
       </div>
@@ -38,20 +38,20 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, children }) => {
       <div className="p-5">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-black text-slate-800">{petName}</h3>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
-            report.status === 'Accepted'
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${report.status === 'Accepted'
               ? 'bg-teal-50 text-teal-600'
               : report.status === 'Rejected'
-              ? 'bg-red-50 text-red-600'
-              : 'bg-amber-50 text-amber-600'
-          }`}>
+                ? 'bg-red-50 text-red-600'
+                : 'bg-amber-50 text-amber-600'
+            }`}>
             {report.status}
           </span>
         </div>
 
         <p className="text-sm font-bold text-orange-600 mb-2">
-          {report.report_type} • Type: {petType}
+          {report.report_type} • Type: {petSpecies}
         </p>
+
 
         <div className="space-y-1 text-sm text-slate-500 mb-3">
           <p className="flex items-center gap-1">

@@ -8,7 +8,7 @@ interface PetCardProps {
 }
 
 const PetCard: React.FC<PetCardProps> = ({ pet, children }) => {
-  const imageUrl = formatImageUrl(pet.image);
+  const imageUrl = formatImageUrl(pet.image_url);
   const breed = pet.breed ? pet.breed : 'Unknown';
   const color = pet.color ? pet.color : 'Unknown';
 
@@ -22,9 +22,10 @@ const PetCard: React.FC<PetCardProps> = ({ pet, children }) => {
           className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
         <span className="absolute top-3 right-3 text-xs font-bold text-white bg-orange-500 px-3 py-1 rounded-full shadow-sm">
-          {pet.pet_type}
+          {pet.species}
         </span>
       </div>
+
 
       {/* Content */}
       <div className="p-5">

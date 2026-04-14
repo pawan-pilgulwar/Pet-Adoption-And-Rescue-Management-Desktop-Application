@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const uploadImage = async (file: File) => {
+export const uploadImage = async (file: File) => {
     const data = new FormData();
     data.append("file", file);
     data.append("upload_preset", `${process.env.REACT_APP_CLOUDINARY_PRESET}`);

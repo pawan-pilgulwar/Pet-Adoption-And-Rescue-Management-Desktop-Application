@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import { uploadImage } from '../utils/uploadImage';
+
 
 const CreateReport: React.FC = () => {
   const [formData, setFormData] = useState({
     pet_name: '',
-    pet_type: '',
+    species: '',
     pet_breed: '',
     pet_color: '',
     pet_age: '',
@@ -37,27 +39,36 @@ const CreateReport: React.FC = () => {
     setError('');
 
     try {
-      const fm = new FormData();
-      fm.append('report_type', formData.report_type);
-      fm.append('pet_name', formData.pet_name);
-      fm.append('pet_type', formData.pet_type);
-      fm.append('pet_breed', formData.pet_breed);
-      fm.append('pet_color', formData.pet_color);
-      if (formData.pet_age) fm.append('pet_age', formData.pet_age);
-      if (formData.pet_gender) fm.append('pet_gender', formData.pet_gender);
-      if (formData.pet_size) fm.append('pet_size', formData.pet_size);
-      fm.append('pet_status', formData.report_type);
-      fm.append('location', formData.location);
-      fm.append('description', formData.description);
+      let image_url = '';
+      let image_public_id = '';
+
       if (formData.pet_image) {
-        fm.append('pet_image', formData.pet_image);
+        const uploadResult = await uploadImage(formData.pet_image);
+        image_url = uploadResult.url;
+        image_public_id = uploadResult.public_id;
       }
 
-      await api.post('/reports/create-report/', fm, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const payload = {
+        report_type: formData.report_type,
+        location: formData.location,
+        description: formData.description,
+        pet_data: {
+          name: formData.pet_name,
+          species: formData.species,
+          breed: formData.pet_breed,
+          color: formData.pet_color,
+          age: formData.pet_age ? parseInt(formData.pet_age) : null,
+          gender: formData.pet_gender,
+          size: formData.pet_size,
+          image_url,
+          image_public_id,
+        }
+      };
+
+      await api.post('/reports/create-report/', payload);
 
       navigate('/dashboard');
+
     } catch (err: any) {
       console.error(err);
       setError('Failed to submit report. Please check your data.');
@@ -97,7 +108,7 @@ const CreateReport: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Pet Type" placeholder="Dog, Cat, etc." name="pet_type" required value={formData.pet_type} onChange={handleChange} />
+          <Input label="Species" placeholder="Dog, Cat, etc." name="species" required value={formData.species} onChange={handleChange} />
           <Input label="Breed" name="pet_breed" placeholder="Optional" value={formData.pet_breed} onChange={handleChange} />
           <Input label="Color" name="pet_color" placeholder="Optional" value={formData.pet_color} onChange={handleChange} />
           <Input label="Age" type="number" name="pet_age" placeholder="Optional" value={formData.pet_age} onChange={handleChange} />

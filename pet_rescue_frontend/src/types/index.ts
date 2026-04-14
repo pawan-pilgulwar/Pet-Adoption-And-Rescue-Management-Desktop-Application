@@ -7,13 +7,15 @@ export interface User {
   role: 'User' | 'Admin';
   phone_number?: string;
   address?: string;
-  profile_picture?: string;
+  profile_picture_url?: string;
+  profile_picture_public_id?: string;
 }
+
 
 export interface Pet {
   id: number;
   name: string;
-  pet_type: string;
+  species: string;
   breed: string;
   color: string;
   age?: number;
@@ -22,15 +24,17 @@ export interface Pet {
   description?: string;
   vaccination_status?: string;
   status: string;
-  image?: string;
+  image_url?: string;
+  image_public_id?: string;
   created_at: string;
   created_by: number;
 }
 
+
 export interface PetReportPetData {
   id?: number;
   name?: string;
-  pet_type?: string;
+  species?: string;
   breed?: string;
   color?: string;
   age?: number;
@@ -38,22 +42,25 @@ export interface PetReportPetData {
   size?: string;
   description?: string;
   status?: string;
-  image?: string | null;
+  image_url?: string | null;
+  image_public_id?: string | null;
 }
+
 
 export interface PetReport {
   id: number;
   pet_data: PetReportPetData;
   report_type: 'Lost' | 'Found';
   pet_name: string;
-  pet_type: string;
+  species: string;
   pet_breed: string;
   pet_color: string;
   pet_age?: number;
   pet_gender?: string;
   pet_size?: string;
   pet_status: 'Lost' | 'Found';
-  pet_image?: string;
+  image_url?: string;
+  image_public_id?: string;
   location: string;
   user_contact?: {
     email: string;
@@ -69,7 +76,9 @@ export interface PetReport {
   date_reported?: string;
   created_at: string;
   reviewed_at?: string;
+  pet?: Pet;
 }
+
 
 export interface Notification {
   id: number;

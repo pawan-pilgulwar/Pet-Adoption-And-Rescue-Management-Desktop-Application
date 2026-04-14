@@ -6,7 +6,7 @@ import PetCard from '../components/PetCard';
 const AdoptionPage: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchType, setSearchType] = useState('');
+  const [searchSpecies, setSearchSpecies] = useState('');
   const [searchBreed, setSearchBreed] = useState('');
   const [searchColor, setSearchColor] = useState('');
 
@@ -30,7 +30,7 @@ const AdoptionPage: React.FC = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (searchType) params.append('type', searchType);
+      if (searchSpecies) params.append('species', searchSpecies);
       if (searchBreed) params.append('breed', searchBreed);
       if (searchColor) params.append('color', searchColor);
 
@@ -44,7 +44,7 @@ const AdoptionPage: React.FC = () => {
   };
 
   const handleClear = () => {
-    setSearchType('');
+    setSearchSpecies('');
     setSearchBreed('');
     setSearchColor('');
     fetchPets();
@@ -70,9 +70,9 @@ const AdoptionPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <input
               type="text"
-              placeholder="Pet Type (Dog, Cat...)"
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
+              placeholder="Species (Dog, Cat...)"
+              value={searchSpecies}
+              onChange={(e) => setSearchSpecies(e.target.value)}
               className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
             <input

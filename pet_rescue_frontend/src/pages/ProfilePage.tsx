@@ -4,6 +4,8 @@ import api from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { formatImageUrl } from '../services/api';
+import { uploadImage } from '../utils/uploadImage';
+
 
 const ProfilePage: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -41,22 +43,30 @@ const ProfilePage: React.FC = () => {
     setSaving(true);
     setMessage('');
     try {
-      const fm = new FormData();
-      fm.append('first_name', formData.first_name);
-      fm.append('last_name', formData.last_name);
-      fm.append('phone_number', formData.phone_number);
-      fm.append('address', formData.address);
+      let profile_picture_url = user?.profile_picture_url || '';
+      let profile_picture_public_id = user?.profile_picture_public_id || '';
+
       if (formData.profile_picture) {
-        fm.append('profile_picture', formData.profile_picture);
+        const uploadResult = await uploadImage(formData.profile_picture);
+        profile_picture_url = uploadResult.url;
+        profile_picture_public_id = uploadResult.public_id;
       }
 
-      await api.patch(`/users/${user?.id}/update-user/`, fm, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const payload = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        phone_number: formData.phone_number,
+        address: formData.address,
+        profile_picture_url,
+        profile_picture_public_id,
+      };
+
+      await api.patch(`/users/${user?.id}/update-user/`, payload);
 
       await refreshUser();
       setEditMode(false);
       setMessage('Profile updated successfully!');
+
     } catch (err: any) {
       setMessage(err.response?.data?.message || 'Failed to update profile.');
     } finally {
@@ -90,8 +100,9 @@ const ProfilePage: React.FC = () => {
       <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-orange-50 mb-6">
         <div className="flex items-center gap-4 mb-6 pb-6 border-b border-orange-50">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-orange-100 border border-orange-200">
-            {user.profile_picture ? (
-              <img src={formatImageUrl(user.profile_picture)} alt="Profile" className="w-full h-full object-cover" />
+            {user.profile_picture_url ? (
+              <img src={formatImageUrl(user.profile_picture_url)} alt="Profile" className="w-full h-full object-cover" />
+
             ) : (
               <div className="w-full h-full flex items-center justify-center text-2xl font-black text-orange-600">
                 {user.first_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
@@ -110,9 +121,8 @@ const ProfilePage: React.FC = () => {
         </div>
 
         {message && (
-          <div className={`p-3 rounded-xl mb-4 text-sm font-medium ${
-            message.includes('success') ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-red-50 text-red-600 border border-red-100'
-          }`}>
+          <div className={`p-3 rounded-xl mb-4 text-sm font-medium ${message.includes('success') ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-red-50 text-red-600 border border-red-100'
+            }`}>
             {message}
           </div>
         )}
@@ -167,9 +177,8 @@ const ProfilePage: React.FC = () => {
         <h3 className="text-lg font-bold text-slate-800 mb-4">Change Password</h3>
 
         {passwordMessage && (
-          <div className={`p-3 rounded-xl mb-4 text-sm font-medium ${
-            passwordMessage.includes('success') ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-red-50 text-red-600 border border-red-100'
-          }`}>
+          <div className={`p-3 rounded-xl mb-4 text-sm font-medium ${passwordMessage.includes('success') ? 'bg-teal-50 text-teal-700 border border-teal-100' : 'bg-red-50 text-red-600 border border-red-100'
+            }`}>
             {passwordMessage}
           </div>
         )}

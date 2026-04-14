@@ -23,6 +23,8 @@ class PetReportSerializer(serializers.ModelSerializer):
             "description",
             "report_status",
             "status",
+            "image_url",
+            "image_public_id",
             "date_reported",
             "admin_comment",
             "created_at",
@@ -60,18 +62,19 @@ class PetReportCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         pet_data = validated_data.pop("pet_data")
         
-        # Create Pet instance with status corresponding to the report
+        # Create Pet instance with Cloudinary image fields
         pet = Pet.objects.create(
             name=pet_data.get("name"),
-            species=pet_data.get("species") or pet_data.get("pet_type"),
+            species=pet_data.get("species"),
             breed=pet_data.get("breed"),
             color=pet_data.get("color"),
             age=pet_data.get("age"),
             gender=pet_data.get("gender"),
             size=pet_data.get("size"),
-            image=pet_data.get("image"),
+            image_url=pet_data.get("image_url"),
+            image_public_id=pet_data.get("image_public_id"),
             created_by=validated_data.get("user"),
-            status=validated_data.get("report_type") # Link Pet status to Report type
+            status=validated_data.get("report_type")
         )
 
         report = PetReport.objects.create(
@@ -80,6 +83,8 @@ class PetReportCreateSerializer(serializers.ModelSerializer):
             report_type=validated_data.get("report_type"),
             location=validated_data.get("location"),
             description=validated_data.get("description"),
+            image_url=pet_data.get("image_url"),
+            image_public_id=pet_data.get("image_public_id"),
         )
 
         return report

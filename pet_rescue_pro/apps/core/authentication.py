@@ -7,7 +7,6 @@ class CustomJWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # 1. Try to get token from cookies first (browser requests)
         token = request.COOKIES.get('access_token')
-        print(token)
 
         # 2. If no cookie, try Authorization header (Postman / mobile apps)
         if not token:
@@ -35,5 +34,4 @@ class CustomJWTAuthentication(BaseAuthentication):
         except User.DoesNotExist:
             raise AuthenticationFailed("User not found")
         
-        user.is_authenticated = True
         return (user, token)

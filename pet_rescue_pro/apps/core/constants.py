@@ -11,6 +11,7 @@ USER_ROLE_CHOICES = [
     ("Admin", "Admin"),
     ("User", "User"),
     ("SuperAdmin", "SuperAdmin"),
+    ("ShopOwner", "ShopOwner"),
 ]
 
 ADOPTION_STATUS_CHOICES = [
@@ -25,6 +26,13 @@ REPORT_STATUS_CHOICES = [
     ("Accepted", "Accepted"),
     ("Rejected", "Rejected"),
     ("Closed", "Closed"),
+]
+
+RESCUE_STATUS_CHOICES = [
+    ("Pending", "Pending"),
+    ("Accepted", "Accepted"),
+    ("Rejected", "Rejected"),
+    ("Completed", "Completed"),
 ]
 
 NOTIFICATION_TYPE_CHOICES = [

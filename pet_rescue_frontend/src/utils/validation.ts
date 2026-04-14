@@ -25,7 +25,7 @@ export const registerSchema = z.object({
 
 export const petReportSchema = z.object({
     pet_name: z.string().min(1),
-    pet_type: z.string().min(1),
+    species: z.string().min(1),
     pet_gender: z.string().min(1),
     pet_size: z.string().min(1),
     pet_age: z.string().min(1),

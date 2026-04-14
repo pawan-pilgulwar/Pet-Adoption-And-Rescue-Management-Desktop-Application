@@ -4,6 +4,8 @@ import api from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { registerSchema } from '../utils/validation';
+import { uploadImage } from '../utils/uploadImage';
+
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -41,31 +43,40 @@ const Register: React.FC = () => {
     try {
       const result = registerSchema.safeParse(formData);
 
-      if(!result.success) {
+      if (!result.success) {
         const errors = result.error.format();
         setValidationErrors(errors);
         setError('Please fix the validation errors above.');
+        setLoading(false);
         return;
       }
 
-      const fm = new FormData();
-      fm.append('username', formData.username);
-      fm.append('email', formData.email);
-      fm.append('first_name', formData.first_name);
-      fm.append('last_name', formData.last_name);
-      fm.append('password', formData.password);
-      fm.append('phone_number', formData.phone_number);
-      fm.append('address', formData.address);
+      let profile_picture_url = '';
+      let profile_picture_public_id = '';
+
       if (formData.profile_picture) {
-        fm.append('profile_picture', formData.profile_picture);
+        const uploadResult = await uploadImage(formData.profile_picture);
+        profile_picture_url = uploadResult.url;
+        profile_picture_public_id = uploadResult.public_id;
       }
 
-      await api.post('/users/register/', fm, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        password: formData.password,
+        phone_number: formData.phone_number,
+        address: formData.address,
+        profile_picture_url,
+        profile_picture_public_id,
+      };
+
+      await api.post('/users/register/', payload);
 
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
+
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
