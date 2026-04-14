@@ -39,10 +39,22 @@ class PetReportSerializer(serializers.ModelSerializer):
         ]
 
     def get_user_contact(self, obj):
+        profile_data = {}
+        if obj.user.role == 'USER' and hasattr(obj.user, 'user_profile'):
+            profile_data = {
+                "phone": obj.user.user_profile.phone_number,
+                "address": obj.user.user_profile.address,
+            }
+        elif obj.user.role == 'SHOP_OWNER' and hasattr(obj.user, 'shop_profile'):
+            profile_data = {
+                "phone": obj.user.shop_profile.phone_number,
+                "address": obj.user.shop_profile.shop_address,
+            }
+            
         return {
             "email": obj.user.email,
-            "phone": obj.user.phone_number,
-            "address": obj.user.address,
+            "phone": profile_data.get("phone", "—"),
+            "address": profile_data.get("address", "—"),
         }
 
 class PetReportCreateSerializer(serializers.ModelSerializer):

@@ -202,7 +202,7 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     @action(detail=False, methods=['get'], url_path='admin-dashboard', permission_classes=[IsAdmin] )
     def admin_dashboard(self, request):
-        total_users = User.objects.filter(role ="User").count()
+        total_users = User.objects.filter(role ="USER").count()
         total_reports = PetReport.objects.count()
         total_pets = Pet.objects.count()
 
@@ -213,7 +213,7 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
 
         # Recent Activity
         recent_reports = PetReport.objects.order_by('-created_at')[:5]
-        recent_users = User.objects.filter(role="User").order_by('-created_at')[:5]
+        recent_users = User.objects.filter(role="USER").order_by('-created_at')[:5]
 
         # Serialization for recent items
         from apps.reports.serializer import PetReportSerializer

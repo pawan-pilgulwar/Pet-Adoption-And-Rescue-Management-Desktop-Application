@@ -13,9 +13,9 @@ import Register from './pages/Register';
 import AdoptionPage from './pages/AdoptionPage';
 import RescuePage from './pages/RescuePage';
 import AboutPage from './pages/AboutPage';
-import UserDashboard from './pages/UserDashboard';
+import Dashboard from './pages/dashboard';
+import Profile from './pages/profile';
 import CreateReport from './pages/CreateReport';
-import ProfilePage from './pages/ProfilePage';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -36,9 +36,9 @@ function App() {
             <Route path="/adoption" element={<AdoptionPage />} />
             <Route path="/rescue" element={<RescuePage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-report" element={<CreateReport />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           {/* Admin routes */}

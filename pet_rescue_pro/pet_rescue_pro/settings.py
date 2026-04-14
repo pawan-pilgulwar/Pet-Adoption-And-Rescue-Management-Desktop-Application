@@ -100,9 +100,9 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),  # Or the IP address of your PostgreSQL server
         'PORT': os.getenv('POSTGRES_PORT', '5432'),        # Or the port your PostgreSQL server is listening on
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+        # 'OPTIONS': {
+        #     'sslmode': 'require',
+        # },
     }
 }
 

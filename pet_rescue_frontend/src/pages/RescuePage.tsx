@@ -65,7 +65,7 @@ const RescuePage: React.FC = () => {
             <h1 className="text-3xl md:text-4xl font-black text-white">
               🔍 Lost & Found Pets
             </h1>
-            {user && user.role !== 'Admin' ? (
+            {user && user.role !== 'ADMIN' ? (
               <Link
                 to="/create-report"
                 className="px-4 py-2 text-sm font-bold rounded-xl bg-white text-teal-600 hover:bg-teal-100"

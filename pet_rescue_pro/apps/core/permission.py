@@ -8,3 +8,6 @@ class IsUser (BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.role == 'User'
     
+class IsShopOwner (BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.role == 'Shop_Owner'

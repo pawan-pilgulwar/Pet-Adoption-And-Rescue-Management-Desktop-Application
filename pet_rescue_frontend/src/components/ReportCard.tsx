@@ -27,8 +27,8 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, children }) => {
           className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-105"
         />
         <span className={`absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full shadow-sm ${petStatus === 'Found'
-            ? 'bg-teal-500 text-white'
-            : 'bg-orange-500 text-white'
+          ? 'bg-teal-500 text-white'
+          : 'bg-orange-500 text-white'
           }`}>
           {petStatus}
         </span>
@@ -39,10 +39,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, children }) => {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-black text-slate-800">{petName}</h3>
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${report.status === 'Accepted'
-              ? 'bg-teal-50 text-teal-600'
-              : report.status === 'Rejected'
-                ? 'bg-red-50 text-red-600'
-                : 'bg-amber-50 text-amber-600'
+            ? 'bg-teal-50 text-teal-600'
+            : report.status === 'Rejected'
+              ? 'bg-red-50 text-red-600'
+              : 'bg-amber-50 text-amber-600'
             }`}>
             {report.status}
           </span>

@@ -1,14 +1,36 @@
+export interface UserProfile {
+  address?: string;
+  phone_number?: string;
+  profile_picture_url?: string;
+  profile_picture_public_id?: string;
+}
+
+export interface ShopOwnerProfile {
+  shop_name: string;
+  shop_address: string;
+  phone_number: string;
+  shop_license: string;
+  profile_picture_url?: string;
+  profile_picture_public_id?: string;
+  address?: string;
+}
+
+export interface AdminProfile {
+  admin_level: string;
+  profile_picture_url?: string;
+  profile_picture_public_id?: string;
+  phone_number?: string;
+  address?: string;
+}
+
 export interface User {
   id: number;
   username: string;
   email: string;
   first_name: string;
   last_name: string;
-  role: 'User' | 'Admin';
-  phone_number?: string;
-  address?: string;
-  profile_picture_url?: string;
-  profile_picture_public_id?: string;
+  role: 'USER' | 'SHOP_OWNER' | 'ADMIN';
+  profile?: UserProfile | ShopOwnerProfile | AdminProfile;
 }
 
 

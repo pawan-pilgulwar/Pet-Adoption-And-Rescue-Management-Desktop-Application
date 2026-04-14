@@ -4,107 +4,131 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from apps.core.constants import USER_ROLE_CHOICES     
+from apps.core.constants import USER_ROLE_CHOICES
+from .models import User, UserProfile, ShopOwnerProfile, AdminProfile
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['address', 'phone_number', 'profile_picture_url', 'profile_picture_public_id']
+
+class ShopOwnerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShopOwnerProfile
+        fields = ['shop_name', 'shop_address', 'phone_number', 'shop_license', 'profile_picture_url', 'profile_picture_public_id']
+
+class AdminProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminProfile
+        fields = ['admin_level', 'profile_picture_url', 'profile_picture_public_id']
 
 class UserWriteSerializer(serializers.ModelSerializer):
-
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True, min_length=5)
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
+    
+    # Profile fields (flattened for easy registration)
+    address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shop_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shop_address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shop_license = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    profile_picture_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+    profile_picture_public_id = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = User
         fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "password",
-            "phone_number",
-            "address",
-            "profile_picture_url",
-            "profile_picture_public_id",
-            "role",
-            "created_at",
+            "id", "username", "first_name", "last_name", "email", 
+            "password", "role", "created_at",
+            "address", "phone_number", "shop_name", "shop_address", 
+            "shop_license", "profile_picture_url", "profile_picture_public_id"
         ]
         extra_kwargs = {
             "password": {"write_only": True},
-            "role": {"read_only": True},
             "id": {"read_only": True},
             "created_at": {"read_only": True},
-            "updated_at": {"read_only": True}
+            "shop_license": {"write_only": True},
         }
 
-
-    def validate_username(self, value):
-        if not re.match(r'^[a-zA-Z0-9_]+$', value):
-            raise serializers.ValidationError(
-                "Username can only contain letters, numbers and underscores."
-            )
-        
-        qs = User.objects.filter(username=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-
-        if qs.exists():
-            raise serializers.ValidationError("Username already exists.")
-        return value
+    def validate(self, data):
+        role = data.get("role")
+        if role == "SHOP_OWNER":
+            if not data.get("shop_name"):
+                raise serializers.ValidationError("Shop name is required for shop owners")
+            if not data.get("shop_address"):
+                raise serializers.ValidationError("Shop address is required for shop owners")
+            if not data.get("shop_license"):
+                raise serializers.ValidationError("Shop license is required for shop owners")
+        elif role == "USER":
+            if not data.get("address"):
+                raise serializers.ValidationError("Address is required for users")
+            if not data.get("phone_number"):
+                raise serializers.ValidationError("Phone number is required for users")
+        return data
     
-    def validate_email(self, value):
-        qs = User.objects.filter(email=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
 
-        if qs.exists():
-            raise serializers.ValidationError("Email already exists.")
-        return value
-
-    def validate_phone_number(self, value):
-        if value and not re.match(r'^\+?\d{10,15}$', value):
-            raise serializers.ValidationError("Phone number must be between 10 to 15 digits and can start with +")
-        
-        qs = User.objects.filter(phone_number=value)
-        if self.instance:
-            qs = qs.exclude(pk=self.instance.pk)
-
-        if qs.exists():
-            raise serializers.ValidationError("Phone number already exists.")
-        return value
-    
     def create(self, validated_data):
-        validated_data['role'] = "User"
+        # Extract profile fields
+        profile_data = {
+            'address': validated_data.pop('address', None),
+            'phone_number': validated_data.pop('phone_number', None),
+            'shop_name': validated_data.pop('shop_name', None),
+            'shop_address': validated_data.pop('shop_address', None),
+            'shop_license': validated_data.pop('shop_license', None),
+            'profile_picture_url': validated_data.pop('profile_picture_url', None),
+            'profile_picture_public_id': validated_data.pop('profile_picture_public_id', None),
+        }
+        
         validated_data['password'] = make_password(validated_data['password'])
         user = super().create(validated_data)
+        
+        # Signals will create the profile object, we just need to update it
+        if user.role == "USER":
+            profile = user.user_profile
+            profile.address = profile_data['address']
+            profile.phone_number = profile_data['phone_number']
+            profile.profile_picture_url = profile_data['profile_picture_url']
+            profile.profile_picture_public_id = profile_data['profile_picture_public_id']
+            profile.save()
+        elif user.role == "SHOP_OWNER":
+            profile = user.shop_profile
+            profile.shop_name = profile_data['shop_name']
+            profile.shop_address = profile_data['shop_address']
+            profile.phone_number = profile_data['phone_number']
+            profile.shop_license = profile_data['shop_license']
+            profile.profile_picture_url = profile_data['profile_picture_url']
+            profile.profile_picture_public_id = profile_data['profile_picture_public_id']
+            profile.save()
+        elif user.role == "ADMIN":
+            profile = user.admin_profile
+            profile.admin_level = profile_data['admin_level']
+            profile.profile_picture_url = profile_data['profile_picture_url']
+            profile.profile_picture_public_id = profile_data['profile_picture_public_id']
+            profile.save()
+            
         return user
-    
-    def update(self, instance, validated_data):
-        password = validated_data.get("password", None)
-
-        if password:
-            validated_data["password"] = make_password(password)
-
-        return super().update(instance, validated_data)
-    
-
 
 class UserReadSerializer(serializers.ModelSerializer):
+    profile = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "phone_number",
-            "address",
-            "profile_picture_url",
-            "profile_picture_public_id",
-            "role",
-            "created_at"
+            "id", "username", "first_name", "last_name", "email",
+            "role", "created_at", "profile"
         ]
+
+    def get_profile(self, obj):
+        if obj.role == "USER" and hasattr(obj, 'user_profile'):
+            return UserProfileSerializer(obj.user_profile).data
+        elif obj.role == "SHOP_OWNER" and hasattr(obj, 'shop_profile'):
+            return ShopOwnerProfileSerializer(obj.shop_profile).data
+        elif obj.role == "ADMIN" and hasattr(obj, 'admin_profile'):
+            return AdminProfileSerializer(obj.admin_profile).data
+        return None
     
 
 class LoginSerializer(serializers.Serializer):

@@ -21,7 +21,7 @@ class PetReport(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='reports', null=True, blank=True)
     
     report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES, default="Lost")
-    location = models.CharField(max_length=200)
+    location = models.CharField(max_length=200, default="")
     description = models.TextField(blank=True, null=True)
     report_status = models.CharField(max_length=20, choices=REPORT_STATUS_CHOICES, default="Pending")
     

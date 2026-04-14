@@ -78,7 +78,7 @@ const ManageUsers: React.FC = () => {
                   <td className="px-6 py-4 text-sm text-slate-600">{u.email}</td>
                   <td className="px-6 py-4 hidden md:table-cell">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                      u.role === 'Admin'
+                      u.role === 'ADMIN'
                         ? 'bg-orange-100 text-orange-700'
                         : 'bg-slate-100 text-slate-600'
                     }`}>

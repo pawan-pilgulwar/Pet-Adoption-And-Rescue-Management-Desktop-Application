@@ -1,4 +1,3 @@
-import { use } from "react";
 import { z } from "zod";
 
 export const loginSchema = z.object({
@@ -8,7 +7,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = z.object({
     email: z.string().email().regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid email format"),
-    username: z.string().min(1),
+    username: z.string().min(5),
     first_name: z.string().min(3),
     last_name: z.string().min(3),
     password: z.string()

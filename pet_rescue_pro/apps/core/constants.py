@@ -8,10 +8,9 @@ PET_STATUS_CHOICES = [
 ]
 
 USER_ROLE_CHOICES = [
-    ("Admin", "Admin"),
-    ("User", "User"),
-    ("SuperAdmin", "SuperAdmin"),
-    ("ShopOwner", "ShopOwner"),
+    ("USER", "User"),
+    ("SHOP_OWNER", "ShopOwner"),
+    ("ADMIN", "Admin"),
 ]
 
 ADOPTION_STATUS_CHOICES = [

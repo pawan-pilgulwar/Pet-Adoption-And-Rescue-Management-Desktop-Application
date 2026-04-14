@@ -1,7 +1,24 @@
 from django.contrib import admin
-from .models import User
+from .models import User, UserProfile, ShopOwnerProfile, AdminProfile
+from django.utils.html import format_html
 from django.contrib.auth.hashers import make_password
 
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'User Profile'
+
+class ShopOwnerProfileInline(admin.StackedInline):
+    model = ShopOwnerProfile
+    can_delete = False
+    verbose_name_plural = 'Shop Owner Profile'
+
+class AdminProfileInline(admin.StackedInline):
+    model = AdminProfile
+    can_delete = False
+    verbose_name_plural = 'Admin Profile'
 
 # Register your models here.
 @admin.register(User)
@@ -15,8 +32,6 @@ class UserAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
         "role",
-        "phone_number",
-        "image_preview",
         "created_at",
         "is_superuser",
         "is_staff",
@@ -27,7 +42,6 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = (
         "username",
         "email",
-        "phone_number",
     )
 
     # Filter sidebar
@@ -50,13 +64,12 @@ class UserAdmin(admin.ModelAdmin):
         ("Personal Info", {
             "fields": ("first_name", "last_name", "email")
         }),
-        ("Contact Info", {
-            "fields": ("phone_number", "address", "profile_picture_url", "profile_picture_public_id")
-        }),
         ("Role & Meta", {
             "fields": ("role", "created_at")
         }),
     )
+
+    inlines = [UserProfileInline, ShopOwnerProfileInline, AdminProfileInline]
 
     def image_preview(self, obj):
         if obj.profile_picture_url:

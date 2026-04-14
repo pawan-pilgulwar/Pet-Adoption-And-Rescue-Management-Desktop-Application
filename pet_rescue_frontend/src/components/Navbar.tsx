@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
             <NavLink to="/adoption" className={navLinkClass}>Adoption</NavLink>
             <NavLink to="/rescue" className={navLinkClass}>Rescue</NavLink>
             <NavLink to="/about" className={navLinkClass}>About</NavLink>
-            {user && user.role === 'Admin' && (
+            {user && user.role === 'ADMIN' && (
               <NavLink to="/admin" className={navLinkClass}>Admin</NavLink>
             )}
           </nav>
@@ -184,8 +184,8 @@ const Navbar: React.FC = () => {
                   className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-orange-50 transition-all border border-transparent hover:border-orange-100"
                 >
                   <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-black overflow-hidden border-2 border-white shadow-sm">
-                    {user.profile_picture_url ? (
-                      <img src={formatImageUrl(user.profile_picture_url)} alt="" className="w-full h-full object-cover" />
+                    {user.profile?.profile_picture_url ? (
+                      <img src={formatImageUrl(user.profile.profile_picture_url)} alt="" className="w-full h-full object-cover" />
                     ) : (
                       user.first_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()
                     )}
@@ -258,7 +258,7 @@ const Navbar: React.FC = () => {
             <NavLink to="/adoption" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>Adoption</NavLink>
             <NavLink to="/rescue" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>Rescue</NavLink>
             <NavLink to="/about" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>About</NavLink>
-            {user && user.role === 'Admin' && (
+            {user && user.role === 'ADMIN' && (
               <NavLink to="/admin" className={navLinkClass} onClick={() => setMobileMenuOpen(false)}>Admin Panel</NavLink>
             )}
             <div className="pt-2 border-t border-orange-50 mt-2">

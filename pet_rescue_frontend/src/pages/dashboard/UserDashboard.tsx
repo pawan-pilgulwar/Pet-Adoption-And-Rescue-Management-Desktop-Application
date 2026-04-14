@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import { PetReport } from '../types';
-import ReportCard from '../components/ReportCard';
-import Button from '../components/Button';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import { PetReport } from '../../types';
+import ReportCard from '../../components/ReportCard';
+import Button from '../../components/Button';
+import { useAuth } from '../../context/AuthContext';
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth();
   const [reports, setReports] = useState<PetReport[]>([]);
   const [loading, setLoading] = useState(true);
+
+  if (!user || user.role !== 'USER') return null;
 
   useEffect(() => {
     fetchMyReports();
@@ -43,8 +45,12 @@ const UserDashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 md:p-8 rounded-2xl shadow-md mb-8 text-white">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black">Welcome back, {user?.first_name}! 👋</h1>
-            <p className="text-white/80 mt-1">Manage your pet reports and profile from here.</p>
+            <h1 className="text-2xl font-black">
+              Welcome back, {user.first_name}! 👋
+            </h1>
+            <p className="text-white/80 mt-1">
+              Manage your pet reports and profile from here.
+            </p>
           </div>
           <div className="flex gap-3">
             <Link to="/create-report">

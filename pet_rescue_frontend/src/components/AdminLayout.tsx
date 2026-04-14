@@ -18,7 +18,7 @@ const AdminLayout: React.FC = () => {
     );
   }
 
-  if (!user || user.role !== 'Admin') {
+  if (!user || user.role !== 'ADMIN') {
     return <Navigate to="/" replace />;
   }
 
