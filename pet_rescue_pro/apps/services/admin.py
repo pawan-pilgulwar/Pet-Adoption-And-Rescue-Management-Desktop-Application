@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, Booking
+from .models import Service, Booking, Schedule
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):

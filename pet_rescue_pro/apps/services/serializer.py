@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Service, Booking
+from .models import Service, Booking, Schedule
 from apps.users.models import User
 
 class ServiceSerializer(serializers.ModelSerializer):
