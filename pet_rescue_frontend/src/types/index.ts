@@ -33,9 +33,9 @@ export interface User {
   profile?: UserProfile | ShopOwnerProfile | AdminProfile;
 }
 
-
 export interface Pet {
   id: number;
+  pet_id: string;
   name: string;
   species: string;
   breed: string;
@@ -45,62 +45,72 @@ export interface Pet {
   size?: string;
   description?: string;
   vaccination_status?: string;
-  status: string;
   image_url?: string;
   image_public_id?: string;
   created_at: string;
   created_by: number;
 }
 
-
-export interface PetReportPetData {
-  id?: number;
-  name?: string;
-  species?: string;
-  breed?: string;
-  color?: string;
-  age?: number;
-  gender?: string;
-  size?: string;
-  description?: string;
-  status?: string;
-  image_url?: string | null;
-  image_public_id?: string | null;
+export interface AdoptionListing {
+  id: number;
+  pet: number;
+  pet_detail: Pet;
+  shop_owner: number;
+  shop_detail: string;
+  price: string;
+  is_available: boolean;
+  created_at: string;
 }
 
-
-export interface PetReport {
+export interface AdoptionRequest {
   id: number;
-  pet_data: PetReportPetData;
+  user: number;
+  user_detail: string;
+  pet: number;
+  pet_detail: Pet;
+  listing: number;
+  listing_detail?: AdoptionListing;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  request_details: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Report {
+  id: number;
+  rescue_id: string;
+  user: number;
+  user_detail: string;
+  pet: number;
+  pet_detail: Pet;
   report_type: 'Lost' | 'Found';
-  pet_name: string;
-  species: string;
-  pet_breed: string;
-  pet_color: string;
-  pet_age?: number;
-  pet_gender?: string;
-  pet_size?: string;
-  pet_status: 'Lost' | 'Found';
+  location: string;
+  description: string;
+  is_verified: boolean;
+  status: string;
   image_url?: string;
   image_public_id?: string;
-  location: string;
   user_contact?: {
     email: string;
-    phone?: string;
-    address?: string;
+    phone: string;
+    address: string;
   };
-  description: string;
-  report_status: 'Pending' | 'Accepted' | 'Rejected' | 'Closed';
-  status: 'Pending' | 'Accepted' | 'Rejected' | 'Closed';
-  admin_comment?: string;
-  user: number;
-  user_detail?: string;
-  date_reported?: string;
   created_at: string;
-  reviewed_at?: string;
-  pet?: Pet;
+  updated_at: string;
+  admin_comment?: string;
 }
 
+export interface RescueRequest {
+  id: number;
+  report: number;
+  report_detail: Report;
+  user: number;
+  user_detail: string;
+  status: string;
+  message: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Notification {
   id: number;

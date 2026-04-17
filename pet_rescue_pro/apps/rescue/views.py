@@ -1,77 +1,79 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .models import Report, RescueRequest
+from .serializer import ReportSerializer, ReportCreateSerializer, RescueRequestSerializer
 from apps.core.mixins import ResponseMixin
-from .models import RescueRequest
-from .serializer import RescueRequestSerializer
-from apps.core.permission import IsAdmin, IsUser
+from apps.core.permission import IsAdmin
 from apps.notifications.models import Notification
-from apps.users.models import User
 
-class RescueRequestViewSet(ResponseMixin, viewsets.ModelViewSet):
+class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
+    queryset = Report.objects.all()
+    serializer_class = ReportSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return ReportCreateSerializer
+        return ReportSerializer
+
+    def get_queryset(self):
+        queryset = Report.objects.all()
+        if self.action == 'list':
+            # Public list only shows verified reports
+            return queryset.filter(is_verified=True)
+        
+        user = self.request.user
+        if not user.is_authenticated:
+            return queryset.filter(is_verified=True)
+            
+        if user.role == 'ADMIN':
+            return queryset
+        return queryset.filter(user=user)
+
+    @action(detail=False, methods=['get'], url_path='search', permission_classes=[AllowAny])
+    def search(self, request):
+        queryset = Report.objects.filter(is_verified=True)
+        species = request.query_params.get('species')
+        breed = request.query_params.get('breed')
+        location = request.query_params.get('location')
+        
+        if species:
+            queryset = queryset.filter(pet__species__icontains=species)
+        if breed:
+            queryset = queryset.filter(pet__breed__icontains=breed)
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+            
+        serializer = self.get_serializer(queryset, many=True)
+        return self.success_response(data=serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='verify', permission_classes=[IsAdmin])
+    def verify(self, request, pk=None):
+        report = self.get_object()
+        report.is_verified = True
+        report.status = 'Accepted'
+        report.save()
+        
+        Notification.objects.create(
+            user=report.user,
+            title="Report Verified",
+            message=f"Your report for {report.pet.name if report.pet else 'a pet'} has been verified.",
+            notification_type="Report_Status"
+        )
+        
+        return self.success_response(message="Report verified successfully")
+
+class RescueRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
     queryset = RescueRequest.objects.all()
     serializer_class = RescueRequestSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve', 'create']:
-            return [IsAuthenticated()]
-        return [IsAuthenticated(), IsAdmin()]
-
     def get_queryset(self):
-        if self.request.user.is_staff:
+        user = self.request.user
+        if user.role == 'ADMIN':
             return RescueRequest.objects.all()
-        return RescueRequest.objects.filter(user=self.request.user)
+        return RescueRequest.objects.filter(user=user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-    @action(detail=False, methods=['get'], url_path='my-requests', permission_classes=[IsAuthenticated])
-    def my_requests(self, request, *args, **kwargs):
-        queryset = self.get_queryset().filter(user=request.user)
-        serializer = self.get_serializer(queryset, many=True)
-        return self.success_response(
-            message="Your rescue requests fetched successfully",
-            status_code=status.HTTP_200_OK
-        )
-
-    # ---------------    Admin Views     -----------------------    
-
-    @action(detail=True, methods=['post'], url_path='accept-request', permission_classes=[IsAuthenticated, IsAdmin])
-    def accept(self, request, pk=None):
-        rescue_request = self.get_object()
-        rescue_request.status = 'Accepted'
-        rescue_request.save()
-
-        # Create Notification
-        Notification.objects.create(
-            user=rescue_request.user,
-            title="Rescue Request Accepted",
-            message=f"Your rescue request for {rescue_request.pet.name} has been accepted.",
-            notification_type="Rescue"
-        )
-
-        return self.success_response(
-            message="Rescue request accepted successfully",
-            data=self.get_serializer(rescue_request).data
-        )
-
-    @action(detail=True, methods=['post'], url_path='reject-request', permission_classes=[IsAuthenticated, IsAdmin])
-    def reject(self, request, pk=None):
-        rescue_request = self.get_object()
-        rescue_request.status = 'Rejected'
-        rescue_request.save()
-
-        # Create Notification
-        Notification.objects.create(
-            user=rescue_request.user,
-            title="Rescue Request Rejected",
-            message=f"Your rescue request for {rescue_request.pet.name} has been rejected.",
-            notification_type="Rescue"
-        )
-
-        return self.success_response(
-            message="Rescue request rejected successfully",
-            data=self.get_serializer(rescue_request).data
-        )

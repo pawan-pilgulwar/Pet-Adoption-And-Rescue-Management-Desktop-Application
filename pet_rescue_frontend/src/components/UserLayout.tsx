@@ -4,7 +4,7 @@ import Footer from './Footer';
 import { Outlet } from 'react-router-dom';
 
 const UserLayout: React.FC = () => (
-  <div className="min-h-screen bg-cream flex flex-col font-nunito">
+  <div className="min-h-screen bg-[#fffbf5] flex flex-col">
     <Navbar />
     <main className="flex-1">
       <Outlet />

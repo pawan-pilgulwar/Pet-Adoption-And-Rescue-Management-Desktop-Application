@@ -11,6 +11,8 @@ def generate_pet_id():
 class Pet(models.Model):
     pet_id = models.CharField(max_length=20, unique=True, editable=False)
 
+    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='pets_owned')
+
     name = models.CharField(max_length=100)
     species = models.CharField(max_length=50)  
     breed = models.CharField(max_length=50, blank=True, null=True)
@@ -21,14 +23,13 @@ class Pet(models.Model):
     description = models.TextField(blank=True, null=True)
 
     vaccination_status = models.CharField(max_length=50, blank=True, null=True)
-    status = models.CharField(max_length=20, choices=PET_STATUS_CHOICES, default="Available")
     
     image_url = models.URLField(blank=True, null=True)
     image_public_id = models.CharField(max_length=255, blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='pets')
+    created_by = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='pets_created')
 
     def save(self, *args, **kwargs):
         if not self.pet_id:

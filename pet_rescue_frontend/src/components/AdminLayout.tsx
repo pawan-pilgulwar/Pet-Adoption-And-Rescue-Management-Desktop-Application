@@ -23,11 +23,11 @@ const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col font-nunito text-slate-800">
+    <div className="min-h-screen bg-[#fffbf5] flex flex-col text-slate-800">
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <AdminSidebar />
-        <main className="flex-1 p-6 md:p-10 overflow-y-auto bg-orange-50/30 rounded-tl-3xl shadow-inner mt-1 ml-1">
+        <main className="flex-1 p-5 md:p-8 overflow-y-auto bg-orange-50/30">
           <Outlet />
         </main>
       </div>

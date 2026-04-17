@@ -11,7 +11,6 @@ class PetAdmin(admin.ModelAdmin):
         "species",
         "color",
         "breed",
-        "status",
         "image_preview",
         "created_by",
         "created_at",
@@ -28,6 +27,6 @@ class PetAdmin(admin.ModelAdmin):
     image_preview.short_description = "Image"
 
     search_fields = ("pet_id", "name", "breed", "color")
-    list_filter = ("species", "breed", "status")
+    list_filter = ("species", "breed")
     ordering = ("-id",)
     readonly_fields = ("pet_id", "created_at", "updated_at")

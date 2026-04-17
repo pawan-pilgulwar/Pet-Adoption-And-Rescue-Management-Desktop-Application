@@ -1,57 +1,88 @@
 import React from 'react';
 import { Pet } from '../types';
 import { formatImageUrl } from '../services/api';
+import { Link } from 'react-router-dom';
 
 interface PetCardProps {
   pet: Pet;
+  listingId?: number;
+  price?: string;
   children?: React.ReactNode;
 }
 
-const PetCard: React.FC<PetCardProps> = ({ pet, children }) => {
+const PetCard: React.FC<PetCardProps> = ({ pet, listingId, price, children }) => {
   const imageUrl = formatImageUrl(pet.image_url);
-  const breed = pet.breed ? pet.breed : 'Unknown';
-  const color = pet.color ? pet.color : 'Unknown';
+  const breed = pet.breed || 'Unknown';
 
   return (
-    <article className="bg-white rounded-2xl overflow-hidden shadow-md border border-orange-50 card-hover">
+    <article className="bg-white rounded-2xl overflow-hidden border border-orange-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl shadow-sm flex flex-col h-full">
       {/* Image */}
-      <div className="relative h-64 overflow-hidden bg-slate-50 flex items-center justify-center p-2">
+      <div className="relative h-52 overflow-hidden bg-orange-50">
         <img
           src={imageUrl}
           alt={pet.name}
-          className="max-h-full max-w-full object-contain transition-transform duration-500 hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
-        <span className="absolute top-3 right-3 text-xs font-bold text-white bg-orange-500 px-3 py-1 rounded-full shadow-sm">
-          {pet.species}
-        </span>
+        <div className="absolute top-3 left-3 flex gap-1.5">
+          <span className="text-[10px] font-bold uppercase text-white bg-orange-500 px-2.5 py-1 rounded-full shadow-sm">
+            {pet.species}
+          </span>
+          {price && (
+            <span className="text-[10px] font-bold uppercase text-white bg-emerald-500 px-2.5 py-1 rounded-full shadow-sm">
+              ${price}
+            </span>
+          )}
+        </div>
+        {pet.vaccination_status && (
+          <div className="absolute top-3 right-3">
+            <span className="text-[10px] font-bold bg-white text-teal-600 px-2 py-1 rounded-full shadow-sm border border-teal-100">
+              ✓ Vaccinated
+            </span>
+          </div>
+        )}
       </div>
 
-
       {/* Content */}
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-black text-slate-800">{pet.name}</h3>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-            pet.status === 'Available'
-              ? 'bg-teal-50 text-teal-600'
-              : 'bg-slate-100 text-slate-500'
-          }`}>
-            {pet.status}
-          </span>
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="flex items-start justify-between mb-3">
+          <h3 className="text-lg font-bold text-slate-900">{pet.name}</h3>
+          {listingId && (
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+              Available
+            </span>
+          )}
         </div>
-        <p className="text-sm text-slate-500 mb-2">
-          Breed: {breed} • Color: {color} • Age: {pet.age ?? '—'}
-        </p>
-        <p className="text-sm text-slate-500 mb-2">
-          Gender: {pet.gender || '—'} • Size: {pet.size || '—'}
-        </p>
-        {pet.vaccination_status && (
-          <p className="text-sm text-emerald-600 mb-2">Vaccination: {pet.vaccination_status}</p>
-        )}
+
+        <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className="text-orange-400">🧬</span> {breed}
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className="text-orange-400">📅</span> {pet.age ?? '—'} yrs
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className="text-orange-400">🚻</span> {pet.gender || '—'}
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className="text-orange-400">📏</span> {pet.size || '—'}
+          </div>
+        </div>
+
         {pet.description && (
-          <p className="text-sm text-slate-400 mb-3 line-clamp-2">{pet.description}</p>
+          <p className="text-xs text-slate-400 mb-4 line-clamp-2 leading-relaxed">{pet.description}</p>
         )}
-        <div className="space-y-2">{children}</div>
+
+        <div className="mt-auto pt-3 border-t border-orange-50 flex flex-col gap-2">
+          {listingId && (
+            <Link
+              to={`/adoption/request/${listingId}`}
+              className="w-full py-2.5 bg-orange-500 text-white text-center font-semibold rounded-xl hover:bg-orange-600 transition-colors text-sm"
+            >
+              Request Adoption
+            </Link>
+          )}
+          {children}
+        </div>
       </div>
     </article>
   );

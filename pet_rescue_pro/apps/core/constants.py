@@ -14,6 +14,11 @@ USER_ROLE_CHOICES = [
 ]
 
 ADOPTION_STATUS_CHOICES = [
+    ("Available", "Available"),
+    ("Not Available", "Not Available"),
+]
+
+ADOPTION_REQUEST_STATUS_CHOICES = [
     ("Pending", "Pending"),
     ("Approved", "Approved"),
     ("Rejected", "Rejected"),
@@ -27,7 +32,7 @@ REPORT_STATUS_CHOICES = [
     ("Closed", "Closed"),
 ]
 
-RESCUE_STATUS_CHOICES = [
+RESCUE_REQUEST_STATUS_CHOICES = [
     ("Pending", "Pending"),
     ("Accepted", "Accepted"),
     ("Rejected", "Rejected"),

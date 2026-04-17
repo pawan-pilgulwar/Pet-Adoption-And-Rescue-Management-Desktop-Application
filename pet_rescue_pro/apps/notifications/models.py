@@ -1,7 +1,7 @@
 from django.db import models
 from apps.users.models import User
 from apps.pets.models import Pet
-from apps.reports.models import PetReport
+from apps.rescue.models import Report
 from apps.core.constants import NOTIFICATION_TYPE_CHOICES
 
 # Create your models here.
@@ -9,7 +9,7 @@ from apps.core.constants import NOTIFICATION_TYPE_CHOICES
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE, null=True, blank=True)
-    report = models.ForeignKey(PetReport, on_delete=models.CASCADE, null=True, blank=True)
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
     notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPE_CHOICES)
     title = models.CharField(max_length=100)
     message = models.CharField(max_length=255)

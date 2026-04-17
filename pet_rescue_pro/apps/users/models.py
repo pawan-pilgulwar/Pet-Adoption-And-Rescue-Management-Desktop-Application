@@ -48,8 +48,10 @@ class User(AbstractUser):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-
-        return self.username
+        if self.role == "SHOP_OWNER":
+            return self.shop_profile.shop_name
+        else:
+            return self.username
 
     class Meta:
         db_table = 'user'

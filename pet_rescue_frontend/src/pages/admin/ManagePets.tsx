@@ -4,30 +4,21 @@ import { Pet } from '../../types';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import PetCard from '../../components/PetCard';
-import { useAuth } from '../../context/AuthContext';
 import { uploadImage } from '../../utils/uploadImage';
 
-
 const ManagePets: React.FC = () => {
-  const { user } = useAuth();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    species: '',
-    breed: '',
-    color: '',
-    age: '',
-    gender: '',
-    size: '',
-    description: '',
-    vaccination_status: '',
-    status: 'Available',
+  const emptyForm = {
+    name: '', species: '', breed: '', color: '', age: '',
+    gender: '', size: '', description: '', vaccination_status: '',
     image: null as File | null,
-  });
+  };
+
+  const [formData, setFormData] = useState(emptyForm);
 
   useEffect(() => {
     fetchPets();
@@ -57,36 +48,18 @@ const ManagePets: React.FC = () => {
   const handleEditPet = (pet: Pet) => {
     setEditingPet(pet);
     setFormData({
-      name: pet.name,
-      species: pet.species,
-      breed: pet.breed || '',
-      color: pet.color || '',
-      age: pet.age?.toString() || '',
-      gender: pet.gender || '',
-      size: pet.size || '',
-      description: pet.description || '',
-      vaccination_status: pet.vaccination_status || '',
-      status: pet.status,
-      image: null, // Keep null for edit, as image might not change
+      name: pet.name, species: pet.species, breed: pet.breed || '',
+      color: pet.color || '', age: pet.age?.toString() || '',
+      gender: pet.gender || '', size: pet.size || '',
+      description: pet.description || '', vaccination_status: pet.vaccination_status || '',
+      image: null,
     });
     setShowForm(true);
   };
 
   const handleCancelEdit = () => {
     setEditingPet(null);
-    setFormData({
-      name: '',
-      species: '',
-      breed: '',
-      color: '',
-      age: '',
-      gender: '',
-      size: '',
-      description: '',
-      vaccination_status: '',
-      status: 'Available',
-      image: null,
-    });
+    setFormData(emptyForm);
     setShowForm(false);
   };
 
@@ -111,18 +84,10 @@ const ManagePets: React.FC = () => {
       }
 
       const payload = {
-        name: formData.name,
-        species: formData.species,
-        breed: formData.breed,
-        color: formData.color,
-        age: formData.age ? parseInt(formData.age) : null,
-        gender: formData.gender,
-        size: formData.size,
-        description: formData.description,
-        vaccination_status: formData.vaccination_status,
-        status: formData.status,
-        image_url,
-        image_public_id,
+        name: formData.name, species: formData.species, breed: formData.breed,
+        color: formData.color, age: formData.age ? parseInt(formData.age) : null,
+        gender: formData.gender, size: formData.size, description: formData.description,
+        vaccination_status: formData.vaccination_status, image_url, image_public_id,
       };
 
       let response: any;
@@ -134,22 +99,9 @@ const ManagePets: React.FC = () => {
         setPets([...pets, response.data.data]);
       }
 
-
       setShowForm(false);
       setEditingPet(null);
-      setFormData({
-        name: '',
-        species: '',
-        breed: '',
-        color: '',
-        age: '',
-        gender: '',
-        size: '',
-        description: '',
-        vaccination_status: '',
-        status: 'Available',
-        image: null,
-      });
+      setFormData(emptyForm);
     } catch (error) {
       console.error('Failed to save pet:', error);
       alert('Error saving pet.');
@@ -158,10 +110,10 @@ const ManagePets: React.FC = () => {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-800">🐕 Manage Pets</h1>
-          <p className="text-slate-500 mt-1">Register and manage pets for adoption.</p>
+          <h1 className="text-2xl font-black text-slate-900">Manage Pets</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Register and manage pets for adoption.</p>
         </div>
         <Button onClick={() => editingPet ? handleCancelEdit() : setShowForm(!showForm)}>
           {showForm ? '✕ Cancel' : '+ Add New Pet'}
@@ -169,8 +121,8 @@ const ManagePets: React.FC = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleRegisterPet} className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 mb-8 space-y-4 animate-fade-in">
-          <h2 className="text-lg font-bold text-slate-800">{editingPet ? 'Edit Pet' : 'Register a Pet for Adoption'}</h2>
+        <form onSubmit={handleRegisterPet} className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm mb-6 space-y-4 animate-fade-in">
+          <h2 className="text-base font-bold text-slate-800">{editingPet ? 'Edit Pet' : 'Register a Pet for Adoption'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input label="Pet Name" name="name" required value={formData.name} onChange={handleChange} />
             <Input label="Species (Dog, Cat...)" name="species" required value={formData.species} onChange={handleChange} />
@@ -189,24 +141,24 @@ const ManagePets: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-16">
-          <span className="text-4xl animate-float inline-block">🐾</span>
-          <p className="mt-4 text-slate-500 font-bold">Loading pets...</p>
+          <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p className="text-slate-400 text-sm">Loading pets...</p>
         </div>
       ) : pets.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-orange-50">
-          <span className="text-4xl">🐕</span>
-          <p className="mt-4 text-slate-500 font-bold">No pets found in the system.</p>
+        <div className="text-center py-16 bg-white rounded-2xl border border-orange-100">
+          <span className="text-4xl block mb-3">🐕</span>
+          <p className="text-slate-500 text-sm font-medium">No pets found in the system.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
           {pets.map((pet) => (
             <PetCard key={pet.id} pet={pet}>
               <div className="flex gap-2">
                 <Button className="flex-1" variant="secondary" onClick={() => handleEditPet(pet)}>
-                  Edit Pet
+                  Edit
                 </Button>
                 <Button className="flex-1" variant="danger" onClick={() => handleDeletePet(pet.id)}>
-                  Remove Pet
+                  Delete
                 </Button>
               </div>
             </PetCard>

@@ -38,6 +38,14 @@ export const petReportSchema = z.object({
     user_contact: z.string().min(1),
 });
 
+export const rescueRequestSchema = z.object({
+    pet_id: z.string().min(1),
+    user_id: z.string().min(1),
+    status: z.string().min(1),
+    reason: z.string().min(1),
+    additional_info: z.string().min(1),
+});
+
 export const adoptionApplicationSchema = z.object({
     pet_id: z.string().min(1),
     user_id: z.string().min(1),
@@ -46,7 +54,7 @@ export const adoptionApplicationSchema = z.object({
     additional_info: z.string().min(1),
 });
 
-export const rescueRequestSchema = z.object({
+export const adoptionRequestSchema = z.object({
     pet_id: z.string().min(1),
     user_id: z.string().min(1),
     status: z.string().min(1),

@@ -11,20 +11,15 @@ from apps.notifications.models import Notification
 from apps.users.models import User
 
 class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = Pet.objects.all().exclude(Q(status='Found') | Q(status='Lost'))
+    queryset = Pet.objects.all()
     serializer_class = PetSerializer
 
     @action(detail=False, methods=['get'], url_path='all-pets', permission_classes=[IsAuthenticated])
     def get_all_pets(self, request, *args, **kwargs):
-        status_param = request.query_params.get('status')
-        # Unified filter: show pets marked Available OR pets from Accepted reports
-        queryset = Pet.objects.filter(
-            Q(status='Available') | Q(reports__status='Accepted')
-        ).distinct()
+        # This endpoint now returns all pets. 
+        # Adoption-specific filtering should be done via /api/v1/adoption/listings/
+        queryset = Pet.objects.all()
         
-        if status_param:
-            queryset = queryset.filter(status=status_param)
-            
         serializer = self.serializer_class(queryset, many=True)
         return self.success_response(
             data={
@@ -43,36 +38,6 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
             data=serializer.data,
             message="Pet fetched successfully",
             status_code = status.HTTP_200_OK
-        )
-
-    @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])
-    def search_pets(self, request, *args, **kwargs):
-        queryset = self.get_queryset().filter(status='Available')
-        
-        # Get query params
-        species = request.query_params.get('species')
-        breed = request.query_params.get('breed')
-        color = request.query_params.get('color')
-
-        # Apply filters dynamically
-        if species:
-            queryset = queryset.filter(species__icontains=species)
-
-        if breed:
-            queryset = queryset.filter(breed__icontains=breed)
-
-        if color:
-            queryset = queryset.filter(color__icontains=color)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return self.success_response(
-            data={
-                "Count": queryset.count(),
-                "Pets": serializer.data
-            },
-            message="Pets fetched successfully",
-            status_code=status.HTTP_200_OK
         )
 
     # ---------------    Admin Views     -----------------------
@@ -94,15 +59,15 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
     def register_pet(self, request, *args, **kwrags):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception = True)
-        pet = serializer.save()
+        pet = serializer.save(created_by=request.user)
 
-        users = User.objects.filter(role="User")
+        users = User.objects.filter(role="USER")
         for user in users:
             Notification.objects.create(
                 user=user,
                 notification_type="Pet_Registration",
                 title="New Pet Registered",
-                message=f"New pet registered by {pet.created_by.username} for {pet.name}",
+                message=f"New pet registered: {pet.name}",
                 pet=pet
             )
 

@@ -26,131 +26,98 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const statCards = [
-    {
-      label: 'Total Users',
-      value: stats.total_users,
-      icon: '👥',
-      color: 'from-orange-500 to-amber-500',
-      bgLight: 'bg-orange-50',
-    },
-    {
-      label: 'Pets for Adoption',
-      value: stats.total_pets,
-      icon: '🐕',
-      color: 'from-teal-500 to-emerald-500',
-      bgLight: 'bg-teal-50',
-    },
-    {
-      label: 'Community Reports',
-      value: stats.total_reports,
-      icon: '📋',
-      color: 'from-purple-500 to-indigo-500',
-      bgLight: 'bg-purple-50',
-    },
-  ];
-
   return (
-    <div className="space-y-8 animate-fade-in group">
-      <div>
-        <h1 className="text-3xl font-black text-slate-800 mb-2 group-hover:text-orange-500 transition-colors">Admin Analysis Dashboard</h1>
-        <p className="text-slate-500">Comprehensive overview of platform activity and rescue metrics.</p>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900">Dashboard Overview</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Platform-wide analytics and metrics.</p>
+        </div>
+        <span className="hidden md:block bg-orange-500 text-white px-4 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-orange-500/20">
+          Administrator
+        </span>
       </div>
 
       {loading ? (
-        <div className="text-center py-16">
-          <span className="text-4xl animate-float inline-block">📊</span>
-          <p className="mt-4 text-slate-500 font-bold">Fetching latest analytics...</p>
+        <div className="text-center py-20">
+          <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-slate-400 text-sm">Loading analytics...</p>
         </div>
       ) : (
         <>
-          {/* Main Stat Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {statCards.map((card) => (
-              <div
-                key={card.label}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 card-hover group/card"
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 ${card.bgLight} rounded-2xl flex items-center justify-center text-2xl group-hover/card:scale-110 transition-transform`}>
-                    {card.icon}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-400">{card.label}</p>
-                    <p className={`text-3xl font-black bg-gradient-to-r ${card.color} bg-clip-text text-transparent`}>
-                      {card.value}
-                    </p>
-                  </div>
+          {/* Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { label: 'Platform Users', value: stats.total_users, icon: '👥', bg: 'bg-orange-50', text: 'text-orange-500' },
+              { label: 'Active Pets', value: stats.total_pets, icon: '🐕', bg: 'bg-teal-50', text: 'text-teal-500' },
+              { label: 'Total Reports', value: stats.total_reports, icon: '📋', bg: 'bg-purple-50', text: 'text-purple-500' },
+            ].map((card) => (
+              <div key={card.label} className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex items-center gap-5">
+                <div className={`w-12 h-12 ${card.bg} rounded-xl flex items-center justify-center text-2xl`}>
+                  {card.icon}
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 font-medium">{card.label}</p>
+                  <p className={`text-3xl font-black ${card.text}`}>{card.value}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Report Status Distribution */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 relative overflow-hidden">
-              {/* Decorative Background */}
-              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-50 rounded-full blur-3xl opacity-50"></div>
-
-              <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2 relative z-10">
-                <span className="p-2 bg-orange-100 rounded-lg text-lg">📊</span> Rescue Report Distribution
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Report Status */}
+            <div className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm">
+              <h2 className="font-bold text-slate-900 mb-5 flex items-center gap-2">
+                <span className="w-7 h-7 bg-orange-50 text-orange-500 rounded-lg flex items-center justify-center text-sm">📊</span>
+                Report Status
               </h2>
-              <div className="space-y-4 relative z-10">
+              <div className="space-y-4">
                 {[
-                  { label: 'Accepted Reports', value: stats.report_stats.accepted, color: 'bg-teal-500', text: 'text-teal-600', percentage: stats.total_reports > 0 ? (stats.report_stats.accepted / stats.total_reports) * 100 : 0 },
-                  { label: 'Pending Review', value: stats.report_stats.pending, color: 'bg-amber-500', text: 'text-amber-600', percentage: stats.total_reports > 0 ? (stats.report_stats.pending / stats.total_reports) * 100 : 0 },
-                  { label: 'Rejected/Closed', value: stats.report_stats.rejected, color: 'bg-red-500', text: 'text-red-600', percentage: stats.total_reports > 0 ? (stats.report_stats.rejected / stats.total_reports) * 100 : 0 },
-                ].map((item) => (
-                  <div key={item.label} className="p-4 rounded-xl border border-slate-50 bg-slate-50/30 backdrop-blur-sm">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-slate-600">{item.label}</span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-sm font-black ${item.text}`}>{item.value}</span>
-                        <span className="text-[10px] text-slate-400 font-bold bg-white px-1.5 py-0.5 rounded border border-slate-100">
-                          {Math.round(item.percentage)}%
-                        </span>
+                  { label: 'Accepted', value: stats.report_stats.accepted, color: 'bg-emerald-500', text: 'text-emerald-600' },
+                  { label: 'Pending', value: stats.report_stats.pending, color: 'bg-amber-400', text: 'text-amber-600' },
+                  { label: 'Rejected', value: stats.report_stats.rejected, color: 'bg-slate-300', text: 'text-slate-500' },
+                ].map((item) => {
+                  const pct = stats.total_reports > 0 ? (item.value / stats.total_reports) * 100 : 0;
+                  return (
+                    <div key={item.label}>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-sm font-medium text-slate-600">{item.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${item.text}`}>{item.value}</span>
+                          <span className="text-[10px] text-slate-400">{Math.round(pct)}%</span>
+                        </div>
+                      </div>
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full ${item.color} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }}></div>
                       </div>
                     </div>
-                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                      <div
-                        className={`h-full ${item.color} transition-all duration-1000 ease-out`}
-                        style={{ width: `${item.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
-            {/* Recent Users List */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50">
-              <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
-                <span className="p-2 bg-blue-100 rounded-lg text-lg">👋</span> New Registered Members
+            {/* Recent Users */}
+            <div className="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm">
+              <h2 className="font-bold text-slate-900 mb-5 flex items-center gap-2">
+                <span className="w-7 h-7 bg-orange-50 text-orange-500 rounded-lg flex items-center justify-center text-sm">👋</span>
+                New Members
               </h2>
               <div className="space-y-3">
                 {stats.recent_activity.users.length === 0 ? (
-                  <div className="text-center py-10">
-                    <p className="text-slate-400 font-medium italic">No recent registrations found.</p>
-                  </div>
+                  <div className="text-center py-10 text-slate-400 text-sm">No recent users</div>
                 ) : (
                   stats.recent_activity.users.map((u: any) => (
-                    <div key={u.id} className="group/user flex items-center justify-between p-3 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/50 transition-all">
+                    <div key={u.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-orange-50 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-sm border-2 border-white shadow-sm transition-transform group-hover/user:rotate-12">
+                        <div className="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">
                           {u.first_name?.[0]?.toUpperCase() || u.username[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-800 leading-none mb-1">
-                            {u.first_name || u.username} {u.last_name || ''}
-                          </p>
-                          <p className="text-xs text-slate-400">{u.email}</p>
+                          <p className="font-semibold text-slate-900 text-sm leading-none">{u.first_name || u.username} {u.last_name || ''}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{u.email}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
-                          {new Date(u.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
+                      <span className="text-[10px] text-slate-400">{new Date(u.created_at).toLocaleDateString()}</span>
                     </div>
                   ))
                 )}
@@ -158,52 +125,48 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Activity Logs Table */}
-          <div className="bg-white rounded-2xl shadow-sm border border-orange-50 overflow-hidden">
-            <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                <span className="p-2 bg-indigo-100 rounded-lg text-lg">📜</span> Platform Activity Logs
+          {/* Activity Logs */}
+          <div className="bg-white rounded-2xl border border-orange-100 shadow-sm overflow-hidden">
+            <div className="p-5 border-b border-orange-50 flex justify-between items-center">
+              <h2 className="font-bold text-slate-900 flex items-center gap-2">
+                <span className="w-7 h-7 bg-orange-500 text-white rounded-lg flex items-center justify-center text-sm">📜</span>
+                Recent Reports
               </h2>
-              <span className="text-[10px] font-black bg-white px-3 py-1 rounded-full border border-slate-100 text-slate-400 uppercase tracking-widest">
-                Real-time
-              </span>
+              <span className="text-[10px] font-bold bg-orange-50 text-orange-500 px-3 py-1 rounded-full">Live</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white">
-                    <th className="py-4 px-6 border-b border-slate-100">Rescue Entry</th>
-                    <th className="py-4 px-6 border-b border-slate-100">Category</th>
-                    <th className="py-4 px-6 border-b border-slate-100">Location</th>
-                    <th className="py-4 px-6 border-b border-slate-100 text-right">Status</th>
+                  <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50">
+                    <th className="py-3 px-5 border-b border-slate-100">Pet</th>
+                    <th className="py-3 px-5 border-b border-slate-100">Type</th>
+                    <th className="py-3 px-5 border-b border-slate-100 hidden md:table-cell">Location</th>
+                    <th className="py-3 px-5 border-b border-slate-100 text-right">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {stats.recent_activity.reports.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-20 text-center text-slate-300 font-medium italic">No recent platform activity to display.</td>
+                      <td colSpan={4} className="py-12 text-center text-slate-400 text-sm">No recent activity</td>
                     </tr>
                   ) : (
                     stats.recent_activity.reports.map((r: any) => (
-                      <tr key={r.id} className="hover:bg-slate-50/30 transition-colors group/row">
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-slate-800 group-hover/row:text-orange-600 transition-colors">{r.pet_name}</span>
-                            <span className="text-[10px] text-slate-400">{new Date(r.created_at).toLocaleDateString()}</span>
-                          </div>
+                      <tr key={r.id} className="hover:bg-orange-50/30 transition-colors">
+                        <td className="py-3.5 px-5">
+                          <p className="font-semibold text-slate-900 text-sm">{r.pet_detail?.name}</p>
+                          <p className="text-[10px] text-slate-400">{new Date(r.created_at).toLocaleDateString()}</p>
                         </td>
-                        <td className="py-4 px-6">
-                          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{r.species}</span>
+                        <td className="py-3.5 px-5">
+                          <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">{r.pet_detail?.species}</span>
                         </td>
-                        <td className="py-4 px-6 text-sm text-slate-500 font-medium">
-                          {r.location}
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${r.status === 'Accepted' ? 'bg-teal-50 text-teal-600 border-teal-100' :
-                              r.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-100' :
-                                'bg-amber-50 text-amber-600 border-amber-100'
-                            }`}>
-                            {r.status.toUpperCase()}
+                        <td className="py-3.5 px-5 text-sm text-slate-500 hidden md:table-cell">{r.location}</td>
+                        <td className="py-3.5 px-5 text-right">
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                            r.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600' :
+                            r.status === 'Rejected' ? 'bg-slate-100 text-slate-500' :
+                            'bg-amber-50 text-amber-600'
+                          }`}>
+                            {r.status}
                           </span>
                         </td>
                       </tr>
@@ -211,9 +174,6 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </tbody>
               </table>
-            </div>
-            <div className="p-4 bg-slate-50/30 text-center border-t border-slate-50">
-              <p className="text-xs text-slate-400 font-bold">Showing the 5 most recent platform events</p>
             </div>
           </div>
         </>

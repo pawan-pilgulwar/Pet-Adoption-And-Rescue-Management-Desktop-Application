@@ -50,12 +50,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'apps.users',
     'apps.pets',
-    'apps.adoption',
     'apps.core',
-    'apps.reports',
     'apps.notifications',
+    'apps.services',
+    'apps.adoption',
     'apps.rescue',
-    'apps.medical',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +68,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'pet_rescue_pro.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -86,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'pet_rescue_pro.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database

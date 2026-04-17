@@ -99,28 +99,28 @@ const Register: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-teal-50 p-8 border border-teal-200 rounded-2xl text-center shadow-sm">
+      <div className="paw-bg min-h-[80vh] flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-emerald-50 p-8 border border-emerald-200 rounded-2xl text-center shadow-sm">
           <span className="text-4xl">✅</span>
-          <h2 className="text-2xl font-black text-teal-700 mt-3 mb-2">Registration Successful!</h2>
-          <p className="text-teal-600">You will be redirected to the login page shortly...</p>
+          <h2 className="text-2xl font-black text-emerald-700 mt-3 mb-2">Registration Successful!</h2>
+          <p className="text-emerald-600 text-sm">You will be redirected to the login page shortly...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div className="paw-bg min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-3xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="text-4xl">🐾</span>
-          <h1 className="text-3xl font-black text-slate-800 mt-3">Create an Account</h1>
-          <p className="text-slate-500 mt-2">Join the PawPal community today</p>
+          <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-orange-500/20">🐾</div>
+          <h1 className="text-2xl font-black text-slate-900">Create an Account</h1>
+          <p className="text-slate-500 text-sm mt-1">Join the PawPal community today</p>
         </div>
 
         {/* Form card */}
-        <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-orange-50">
+        <div className="bg-white p-7 md:p-10 rounded-2xl shadow-sm border border-orange-100">
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm font-medium border border-red-100 animate-in shake">
               {error}

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
-import { PetReport } from '../../types';
+import { Report } from '../../types';
 import ReportCard from '../../components/ReportCard';
 import Button from '../../components/Button';
 
 const ManageReports: React.FC = () => {
-  const [reports, setReports] = useState<PetReport[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,8 +14,8 @@ const ManageReports: React.FC = () => {
 
   const fetchReports = async () => {
     try {
-      const response = await api.get('/reports/admin-get-all/');
-      setReports(response.data.data.Reports);
+      const response = await api.get('/rescue/reports/');
+      setReports(response.data.data);
     } catch (error) {
       console.error('Error fetching admin reports:', error);
     } finally {
@@ -29,10 +29,11 @@ const ManageReports: React.FC = () => {
         ? prompt("Enter rejection reason (optional):") || ""
         : "Approved by administrator.";
 
-      await api.patch(`/reports/${id}/admin-update-report/`, {
-        status: newStatus,
-        admin_comment: comment
-      });
+      if (newStatus === 'Accepted') {
+        await api.post(`/rescue/reports/${id}/verify/`);
+      } else {
+        await api.patch(`/rescue/reports/${id}/`, { status: newStatus, admin_comment: comment });
+      }
 
       setReports(reports.map(r =>
         r.id === id ? { ...r, status: newStatus as any, admin_comment: comment } : r
@@ -45,23 +46,23 @@ const ManageReports: React.FC = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-slate-800">📋 Manage Reports</h1>
-        <p className="text-slate-500 mt-1">Review and manage community rescue reports.</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-black text-slate-900">Manage Reports</h1>
+        <p className="text-slate-500 text-sm mt-0.5">Review and manage community rescue reports.</p>
       </div>
 
       {loading ? (
         <div className="text-center py-16">
-          <span className="text-4xl animate-float inline-block">📋</span>
-          <p className="mt-4 text-slate-500 font-bold">Loading reports...</p>
+          <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p className="text-slate-400 text-sm">Loading reports...</p>
         </div>
       ) : reports.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-orange-50">
-          <span className="text-4xl">📋</span>
-          <p className="mt-4 text-slate-500 font-bold">No reports found.</p>
+        <div className="text-center py-16 bg-white rounded-2xl border border-orange-100">
+          <span className="text-4xl block mb-3">📋</span>
+          <p className="text-slate-500 text-sm font-medium">No reports found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {reports.map((report) => (
             <ReportCard key={report.id} report={report}>
               {report.status === 'Pending' ? (
@@ -74,8 +75,8 @@ const ManageReports: React.FC = () => {
                   </Button>
                 </>
               ) : (
-                <div className="w-full text-center text-sm font-bold py-2.5 rounded-xl bg-slate-50 text-slate-500 border border-slate-100">
-                  {report.status} {report.admin_comment && ` — ${report.admin_comment}`}
+                <div className="w-full text-center text-xs font-medium py-2 rounded-lg bg-slate-50 text-slate-500">
+                  {report.status}{report.admin_comment ? ` — ${report.admin_comment}` : ''}
                 </div>
               )}
             </ReportCard>

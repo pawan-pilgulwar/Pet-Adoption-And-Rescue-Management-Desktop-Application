@@ -10,7 +10,7 @@ from apps.core.mixins import ResponseMixin
 from .models import User
 from .serializer import UserWriteSerializer, LoginSerializer, UserReadSerializer
 from apps.core.permission import IsAdmin
-from apps.reports.models import PetReport
+from apps.rescue.models import Report
 from apps.pets.models import Pet 
 
 # Create your views here.
@@ -203,23 +203,23 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
     @action(detail=False, methods=['get'], url_path='admin-dashboard', permission_classes=[IsAdmin] )
     def admin_dashboard(self, request):
         total_users = User.objects.filter(role ="USER").count()
-        total_reports = PetReport.objects.count()
+        total_reports = Report.objects.count()
         total_pets = Pet.objects.count()
 
         # Detailed Stats
-        pending_reports = PetReport.objects.filter(status="Pending").count()
-        accepted_reports = PetReport.objects.filter(status="Accepted").count()
-        rejected_reports = PetReport.objects.filter(status="Rejected").count()
+        pending_reports = Report.objects.filter(status="Pending").count()
+        accepted_reports = Report.objects.filter(status="Accepted").count()
+        rejected_reports = Report.objects.filter(status="Rejected").count()
 
         # Recent Activity
-        recent_reports = PetReport.objects.order_by('-created_at')[:5]
+        recent_reports = Report.objects.order_by('-created_at')[:5]
         recent_users = User.objects.filter(role="USER").order_by('-created_at')[:5]
 
         # Serialization for recent items
-        from apps.reports.serializer import PetReportSerializer
+        from apps.rescue.serializer import ReportSerializer
         from .serializer import UserReadSerializer
 
-        report_serializer = PetReportSerializer(recent_reports, many=True, context={'request': request})
+        report_serializer = ReportSerializer(recent_reports, many=True, context={'request': request})
         user_serializer = UserReadSerializer(recent_users, many=True, context={'request': request})
 
         data = {

@@ -23,10 +23,10 @@ const Login: React.FC = () => {
 
     if (!res.success) {
       const validationErrors = res.error.format();
-      setError(validationErrors.email? validationErrors.email._errors[0] 
-        : validationErrors.password 
-        ? validationErrors.password._errors[0] 
-        : 'Invalid input'
+      setError(
+        validationErrors.email ? validationErrors.email._errors[0]
+          : validationErrors.password ? validationErrors.password._errors[0]
+          : 'Invalid input'
       );
       setLoading(false);
       return;
@@ -43,19 +43,21 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 paw-bg">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="text-4xl">🐾</span>
-          <h1 className="text-3xl font-black text-slate-800 mt-3">Welcome Back</h1>
-          <p className="text-slate-500 mt-2">Sign in to your PawPal account</p>
+          <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-orange-500/20">
+            🐾
+          </div>
+          <h1 className="text-2xl font-black text-slate-900">Welcome Back</h1>
+          <p className="text-slate-500 text-sm mt-1">Sign in to your PawPal account</p>
         </div>
 
         {/* Form card */}
-        <div className="bg-white p-8 rounded-2xl shadow-md border border-orange-50">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-orange-100">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm font-medium border border-red-100">
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-5 text-sm font-medium border border-red-100">
               {error}
             </div>
           )}
@@ -85,7 +87,7 @@ const Login: React.FC = () => {
 
           <p className="text-center text-sm text-slate-500 mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-orange-600 font-bold hover:underline">
+            <Link to="/register" className="text-orange-500 font-semibold hover:underline">
               Sign Up
             </Link>
           </p>

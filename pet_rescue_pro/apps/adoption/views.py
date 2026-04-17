@@ -1,55 +1,103 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-
-from .models import AdoptionRequest
-from .serializer import AdoptionRequestSerializer
+from .models import Adoption, AdoptionListing, AdoptionRequest
+from .serializer import AdoptionSerializer, AdoptionListingSerializer, AdoptionRequestSerializer
 from apps.core.mixins import ResponseMixin
-from apps.core.permission import IsAdmin
+from apps.core.permission import IsAdmin, IsShopOwner
 from apps.notifications.models import Notification
+
+class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
+    queryset = AdoptionListing.objects.all()
+    serializer_class = AdoptionListingSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [IsAuthenticated]
+        return [IsAuthenticated & (IsAdmin | IsShopOwner)]
+
+    def perform_create(self, serializer):
+        serializer.save(shop_owner=self.request.user)
+
+    def get_queryset(self):
+        queryset = AdoptionListing.objects.all()
+        if self.action == 'list':
+            queryset = queryset.filter(is_available=True)
+            
+            # Simple filters
+            species = self.request.query_params.get('species')
+            breed = self.request.query_params.get('breed')
+            if species:
+                queryset = queryset.filter(pet__species__icontains=species)
+            if breed:
+                queryset = queryset.filter(pet__breed__icontains=breed)
+        return queryset
+    
+    @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])
+    def search(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        species = request.query_params.get('species')
+        breed = request.query_params.get('breed')
+        location = request.query_params.get('location')
+        
+        if species:
+            queryset = queryset.filter(pet__species__icontains=species)
+        if breed:
+            queryset = queryset.filter(pet__breed__icontains=breed)
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+            
+        serializer = self.get_serializer(queryset, many=True)
+        return self.success_response(data=serializer.data)
 
 class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
     queryset = AdoptionRequest.objects.all()
     serializer_class = AdoptionRequestSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve', 'create']:
-            return [IsAuthenticated()]
-        return [IsAuthenticated(), IsAdmin()]
+        if self.action == 'accept' or self.action == 'reject':
+            return [IsAuthenticated & IsShopOwner]
+        return [IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.is_staff:
+        user = self.request.user
+        if user.role == 'ADMIN':
             return AdoptionRequest.objects.all()
-        return AdoptionRequest.objects.filter(user=self.request.user)
+        if user.role == 'SHOP_OWNER':
+            return AdoptionRequest.objects.filter(listing__shop_owner=user)
+        return AdoptionRequest.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user) 
+        serializer.save(user=self.request.user)
 
-    @action(detail=False, methods=['get'], url_path='my-requests', permission_classes=[IsAuthenticated])
-    def my_requests(self, request, *args, **kwargs):
-        queryset = self.get_queryset().filter(user=request.user)
-        serializer = self.get_serializer(queryset, many=True)
-        return self.success_response(
-            data=serializer.data,
-            message="Your adoption requests fetched successfully",
-            status_code=status.HTTP_200_OK
-        )
-    
-
-    # ---------------    Admin Views     -----------------------
-    
-    @action(detail=True, methods=['post'], url_path='accept-request', permission_classes=[IsAuthenticated, IsAdmin])
+    @action(detail=True, methods=['patch'], url_path='accept-request')
     def accept(self, request, pk=None):
         adoption_request = self.get_object()
-        adoption_request.status = 'Accepted'
+        if adoption_request.status == 'Approved':
+            return self.error_response(message="This request is already approved")
+
+        adoption_request.status = 'Approved'
         adoption_request.save()
+
+        # Update Listing
+        if adoption_request.listing:
+            adoption_request.listing.is_available = False
+            adoption_request.listing.save()
+
+        # Create Final Adoption Record
+        Adoption.objects.create(
+            user=adoption_request.user,
+            pet=adoption_request.pet,
+            shop_owner=adoption_request.listing.shop_owner if adoption_request.listing else adoption_request.pet.created_by,
+            price=adoption_request.listing.price if adoption_request.listing else 0.00,
+        )
 
         # Create Notification
         Notification.objects.create(
             user=adoption_request.user,
             title="Adoption Request Accepted",
             message=f"Your adoption request for {adoption_request.pet.name} has been accepted.",
-            notification_type="Adoption"
+            notification_type="Adoption_Status"
         )
 
         return self.success_response(
@@ -57,7 +105,7 @@ class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
             data=self.get_serializer(adoption_request).data
         )
 
-    @action(detail=True, methods=['post'], url_path='reject-request', permission_classes=[IsAuthenticated, IsAdmin])
+    @action(detail=True, methods=['post'], url_path='reject-request')
     def reject(self, request, pk=None):
         adoption_request = self.get_object()
         adoption_request.status = 'Rejected'
@@ -68,7 +116,7 @@ class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
             user=adoption_request.user,
             title="Adoption Request Rejected",
             message=f"Your adoption request for {adoption_request.pet.name} has been rejected.",
-            notification_type="Adoption"
+            notification_type="Adoption_Status"
         )
 
         return self.success_response(
@@ -76,26 +124,17 @@ class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
             data=self.get_serializer(adoption_request).data
         )
 
-    @action(detail=True, methods=['patch'], url_path='admin-update-status', permission_classes=[IsAuthenticated, IsAdmin])
-    def update_status(self, request, *args, **kwargs):
-        instance = self.get_object()
-        new_status = request.data.get("status")
-        
-        if not new_status:
-            return self.error_response(message="Status is required", status_code=status.HTTP_400_BAD_REQUEST)
-            
-        instance.status = new_status
-        instance.save()
+class AdoptionViewSet(viewsets.ModelViewSet, ResponseMixin):
+    queryset = Adoption.objects.all()
+    serializer_class = AdoptionSerializer
 
-        Notification.objects.create(
-            user=instance.user,
-            notification_type="Adoption_Status",
-            title="Adoption Request Updated",
-            message=f"Your adoption request for {instance.pet.name} has been {new_status}.",
-            pet=instance.pet
-        )
+    def get_permissions(self):
+        return [IsAuthenticated()]
 
-        return self.success_response(
-            message=f"Adoption status updated to {new_status}",
-            status_code=status.HTTP_200_OK
-        )
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'ADMIN':
+            return Adoption.objects.all()
+        if user.role == 'SHOP_OWNER':
+            return Adoption.objects.filter(shop_owner=user)
+        return Adoption.objects.filter(user=user)

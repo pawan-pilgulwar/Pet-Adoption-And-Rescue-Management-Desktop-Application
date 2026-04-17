@@ -2,12 +2,12 @@ from rest_framework import serializers
 from .models import Notification
 from apps.users.serializer import UserReadSerializer
 from apps.pets.serializer import PetSerializer
-from apps.reports.serializer import PetReportSerializer
+from apps.rescue.serializer import ReportSerializer
 
 class NotificationSerializer(serializers.ModelSerializer):
     user = UserReadSerializer(read_only=True)
     pet = PetSerializer(read_only=True)
-    report = PetReportSerializer(read_only=True)
+    report = ReportSerializer(read_only=True)
     
     class Meta:
         model = Notification

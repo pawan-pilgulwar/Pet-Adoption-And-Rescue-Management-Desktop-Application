@@ -13,227 +13,229 @@ const Home: React.FC = () => {
     const fetchFeatured = async () => {
       try {
         const res = await api.get('/pets/all-pets/');
-        // Show first 3 pets as featured
         setFeaturedPets((res.data.data.Pets || []).slice(0, 3));
       } catch (err) {
-        // User might not be logged in, that's okay
+        // Guest users won't see featured pets
       }
     };
-    if (user) {
-      fetchFeatured();
-    }
+    if (user) fetchFeatured();
   }, [user]);
 
   return (
-    <div>
-      {/* ===== Hero Section ===== */}
-      <section className="relative bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 text-8xl">🐾</div>
-          <div className="absolute top-32 right-20 text-6xl">🐕</div>
-          <div className="absolute bottom-20 left-1/3 text-7xl">🐈</div>
-          <div className="absolute bottom-10 right-10 text-5xl">🐾</div>
+    <div className="paw-bg min-h-screen">
+      {/* Hero Section */}
+      <section className="relative min-h-[88vh] flex items-center overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&q=80&w=2000"
+            alt="Hero"
+            className="w-full h-full object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-              Find Your Perfect
-              <br />
-              <span className="text-amber-200">Furry Companion</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
+          <div className="max-w-xl animate-slide-up">
+            <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-semibold px-4 py-2 rounded-full mb-6">
+              <span>🐾</span> Trusted Pet Care Platform
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black text-white leading-[1.1] mb-5">
+              Every Pet Deserves<br />
+              <span className="text-orange-400">A Loving Home</span>
             </h1>
-            <p className="text-lg text-white/90 mb-8 leading-relaxed max-w-lg">
-              Adopt a loving pet or help reunite lost animals with their families.
-              Every pet deserves a happy home.
+            <p className="text-lg text-slate-300 mb-8 leading-relaxed">
+              Adopt, rescue, and care for pets with our all-in-one platform. Professional services, smart matching, and a community that cares.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link
-                to="/adoption"
-                className="px-8 py-3.5 bg-white text-orange-600 font-bold rounded-full hover:bg-orange-50 transition-all shadow-lg shadow-black/10 text-sm"
-              >
-                🐾 Adopt a Pet
+              <Link to="/adoption" className="px-7 py-3.5 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/30 text-sm">
+                Adopt a Pet
               </Link>
-              <Link
-                to={user ? '/create-report' : '/login'}
-                className="px-8 py-3.5 bg-white/20 text-white font-bold rounded-full hover:bg-white/30 transition-all border border-white/30 text-sm"
-              >
-                📢 Report a Pet
+              <Link to="/rescue" className="px-7 py-3.5 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all text-sm">
+                Report Lost Pet
               </Link>
+            </div>
+
+            {/* Quick stats */}
+            <div className="flex flex-wrap gap-6 mt-10 pt-8 border-t border-white/10">
+              {[
+                { val: '5k+', label: 'Happy Pets' },
+                { val: '120+', label: 'Adoptions' },
+                { val: '50+', label: 'Experts' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="text-2xl font-black text-white">{s.val}</div>
+                  <div className="text-xs text-slate-400 font-medium">{s.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 60L1440 60L1440 30C1440 30 1200 0 720 0C240 0 0 30 0 30L0 60Z" fill="#FFFBF5" />
-          </svg>
+        {/* Floating card */}
+        <div className="absolute bottom-8 right-8 hidden lg:block animate-float">
+          <div className="bg-white rounded-2xl p-4 shadow-2xl flex items-center gap-3 max-w-xs">
+            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-2xl">🐶</div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium">New arrival</p>
+              <p className="text-sm font-bold text-slate-800">Buddy is looking for a home!</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ===== Features Section ===== */}
-      <section className="section-padding bg-cream">
+      {/* Services Section */}
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-3">
-              How We <span className="text-orange-500">Help</span>
-            </h2>
-            <p className="text-slate-500 max-w-lg mx-auto">
-              Our platform connects pet lovers with animals in need through these key features.
-            </p>
+            <span className="text-orange-500 font-semibold text-sm uppercase tracking-wider">What We Offer</span>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mt-2 mb-3">Professional Pet Services</h2>
+            <p className="text-slate-500 max-w-md mx-auto text-sm">From grooming to veterinary care, we've got everything your pet needs.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Feature 1 */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 text-center card-hover">
-              <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-                🏠
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: 'Grooming', icon: '🛁', desc: 'Professional styling and grooming for your furry friends.', color: 'bg-orange-50 border-orange-100' },
+              { title: 'Veterinary', icon: '🩺', desc: 'Expert medical care and regular checkups for pet wellness.', color: 'bg-teal-50 border-teal-100' },
+              { title: 'Adoption', icon: '🏠', desc: 'Find and adopt the perfect companion for your home.', color: 'bg-amber-50 border-amber-100' },
+            ].map((s) => (
+              <div key={s.title} className={`p-8 rounded-2xl border ${s.color} hover:shadow-lg transition-all duration-300 group`}>
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">{s.icon}</div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">{s.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-4">{s.desc}</p>
+                <Link to="/services" className="text-orange-500 font-semibold text-sm hover:text-orange-600 transition-colors">
+                  Learn more →
+                </Link>
               </div>
-              <h3 className="font-bold text-slate-800 mb-2">Pet Adoption</h3>
-              <p className="text-sm text-slate-500">
-                Browse available pets and find your perfect companion to bring home.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 text-center card-hover">
-              <div className="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-                🔍
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Lost & Found</h3>
-              <p className="text-sm text-slate-500">
-                Report lost or found pets and help reunite them with their families.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 text-center card-hover">
-              <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-                🤝
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Smart Matching</h3>
-              <p className="text-sm text-slate-500">
-                Our system automatically matches lost pets with found reports.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-50 text-center card-hover">
-              <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
-                🔔
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Notifications</h3>
-              <p className="text-sm text-slate-500">
-                Get notified about new pets, report updates, and potential matches.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===== Featured Pets Section ===== */}
-      {user && featuredPets.length > 0 && (
-        <section className="section-padding bg-orange-50/50">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-3xl font-black text-slate-800">
-                  Featured <span className="text-orange-500">Pets</span>
-                </h2>
-                <p className="text-slate-500 mt-1">Meet some of the amazing pets looking for a home</p>
+      {/* How It Works */}
+      <section className="py-20 px-4 bg-orange-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-orange-500 font-semibold text-sm uppercase tracking-wider">Simple Process</span>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mt-2 mb-3">How It Works</h2>
+            <p className="text-slate-500 max-w-md mx-auto text-sm">Getting started is easy. Follow these simple steps.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { step: '01', title: 'Create Account', desc: 'Sign up as a pet owner or shop owner in minutes.', icon: '👤' },
+              { step: '02', title: 'Browse Pets', desc: 'Explore available pets for adoption from verified shops.', icon: '🔍' },
+              { step: '03', title: 'Request Adoption', desc: 'Submit an adoption request for your chosen pet.', icon: '📝' },
+              { step: '04', title: 'Welcome Home', desc: 'Get approved and bring your new companion home!', icon: '🏠' },
+            ].map((item, i) => (
+              <div key={item.step} className="relative">
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-orange-200 z-0" style={{ width: 'calc(100% - 2rem)', left: '50%' }}></div>
+                )}
+                <div className="bg-white rounded-2xl p-6 border border-orange-100 text-center relative z-10 hover:shadow-md transition-all">
+                  <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-md shadow-orange-500/20">
+                    {item.icon}
+                  </div>
+                  <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest">{item.step}</span>
+                  <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">{item.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                </div>
               </div>
-              <Link
-                to="/adoption"
-                className="hidden sm:inline-flex items-center gap-1 text-sm font-bold text-orange-600 hover:text-orange-700"
-              >
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-14">
+          <div className="lg:w-1/2 relative">
+            <div className="rounded-2xl overflow-hidden shadow-xl">
+              <img
+                src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=1000"
+                alt="About PawPal"
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="absolute -bottom-4 -right-4 bg-orange-500 text-white rounded-2xl p-5 shadow-xl hidden md:block">
+              <p className="text-3xl font-black">10+</p>
+              <p className="text-xs font-medium text-orange-100">Years of Care</p>
+            </div>
+          </div>
+          <div className="lg:w-1/2">
+            <span className="text-orange-500 font-semibold text-sm uppercase tracking-wider">About PawPal</span>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mt-2 mb-4 leading-tight">
+              We Care For Every Pet Like Our Own
+            </h2>
+            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+              PawPal is a pet adoption and rescue management platform built to bridge the gap between pets in need and loving families. Our smart matching system connects lost and found reports automatically.
+            </p>
+            <ul className="space-y-3 mb-8">
+              {['Professional Veterinary Surgeons', 'Smart Lost & Found Matching', 'Verified Pet Shop Network'].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-slate-700">
+                  <span className="w-5 h-5 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/about" className="inline-block px-7 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-all text-sm">
+              Learn More About Us
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Pets */}
+      {featuredPets.length > 0 && (
+        <section className="py-20 px-4 bg-orange-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <span className="text-orange-500 font-semibold text-sm uppercase tracking-wider">New Members</span>
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mt-1">Featured Pets</h2>
+              </div>
+              <Link to="/adoption" className="hidden md:block px-5 py-2.5 bg-white border border-orange-200 text-slate-700 font-semibold rounded-xl hover:bg-orange-50 transition-all text-sm">
                 View All →
               </Link>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredPets.map((pet) => (
                 <PetCard key={pet.id} pet={pet} />
               ))}
             </div>
-
-            <div className="sm:hidden text-center mt-6">
-              <Link
-                to="/adoption"
-                className="text-sm font-bold text-orange-600 hover:text-orange-700"
-              >
-                View All Pets →
-              </Link>
-            </div>
           </div>
         </section>
       )}
 
-      {/* ===== How It Works ===== */}
-      <section className="section-padding bg-cream">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-slate-800 mb-3">
-              How It <span className="text-orange-500">Works</span>
-            </h2>
-            <p className="text-slate-500 max-w-lg mx-auto">
-              Getting started is easy — just follow these three simple steps.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black shadow-lg shadow-orange-500/30">
-                1
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Create an Account</h3>
-              <p className="text-sm text-slate-500">
-                Sign up for free and join our community of pet lovers.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-amber-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black shadow-lg shadow-amber-500/30">
-                2
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Browse or Report</h3>
-              <p className="text-sm text-slate-500">
-                Browse available pets for adoption or report a lost/found pet.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black shadow-lg shadow-teal-500/30">
-                3
-              </div>
-              <h3 className="font-bold text-slate-800 mb-2">Connect & Adopt</h3>
-              <p className="text-sm text-slate-500">
-                Get matched with the perfect pet or reunite lost pets with owners.
-              </p>
-            </div>
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-slate-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 text-9xl">🐾</div>
+          <div className="absolute bottom-10 right-10 text-9xl">🐾</div>
+        </div>
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h2 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">
+            Ready to Find Your<br />
+            <span className="text-orange-400">Perfect Companion?</span>
+          </h2>
+          <p className="text-slate-400 text-sm mb-8 max-w-xl mx-auto leading-relaxed">
+            Join thousands of happy pet owners. Whether you're looking to adopt or need professional care, we're here for you.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {!user ? (
+              <Link to="/register" className="px-8 py-3.5 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/30 text-sm">
+                Get Started Free
+              </Link>
+            ) : (
+              <Link to="/adoption" className="px-8 py-3.5 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/30 text-sm">
+                Browse Pets
+              </Link>
+            )}
+            <Link to="/services" className="px-8 py-3.5 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all text-sm">
+              Our Services
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* ===== CTA Section ===== */}
-      {!user && (
-        <section className="bg-gradient-to-r from-slate-800 to-slate-900 text-white section-padding">
-          <div className="max-w-7xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-black mb-4">
-              Ready to Make a <span className="text-orange-400">Difference</span>?
-            </h2>
-            <p className="text-slate-300 mb-8 max-w-lg mx-auto">
-              Join thousands of pet lovers who are helping animals find their forever homes.
-            </p>
-            <Link
-              to="/register"
-              className="inline-block px-8 py-3.5 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/30 text-sm"
-            >
-              Get Started — It's Free
-            </Link>
-          </div>
-        </section>
-      )}
     </div>
   );
 };

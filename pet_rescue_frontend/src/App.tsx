@@ -16,6 +16,8 @@ import AboutPage from './pages/AboutPage';
 import Dashboard from './pages/dashboard';
 import Profile from './pages/profile';
 import CreateReport from './pages/CreateReport';
+import ServicesPage from './pages/ServicesPage';
+import BookingPage from './pages/BookingPage';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -39,6 +41,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-report" element={<CreateReport />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/booking" element={<BookingPage />} />
           </Route>
 
           {/* Admin routes */}

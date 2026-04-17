@@ -25,8 +25,8 @@ class PetSerializer(serializers.ModelSerializer):
             "gender",
             "size",
             "description",
+            "owner",
             "vaccination_status",
-            "status",   
             "image_url",
             "image_public_id",
             "created_at",
@@ -50,3 +50,8 @@ class PetSerializer(serializers.ModelSerializer):
         if not re.match(r'^[A-Za-z\s]+$', value):
             raise serializers.ValidationError("Species must contain only letters.")
         return value
+
+    def create(self, validated_data):
+        if self.context['request'].user.role == "SHOP_OWNER":
+            validated_data['owner'] = self.context['request'].user
+        return super().create(validated_data)
