@@ -64,6 +64,12 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
         
         return self.success_response(message="Report verified successfully")
 
+    @action(detail=False, methods=['get'], url_path='my-reports', permission_classes=[IsAuthenticated])
+    def my_reports(self, request):
+        queryset = self.get_queryset().filter(user=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return self.success_response(data=serializer.data)
+
 class RescueRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
     queryset = RescueRequest.objects.all()
     serializer_class = RescueRequestSerializer
@@ -77,3 +83,9 @@ class RescueRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'], url_path='my-requests', permission_classes=[IsAuthenticated])
+    def my_requests(self, request):
+        queryset = self.get_queryset().filter(user=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return self.success_response(data=serializer.data)  

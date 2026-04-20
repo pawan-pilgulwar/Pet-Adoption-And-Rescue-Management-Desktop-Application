@@ -11,7 +11,7 @@ def generate_pet_id():
 class Pet(models.Model):
     pet_id = models.CharField(max_length=20, unique=True, editable=False)
 
-    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='pets_owned')
+    owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name='pets_owned', null=True, blank=True)
 
     name = models.CharField(max_length=100)
     species = models.CharField(max_length=50)  
