@@ -1,83 +1,59 @@
 ﻿import React, { createContext, useContext, useEffect, useState } from 'react';
-import api from '../services/api';
-import { User } from '../types';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { User } from '../types';
 
-interface AuthContextType {
+interface AuthCtx {
   user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<{ ok: boolean; msg?: string }>;
   logout: () => void;
-  refreshUser: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
-  login: async () => ({ success: false }),
+const Ctx = createContext<AuthCtx>({
+  user: null, loading: true,
+  login: async () => ({ ok: false }),
   logout: () => { },
-  refreshUser: async () => { },
+  refresh: async () => { },
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const refreshUser = async () => {
-    setIsLoading(true);
+  const refresh = async () => {
+    setLoading(true);
     try {
-      const response = await api.get('/users/me/');
-      const userData = response.data.data;
-      setUser(userData);
-    } catch (error) {
+      const res = await api.get('/users/me/');
+      setUser(res.data.data);
+    } catch {
       setUser(null);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    refreshUser();
-  }, []);
+  useEffect(() => { refresh(); }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
     try {
-      const response = await api.post('/users/login/', { email, password });
-      const loginData = response.data.data;
-
-      if (loginData) {
-        await refreshUser();
-        setIsLoading(false);
-        return { success: true };
-      }
-
-      setIsLoading(false);
-      return { success: false, message: 'Invalid login response' };
-    } catch (error: any) {
-      setIsLoading(false);
-      return { success: false, message: error.response?.data?.message || 'Login failed' };
+      await api.post('/users/login/', { email, password });
+      await refresh();
+      return { ok: true };
+    } catch (e: any) {
+      return { ok: false, msg: e.response?.data?.message || 'Login failed' };
     }
   };
 
   const logout = async () => {
-    try {
-      const response = await api.post('/users/logout/');
-      if (response.data.success) {
-        setUser(null);
-        navigate('/login');
-      }
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
+    try { await api.post('/users/logout/'); } catch { }
+    setUser(null);
+    navigate('/login');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <Ctx.Provider value={{ user, loading, login, logout, refresh }}>{children}</Ctx.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(Ctx);
