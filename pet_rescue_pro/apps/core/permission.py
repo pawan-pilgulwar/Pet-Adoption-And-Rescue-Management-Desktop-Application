@@ -11,3 +11,7 @@ class IsUser (BasePermission):
 class IsShopOwner (BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.role == 'SHOP_OWNER'
+
+class IsAdminOrShopOwner(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and (request.user.role == 'ADMIN' or request.user.role == 'SHOP_OWNER')

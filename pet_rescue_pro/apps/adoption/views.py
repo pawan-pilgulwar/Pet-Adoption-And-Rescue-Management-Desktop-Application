@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Adoption, AdoptionListing, AdoptionRequest
 from .serializer import AdoptionSerializer, AdoptionListingSerializer, AdoptionRequestSerializer
 from apps.core.mixins import ResponseMixin
-from apps.core.permission import IsAdmin, IsShopOwner
+from apps.core.permission import IsAdmin, IsShopOwner, IsAdminOrShopOwner
 from apps.notifications.models import Notification
 
 class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
@@ -13,15 +13,16 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            return [IsAuthenticated]
-        return [IsAuthenticated & (IsAdmin | IsShopOwner)]
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), IsAdminOrShopOwner()]
 
     def perform_create(self, serializer):
         serializer.save(shop_owner=self.request.user)
 
     def get_queryset(self):
         queryset = AdoptionListing.objects.all()
-        if self.action == 'list':
+        user = self.request.user
+        if user.role == 'USER':
             queryset = queryset.filter(is_available=True)
             
             # Simple filters
@@ -31,6 +32,10 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
                 queryset = queryset.filter(pet__species__icontains=species)
             if breed:
                 queryset = queryset.filter(pet__breed__icontains=breed)
+        elif user.role == 'SHOP_OWNER':
+            queryset = queryset.filter(shop_owner=user)
+        elif user.role == 'ADMIN':
+            queryset = queryset.all()   
         return queryset
     
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])
