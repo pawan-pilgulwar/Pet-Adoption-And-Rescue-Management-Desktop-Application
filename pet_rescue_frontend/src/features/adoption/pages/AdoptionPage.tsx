@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchListings } from '../api';
+import { fetchListings, searchListings } from '../api';
 import { AdoptionListing } from '../../../types';
 import PetCard from '../components/PetCard';
 import Spinner from '../../../components/common/Spinner';
@@ -8,12 +8,13 @@ import Input from '../../../components/common/Input';
 import Button from '../../../components/common/Button';
 
 function AdoptionPage() {
-  const [listings, setListings]   = useState<AdoptionListing[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [species, setSpecies]     = useState('');
-  const [breed, setBreed]         = useState('');
+  const [listings, setListings] = useState<AdoptionListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [species, setSpecies] = useState('');
+  const [breed, setBreed] = useState('');
+  const [price, setPrice] = useState('');
 
-  function loadListings(s = '', b = '') {
+  function loadListings(s = '', b = '', p = '') {
     setLoading(true);
     fetchListings({ species: s || undefined, breed: b || undefined })
       .then(data => setListings(data))
@@ -26,13 +27,14 @@ function AdoptionPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    loadListings(species, breed);
+    searchListings({ species, breed, price }).then(data => setListings(data)).catch(() => setListings([]));
   }
 
   function handleClear() {
     setSpecies('');
     setBreed('');
-    loadListings();
+    setPrice('');
+    loadListings('', '', '');
   }
 
   return (
@@ -60,6 +62,14 @@ function AdoptionPage() {
           placeholder="Labrador, Persian..."
           value={breed}
           onChange={e => setBreed(e.target.value)}
+          className="flex-1"
+        />
+        <Input
+          id="adopt-price"
+          label="Price"
+          placeholder="0 - 100000"
+          value={price}
+          onChange={e => setPrice(e.target.value)}
           className="flex-1"
         />
         <div className="flex gap-2">

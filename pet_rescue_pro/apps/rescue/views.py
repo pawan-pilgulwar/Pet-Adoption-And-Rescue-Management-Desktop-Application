@@ -19,16 +19,18 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     def get_queryset(self):
         queryset = Report.objects.all()
-        if self.action == 'list':
-            # Public list only shows verified reports
-            return queryset.filter(is_verified=True)
-        
+
         user = self.request.user
+
         if not user.is_authenticated:
-            return queryset.filter(is_verified=True)
-            
+            return queryset.none()
+
         if user.role == 'ADMIN':
             return queryset
+
+        if self.action == 'list':
+            return queryset.filter(is_verified=True)
+
         return queryset.filter(user=user)
 
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[AllowAny])

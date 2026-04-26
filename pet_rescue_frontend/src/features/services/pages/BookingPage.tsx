@@ -1,32 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { fetchServices, createBooking } from '../api';
 import { Service } from '../../../types';
 import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
 import Spinner from '../../../components/common/Spinner';
+import { bookingSchema } from '../../../utils/validation';
+import { z } from 'zod';
 
 function BookingPage() {
   const location = useLocation();
-  const navigate  = useNavigate();
 
   // Service passed from ServicesPage via navigate state
   const preSelected = location.state?.service as Service | undefined;
 
-  const [services, setServices]   = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [selectedId, setSelectedId] = useState<number | ''>(preSelected?.id || '');
   const [bookingDate, setBookingDate] = useState('');
-  const [notes, setNotes]           = useState('');
-  const [loading, setLoading]       = useState(false);
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
   const [servicesLoading, setServicesLoading] = useState(!preSelected);
-  const [success, setSuccess]       = useState(false);
-  const [error, setError]           = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (preSelected) { setServices([preSelected]); return; }
     fetchServices()
       .then(data => setServices(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setServicesLoading(false));
   }, [preSelected]);
 
@@ -34,14 +36,19 @@ function BookingPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedId || !bookingDate) {
-      setError('Please select a service and booking date.');
-      return;
-    }
+    setErrors({});
     setError('');
-    setLoading(true);
 
     try {
+      // Validate
+      bookingSchema.parse({
+        service: selectedId,
+        booking_date: bookingDate,
+        additional_notes: notes
+      });
+
+      setLoading(true);
+
       // POST /api/v1/bookings/
       await createBooking({
         service: Number(selectedId),
@@ -50,7 +57,15 @@ function BookingPage() {
       });
       setSuccess(true);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Booking failed. Please try again.');
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach(e => {
+          if (e.path[0]) fieldErrors[e.path[0].toString()] = e.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        setError(err?.response?.data?.message || 'Booking failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -100,16 +115,16 @@ function BookingPage() {
                   <label className="text-sm font-medium text-stone-700">Select Service *</label>
                   <select
                     id="booking-service"
-                    className="input-field"
+                    className={`input-field ${errors.service ? 'border-red-500' : ''}`}
                     value={selectedId}
                     onChange={e => setSelectedId(Number(e.target.value))}
-                    required
                   >
                     <option value="">Choose a service...</option>
                     {services.map(s => (
                       <option key={s.id} value={s.id}>{s.name} — ₹{s.price}</option>
                     ))}
                   </select>
+                  {errors.service && <p className="text-xs text-red-500 mt-1">{errors.service}</p>}
                 </div>
               )}
 
@@ -119,7 +134,7 @@ function BookingPage() {
                 type="datetime-local"
                 value={bookingDate}
                 onChange={e => setBookingDate(e.target.value)}
-                required
+                error={errors.booking_date}
                 min={new Date().toISOString().slice(0, 16)}
               />
 

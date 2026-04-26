@@ -4,31 +4,34 @@ import { createReport } from '../api';
 import { uploadImage, deleteImage } from '../../../utils/cloudinary';
 import Input from '../../../components/common/Input';
 import Button from '../../../components/common/Button';
+import { reportSchema } from '../../../utils/validation';
+import { z } from 'zod';
 
 function CreateReport() {
   const navigate = useNavigate();
 
   // Report fields
   const [reportType, setReportType] = useState<'Lost' | 'Found'>('Lost');
-  const [location, setLocation]     = useState('');
+  const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
 
   // Pet fields (goes inside pet_data)
-  const [petName, setPetName]     = useState('');
-  const [species, setSpecies]     = useState('');
-  const [breed, setBreed]         = useState('');
-  const [color, setColor]         = useState('');
-  const [age, setAge]             = useState('');
-  const [gender, setGender]       = useState('');
-  const [size, setSize]           = useState('');
+  const [petName, setPetName] = useState('');
+  const [species, setSpecies] = useState('');
+  const [breed, setBreed] = useState('');
+  const [color, setColor] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [size, setSize] = useState('');
 
   // Image upload
-  const [imageFile, setImageFile]   = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -39,33 +42,43 @@ function CreateReport() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!petName || !species || !location) {
-      setError('Pet name, species, and location are required.');
-      return;
-    }
-
-    setLoading(true);
+    setErrors({});
     setError('');
 
     let imageUrl = '';
     let imagePublicId = '';
 
-    // Step 1: Upload image to Cloudinary (only on submit)
-    if (imageFile) {
-      try {
-        const uploaded = await uploadImage(imageFile);
-        imageUrl       = uploaded.url;
-        imagePublicId  = uploaded.public_id;
-      } catch {
-        setError('Image upload failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Step 2: Call backend API with nested pet_data
-    // POST /api/v1/rescue/reports/
     try {
+      // Validate
+      reportSchema.parse({
+        report_type: reportType,
+        location,
+        description,
+        pet_name: petName,
+        species,
+        breed,
+        color,
+        age,
+        gender,
+        size
+      });
+
+      setLoading(true);
+
+      // Step 1: Upload image to Cloudinary (only on submit)
+      if (imageFile) {
+        try {
+          const uploaded = await uploadImage(imageFile);
+          imageUrl = uploaded.url;
+          imagePublicId = uploaded.public_id;
+        } catch {
+          setError('Image upload failed. Please try again.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Step 2: Call backend API with nested pet_data
       await createReport({
         report_type: reportType,
         location,
@@ -73,20 +86,27 @@ function CreateReport() {
         pet_data: {
           name: petName,
           species,
-          breed:     breed     || undefined,
-          color:     color     || undefined,
-          age:       age       ? Number(age) : undefined,
-          gender:    gender    || undefined,
-          size:      size      || undefined,
-          image_url: imageUrl  || undefined,
+          breed: breed || undefined,
+          color: color || undefined,
+          age: age ? Number(age) : undefined,
+          gender: gender || undefined,
+          size: size || undefined,
+          image_url: imageUrl || undefined,
           image_public_id: imagePublicId || undefined,
         },
       });
       navigate('/dashboard/reports');
     } catch (err: any) {
-      // Step 3: If API fails, log orphaned image
-      if (imagePublicId) await deleteImage(imagePublicId);
-      setError(err?.response?.data?.message || 'Failed to create report.');
+      await deleteImage(imagePublicId);
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach(e => {
+          if (e.path[0]) fieldErrors[e.path[0].toString()] = e.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        setError(err?.response?.data?.message || 'Failed to create report.');
+      }
     } finally {
       setLoading(false);
     }
@@ -110,13 +130,12 @@ function CreateReport() {
                 key={type}
                 type="button"
                 onClick={() => setReportType(type)}
-                className={`flex-1 py-3 rounded-xl font-semibold text-sm border-2 transition-all ${
-                  reportType === type
-                    ? type === 'Lost'
-                      ? 'bg-red-500 border-red-500 text-white'
-                      : 'bg-green-500 border-green-500 text-white'
-                    : 'bg-white border-stone-200 text-stone-600 hover:border-brand-400'
-                }`}
+                className={`flex-1 py-3 rounded-xl font-semibold text-sm border-2 transition-all ${reportType === type
+                  ? type === 'Lost'
+                    ? 'bg-red-500 border-red-500 text-white'
+                    : 'bg-green-500 border-green-500 text-white'
+                  : 'bg-white border-stone-200 text-stone-600 hover:border-brand-400'
+                  }`}
               >
                 {type === 'Lost' ? '🔴 Lost Pet' : '🟢 Found Pet'}
               </button>
@@ -129,15 +148,15 @@ function CreateReport() {
           <p className="text-sm font-semibold text-stone-700">Pet Information</p>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input id="pet-name" label="Pet Name *" placeholder="Buddy" value={petName} onChange={e => setPetName(e.target.value)} required />
-            <Input id="pet-species" label="Species *" placeholder="Dog, Cat..." value={species} onChange={e => setSpecies(e.target.value)} required />
+            <Input id="pet-name" label="Pet Name *" placeholder="Buddy" value={petName} onChange={e => setPetName(e.target.value)} error={errors.pet_name} />
+            <Input id="pet-species" label="Species *" placeholder="Dog, Cat..." value={species} onChange={e => setSpecies(e.target.value)} error={errors.species} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input id="pet-breed" label="Breed" placeholder="Labrador..." value={breed} onChange={e => setBreed(e.target.value)} />
             <Input id="pet-color" label="Color" placeholder="Brown, Black..." value={color} onChange={e => setColor(e.target.value)} />
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <Input id="pet-age" label="Age (years)" type="number" placeholder="2" value={age} onChange={e => setAge(e.target.value)} />
+            <Input id="pet-age" label="Age (years)" type="number" placeholder="2" value={age} onChange={e => setAge(e.target.value)} error={errors.age} />
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-stone-700">Gender</label>
               <select id="pet-gender" className="input-field" value={gender} onChange={e => setGender(e.target.value)}>
@@ -181,7 +200,7 @@ function CreateReport() {
         {/* Report Details */}
         <div className="card space-y-4">
           <p className="text-sm font-semibold text-stone-700">Report Details</p>
-          <Input id="report-location" label="Location *" placeholder="Street, City, Area..." value={location} onChange={e => setLocation(e.target.value)} required />
+          <Input id="report-location" label="Location *" placeholder="Street, City, Area..." value={location} onChange={e => setLocation(e.target.value)} error={errors.location} />
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-stone-700">Description</label>
             <textarea

@@ -5,8 +5,9 @@ import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
 import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
-import ConfirmModal from '../../../components/common/ConfirmModal';
 import api from '../../../services/api';
+import { listingSchema } from '../../../utils/validation';
+import { z } from 'zod';
 
 function ShopListings() {
   const [listings, setListings] = useState<AdoptionListing[]>([]);
@@ -19,6 +20,7 @@ function ShopListings() {
   const [formPrice, setFormPrice] = useState('');
   const [formDesc, setFormDesc] = useState('');
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     Promise.all([
@@ -32,9 +34,14 @@ function ShopListings() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
+    setErrors({});
+
     try {
-      const newListing = await createListing({
+      // Validate
+      listingSchema.parse({ pet: formPet, price: formPrice, description: formDesc });
+
+      setSaving(true);
+      await createListing({
         pet: Number(formPet),
         price: formPrice,
         description: formDesc
@@ -45,7 +52,15 @@ function ShopListings() {
       setShowModal(false);
       setFormPet(''); setFormPrice(''); setFormDesc('');
     } catch (err) {
-      alert('Failed to create listing');
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach(e => {
+          if (e.path[0]) fieldErrors[e.path[0].toString()] = e.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        alert('Failed to create listing');
+      }
     } finally {
       setSaving(false);
     }
@@ -91,7 +106,11 @@ function ShopListings() {
                       </span>
                     </td>
                     <td className="text-stone-500">{new Date(l.created_at).toLocaleDateString()}</td>
-                    <td><img src={l.pet_detail?.image_url || undefined} alt={l.pet_detail?.name} className="w-20 h-20 object-cover" /></td>
+                    <td>
+                      <div className="h-12 w-12 rounded-lg overflow-hidden shrink-0">
+                        {l.pet_detail?.image_url ? <img src={l.pet_detail?.image_url} alt={l.pet_detail?.name} className="w-full h-full object-cover" /> : <span className="flex items-center justify-center h-full bg-orange-50">🐾</span>}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -104,21 +123,44 @@ function ShopListings() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center min-h-screen px-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full fade-in">
-            <h3 className="text-lg font-bold text-stone-900 mb-4">Create Listing</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-stone-900">Create Listing</h3>
+              <button onClick={() => setShowModal(false)} className="text-stone-400 hover:text-stone-600">✕</button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-stone-700">Select Pet</label>
-                <select className="input-field" value={formPet} onChange={e => setFormPet(e.target.value)} required>
+                <select
+                  className={`input-field ${errors.pet ? 'border-red-500' : ''}`}
+                  value={formPet}
+                  onChange={e => setFormPet(e.target.value)}
+                >
                   <option value="">Choose a pet...</option>
                   {pets.map(p => <option key={p.id} value={p.id}>{p.name} ({p.pet_id})</option>)}
                 </select>
+                {errors.pet && <p className="text-xs text-red-500 mt-1">{errors.pet}</p>}
               </div>
-              <Input label="Price (₹)" type="number" step="0.01" value={formPrice} onChange={e => setFormPrice(e.target.value)} required />
+              <Input
+                label="Price (₹)"
+                type="number"
+                step="0.01"
+                value={formPrice}
+                onChange={e => setFormPrice(e.target.value)}
+                error={errors.price}
+                placeholder="0.00"
+              />
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-stone-700">Description</label>
-                <textarea className="input-field resize-none" rows={3} value={formDesc} onChange={e => setFormDesc(e.target.value)} />
+                <textarea
+                  className={`input-field resize-none ${errors.description ? 'border-red-500' : ''}`}
+                  rows={3}
+                  value={formDesc}
+                  onChange={e => setFormDesc(e.target.value)}
+                  placeholder="Tell us about this pet..."
+                />
+                {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
               </div>
-              <div className="flex gap-3 justify-end mt-4">
+              <div className="flex gap-3 justify-end mt-6">
                 <Button variant="ghost" type="button" onClick={() => setShowModal(false)}>Cancel</Button>
                 <Button type="submit" isLoading={saving}>Create</Button>
               </div>

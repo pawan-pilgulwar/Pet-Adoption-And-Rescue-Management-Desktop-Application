@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchListingDetail, createAdoptionRequest } from '../api';
 import { AdoptionListing } from '../../../types';
 import { useAuth } from '../../../context/AuthContext';
@@ -9,14 +9,13 @@ import Button from '../../../components/common/Button';
 function AdoptionDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  const [listing, setListing]       = useState<AdoptionListing | null>(null);
-  const [loading, setLoading]       = useState(true);
+  const [listing, setListing] = useState<AdoptionListing | null>(null);
+  const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
-  const [details, setDetails]       = useState('');
-  const [success, setSuccess]       = useState(false);
-  const [error, setError]           = useState('');
+  const [details, setDetails] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -91,10 +90,10 @@ function AdoptionDetail() {
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'Gender',         value: pet?.gender || '—' },
-              { label: 'Size',           value: pet?.size || '—' },
-              { label: 'Color',          value: pet?.color || '—' },
-              { label: 'Vaccination',    value: pet?.vaccination_status || '—' },
+              { label: 'Gender', value: pet?.gender || '—' },
+              { label: 'Size', value: pet?.size || '—' },
+              { label: 'Color', value: pet?.color || '—' },
+              { label: 'Vaccination', value: pet?.vaccination_status || '—' },
             ].map(item => (
               <div key={item.label} className="bg-orange-50 rounded-xl px-4 py-3">
                 <p className="text-xs text-stone-400 uppercase tracking-wide">{item.label}</p>

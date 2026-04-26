@@ -43,14 +43,14 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
         queryset = self.get_queryset()
         species = request.query_params.get('species')
         breed = request.query_params.get('breed')
-        location = request.query_params.get('location')
+        price = request.query_params.get('price')
         
         if species:
             queryset = queryset.filter(pet__species__icontains=species)
         if breed:
             queryset = queryset.filter(pet__breed__icontains=breed)
-        if location:
-            queryset = queryset.filter(location__icontains=location)
+        if price:
+            queryset = queryset.filter(price__lte=price)
             
         serializer = self.get_serializer(queryset, many=True)
         return self.success_response(data=serializer.data)

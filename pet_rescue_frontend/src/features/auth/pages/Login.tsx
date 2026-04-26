@@ -3,28 +3,43 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import Input from '../../../components/common/Input';
 import Button from '../../../components/common/Button';
+import { loginSchema } from '../../../utils/validation';
+import { z } from 'zod';
 
 function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setErrors({});
 
     try {
+      // Validate
+      loginSchema.parse({ email, password });
+
+      setLoading(true);
       // POST /api/v1/users/login/  — sets httpOnly cookies on success
       await login(email, password);
       navigate('/dashboard');
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.response?.data?.detail || 'Login failed. Please try again.';
-      setError(msg);
+      if (err instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach(e => {
+          if (e.path[0]) fieldErrors[e.path[0].toString()] = e.message;
+        });
+        setErrors(fieldErrors);
+      } else {
+        const msg = err?.response?.data?.message || err?.response?.data?.detail || 'Login failed. Please try again.';
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -58,7 +73,7 @@ function Login() {
               placeholder="you@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              required
+              error={errors.email}
               autoFocus
             />
             <Input
@@ -68,7 +83,7 @@ function Login() {
               placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              required
+              error={errors.password}
             />
 
             <Button type="submit" className="w-full justify-center mt-2" isLoading={loading}>

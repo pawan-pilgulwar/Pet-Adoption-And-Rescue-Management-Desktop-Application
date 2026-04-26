@@ -12,7 +12,7 @@ function AdminReports() {
     setLoading(true);
     fetchAllReports()
       .then(setReports)
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }
 

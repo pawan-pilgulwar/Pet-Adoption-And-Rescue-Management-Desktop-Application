@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import api from '../../../services/api';
 import { AdoptionListing } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
+import { useAuth } from '../../../context/AuthContext';
 
 function Home() {
   const [listings, setListings] = useState<AdoptionListing[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [stats, setStats]       = useState({ pets: 0, reports: 0 });
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  // const [stats, setStats] = useState({ pets: 0, reports: 0 });
 
   // Fetch a few featured listings for the homepage showcase
   // GET /api/v1/adoption/listings/ — requires auth, show only if available
@@ -41,10 +43,10 @@ function Home() {
             Adopt, rescue, and care for pets with PetRescue — connecting loving homes with animals in need.
           </p>
           <div className="flex flex-wrap gap-4 justify-center fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <Link to="/adoption" className="bg-white text-brand-500 font-bold px-8 py-3 rounded-2xl hover:bg-orange-50 transition-all duration-200 shadow-lg active:scale-95">
+            <Link to={user ? "/adoption" : "/login"} className="bg-white text-brand-500 font-bold px-8 py-3 rounded-2xl hover:bg-orange-50 transition-all duration-200 shadow-lg active:scale-95">
               🐾 Adopt a Pet
             </Link>
-            <Link to="/rescue" className="border-2 border-white text-white font-bold px-8 py-3 rounded-2xl hover:bg-white/10 transition-all duration-200 active:scale-95">
+            <Link to={user ? "/rescue" : "/login"} className="border-2 border-white text-white font-bold px-8 py-3 rounded-2xl hover:bg-white/10 transition-all duration-200 active:scale-95">
               🚨 Report a Pet
             </Link>
           </div>
@@ -53,7 +55,7 @@ function Home() {
         {/* Wave */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,40 C360,0 1080,80 1440,40 L1440,60 L0,60 Z" fill="#fafaf9"/>
+            <path d="M0,40 C360,0 1080,80 1440,40 L1440,60 L0,60 Z" fill="#fafaf9" />
           </svg>
         </div>
       </section>
@@ -62,10 +64,10 @@ function Home() {
       <section className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { label: 'Pets Available',   value: '100+',   icon: '🐾' },
-            { label: 'Reports Resolved', value: '50+',    icon: '✅' },
-            { label: 'Happy Families',   value: '200+',   icon: '❤️' },
-            { label: 'Active Shops',     value: '20+',    icon: '🏪' },
+            { label: 'Pets Available', value: '100+', icon: '🐾' },
+            { label: 'Reports Resolved', value: '50+', icon: '✅' },
+            { label: 'Happy Families', value: '200+', icon: '❤️' },
+            { label: 'Active Shops', value: '20+', icon: '🏪' },
           ].map(stat => (
             <div key={stat.label} className="card text-center fade-in">
               <span className="text-4xl">{stat.icon}</span>
@@ -107,7 +109,7 @@ function Home() {
             <h2 className="text-3xl font-bold text-stone-900">Featured Pets</h2>
             <p className="text-stone-500 text-sm mt-1">Meet some of our adorable pets waiting for a home</p>
           </div>
-          <Link to="/adoption" className="btn-outline text-sm hidden md:inline-flex">
+          <Link to={user ? "/adoption" : "/login"} className="btn-outline text-sm hidden md:inline-flex">
             View All →
           </Link>
         </div>
@@ -157,7 +159,7 @@ function Home() {
           <p className="text-stone-400 mb-8 text-sm">Join thousands of pet lovers who have already changed lives through PetRescue.</p>
           <div className="flex gap-4 justify-center">
             <Link to="/register" className="btn-primary px-8 py-3 text-base">Get Started</Link>
-            <Link to="/rescue" className="btn-outline border-white text-white hover:bg-white/10 px-8 py-3 text-base">Report Lost Pet</Link>
+            <Link to={user ? "/rescue" : "/login"} className="btn-outline border-white text-white hover:bg-white/10 px-8 py-3 text-base">Report Lost Pet</Link>
           </div>
         </div>
       </section>

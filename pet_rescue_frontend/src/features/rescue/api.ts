@@ -4,19 +4,19 @@ import { Report, RescueRequest } from '../../types';
 // GET /api/v1/rescue/reports/   — public, only verified reports
 export async function fetchReports(params?: { species?: string; breed?: string; location?: string }) {
   const res = await api.get('/rescue/reports/', { params });
-  return (res.data?.data?.results || res.data?.data || []) as Report[];
+  return (res.data?.results || []) as Report[];
 }
 
 // GET /api/v1/rescue/reports/search/   — public search
 export async function searchReports(params: { species?: string; breed?: string; location?: string }) {
   const res = await api.get('/rescue/reports/search/', { params });
-  return (res.data?.data || []) as Report[];
+  return (res.data?.results || []) as Report[];
 }
 
 // GET /api/v1/rescue/reports/my-reports/   — auth required
 export async function fetchMyReports() {
   const res = await api.get('/rescue/reports/my-reports/');
-  return (res.data?.data || []) as Report[];
+  return (res.data?.results || []) as Report[];
 }
 
 // GET /api/v1/rescue/reports/  (admin - all reports)
@@ -24,7 +24,7 @@ export async function fetchAllReports() {
   // For admin: the standard list returns only verified, so we use the detail endpoint
   // Admin can access all via GET /rescue/reports/ when role=ADMIN
   const res = await api.get('/rescue/reports/');
-  return (res.data?.data?.results || res.data?.data || []) as Report[];
+  return (res.data.results || []) as Report[];
 }
 
 // POST /api/v1/rescue/reports/

@@ -4,7 +4,7 @@ import { AdoptionListing, AdoptionRequest, Adoption } from '../../types';
 // ─── Adoption Listing API calls ───
 
 // GET /api/v1/adoption/listings/   — all available listings (paginated)
-export async function fetchListings(params?: { species?: string; breed?: string }) {
+export async function fetchListings(params?: { species?: string; breed?: string; price?: string }) {
   const res = await api.get('/adoption/listings/', { params });
   // Backend returns paginated results: { results: [...] } or direct array
   const data = res.data?.results || [];
@@ -12,7 +12,7 @@ export async function fetchListings(params?: { species?: string; breed?: string 
 }
 
 // GET /api/v1/adoption/listings/search/
-export async function searchListings(params: { species?: string; breed?: string; location?: string }) {
+export async function searchListings(params: { species?: string; breed?: string; location?: string; price?: string }) {
   const res = await api.get('/adoption/listings/search/', { params });
   return (res.data?.data || []) as AdoptionListing[];
 }

@@ -6,7 +6,7 @@ from django.db.models import Q
 from .models import Pet
 from .serializer import PetSerializer
 from apps.core.mixins import ResponseMixin
-from apps.core.permission import IsAdmin
+from apps.core.permission import IsAdmin, IsShopOwner, IsAdminOrShopOwner
 from apps.notifications.models import Notification
 from apps.users.models import User
 
@@ -55,7 +55,7 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
             status_code = status.HTTP_200_OK
         )
     
-    @action(detail=False, methods=['post'], url_path="admin-register-pet", permission_classes=[IsAuthenticated, IsAdmin])
+    @action(detail=False, methods=['post'], url_path="admin-register-pet", permission_classes=[IsAuthenticated, IsAdminOrShopOwner])
     def register_pet(self, request, *args, **kwrags):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception = True)
@@ -77,7 +77,7 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
             status_code = status.HTTP_201_CREATED
         )
     
-    @action(detail=True, methods=['put', 'patch'], url_path='admin-update-pet', permission_classes=[IsAuthenticated, IsAdmin])
+    @action(detail=True, methods=['put', 'patch'], url_path='admin-update-pet', permission_classes=[IsAuthenticated, IsAdminOrShopOwner])
     def update_pet(self, request, *args, **kwrags):
         partial = request.method == "PATCH"
         instance = self.get_object()
@@ -90,7 +90,7 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
             status_code=status.HTTP_202_ACCEPTED
         )
     
-    @action(detail=True, methods=['delete'], url_path='admin-delete-pet', permission_classes=[IsAuthenticated, IsAdmin])
+    @action(detail=True, methods=['delete'], url_path='admin-delete-pet', permission_classes=[IsAuthenticated, IsAdminOrShopOwner])
     def delete_pet(self, request, *args, **kwargs):
         instance = self.get_object()
         pet_id = instance.id

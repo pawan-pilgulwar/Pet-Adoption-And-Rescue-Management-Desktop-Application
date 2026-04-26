@@ -20,7 +20,7 @@ function Navbar() {
     if (!user) return;
     api.get('/notifications/get-user-notifications/')
       .then(res => setNotifications(res.data.data.Notifications || []))
-      .catch(() => {});
+      .catch(() => { });
   }, [user]);
 
   // Close dropdowns when clicking outside
@@ -40,6 +40,13 @@ function Navbar() {
     navigate('/login');
   }
 
+  const navMenu = [
+    { label: "Adoption", path: "/adoption", roles: ["USER", "SHOP_OWNER"] },
+    { label: "Rescue", path: "/rescue", roles: ["USER", "SHOP_OWNER"] },
+    { label: "Services", path: "/services", roles: ["USER", "SHOP_OWNER"] },
+    { label: "Dashboard", path: "/dashboard", roles: ["ADMIN"] },
+  ]
+
   const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium transition-colors duration-200 ${isActive ? 'text-brand-500' : 'text-stone-600 hover:text-brand-500'}`;
 
@@ -56,10 +63,17 @@ function Navbar() {
         {/* Nav Links */}
         <nav className="hidden md:flex items-center gap-6">
           <NavLink to="/" end className={navLinkClasses}>Home</NavLink>
+          {navMenu.filter(item => user?.role && item.roles.includes(user.role)).map((item) => (
+            <NavLink key={item.label} to={item.path} className={navLinkClasses}>
+              {item.label}
+            </NavLink>
+          ))}
+          <NavLink to="/about" className={navLinkClasses}>About</NavLink>
+          {/* <NavLink to="/" end className={navLinkClasses}>Home</NavLink>
           <NavLink to="/adoption" className={navLinkClasses}>Adoption</NavLink>
           <NavLink to="/rescue" className={navLinkClasses}>Rescue</NavLink>
           <NavLink to="/services" className={navLinkClasses}>Services</NavLink>
-          <NavLink to="/about" className={navLinkClasses}>About</NavLink>
+          <NavLink to="/about" className={navLinkClasses}>About</NavLink> */}
         </nav>
 
         {/* Right side */}
