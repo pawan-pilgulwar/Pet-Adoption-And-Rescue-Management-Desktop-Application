@@ -16,7 +16,9 @@ import AdoptionDetail from './features/adoption/pages/AdoptionDetail';
 import RescuePage from './features/rescue/pages/RescuePage';
 import CreateReport from './features/rescue/pages/CreateReport';
 import ServicesPage from './features/services/pages/ServicesPage';
+import ServiceDetail from './features/services/pages/ServiceDetail';
 import BookingPage from './features/services/pages/BookingPage';
+import RescueDetail from './features/rescue/pages/RescueDetail';
 
 // Dashboard (role-based)
 import Dashboard from './features/dashboard/pages/Dashboard';
@@ -52,7 +54,9 @@ function App() {
             <Route path="/adoption" element={<AdoptionPage />} />
             <Route path="/adoption/:id" element={<AdoptionDetail />} />
             <Route path="/rescue" element={<RescuePage />} />
+            <Route path="/rescue/:id" element={<RescueDetail />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:id" element={<ServiceDetail />} />
             <Route path="/booking" element={<BookingPage />} />
           </Route>
 

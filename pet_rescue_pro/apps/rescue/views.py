@@ -6,11 +6,15 @@ from .serializer import ReportSerializer, ReportCreateSerializer, RescueRequestS
 from apps.core.mixins import ResponseMixin
 from apps.core.permission import IsAdmin
 from apps.notifications.models import Notification
+from django.db.models import Q
 
 class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'search']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -19,11 +23,10 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     def get_queryset(self):
         queryset = Report.objects.all()
-
         user = self.request.user
 
         if not user.is_authenticated:
-            return queryset.none()
+            return queryset.filter(is_verified=True)
 
         if user.role == 'ADMIN':
             return queryset
@@ -31,7 +34,7 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
         if self.action == 'list':
             return queryset.filter(is_verified=True)
 
-        return queryset.filter(user=user)
+        return queryset.filter(Q(is_verified=True) | Q(user=user))
 
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[AllowAny])
     def search(self, request):

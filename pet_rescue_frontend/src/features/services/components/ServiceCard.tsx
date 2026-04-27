@@ -1,5 +1,5 @@
-import React from 'react';
 import { Service } from '../../../types';
+import { useNavigate } from 'react-router-dom';
 
 interface ServiceCardProps {
   service: Service;
@@ -7,8 +7,13 @@ interface ServiceCardProps {
 }
 
 function ServiceCard({ service, onBook }: ServiceCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <div className="card flex flex-col gap-3 fade-in hover:shadow-xl transition-shadow">
+    <div 
+      className="card flex flex-col gap-3 fade-in hover:shadow-xl transition-shadow cursor-pointer"
+      onClick={() => navigate(`/services/${service.id}`)}
+    >
       {/* Image placeholder */}
       <div className="aspect-video rounded-xl overflow-hidden bg-orange-50 flex items-center justify-center">
         {service.image_url ? (
@@ -27,7 +32,10 @@ function ServiceCard({ service, onBook }: ServiceCardProps) {
         <span className="text-brand-500 font-bold text-lg">₹{service.price}</span>
         {onBook && (
           <button
-            onClick={() => onBook(service)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onBook(service);
+            }}
             className="btn-primary text-sm px-4 py-2"
           >
             Book Now

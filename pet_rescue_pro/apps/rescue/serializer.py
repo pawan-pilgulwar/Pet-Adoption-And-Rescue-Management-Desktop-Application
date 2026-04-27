@@ -27,6 +27,7 @@ class ReportSerializer(serializers.ModelSerializer):
             }
             
         return {
+            "username": obj.user.username,
             "email": obj.user.email,
             "phone": profile_data.get("phone", "—"),
             "address": profile_data.get("address", "—"),

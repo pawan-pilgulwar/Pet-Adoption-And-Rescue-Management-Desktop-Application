@@ -1,5 +1,5 @@
-import React from 'react';
 import { Report } from '../../../types';
+import { useNavigate } from 'react-router-dom';
 
 interface ReportCardProps {
   report: Report;
@@ -7,6 +7,7 @@ interface ReportCardProps {
 
 // Card showing a single rescue report
 function ReportCard({ report }: ReportCardProps) {
+  const navigate = useNavigate();
   const pet = report.pet_detail;
 
   const statusColors: Record<string, string> = {
@@ -17,7 +18,10 @@ function ReportCard({ report }: ReportCardProps) {
   };
 
   return (
-    <div className="card fade-in">
+    <div 
+      className="card fade-in hover:shadow-xl transition-shadow cursor-pointer"
+      onClick={() => navigate(`/rescue/${report.id}`)}
+    >
       <div className="flex gap-4">
         {/* Pet Image */}
         <div className="w-20 h-20 rounded-xl overflow-hidden bg-orange-50 flex-shrink-0">

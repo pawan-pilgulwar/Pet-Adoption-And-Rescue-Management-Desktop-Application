@@ -121,6 +121,7 @@ export interface Report {
   created_at: string;
   updated_at: string;
   user_contact: {
+    username: string;
     email: string;
     phone: string;
     address: string;
@@ -147,6 +148,8 @@ export interface Service {
   description: string;
   price: string;
   image_url: string | null;
+  duration: string | null;
+  schedules: Schedule[];
   created_at: string;
   updated_at: string;
 }

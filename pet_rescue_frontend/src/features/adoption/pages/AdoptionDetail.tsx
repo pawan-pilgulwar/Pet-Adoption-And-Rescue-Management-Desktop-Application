@@ -13,6 +13,7 @@ function AdoptionDetail() {
   const [listing, setListing] = useState<AdoptionListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
+  const [step, setStep] = useState<'details' | 'payment' | 'summary'>('details');
   const [details, setDetails] = useState('');
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -25,19 +26,28 @@ function AdoptionDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  async function handleAdopt() {
+  function handleProceedToPayment() {
+    if (!details.trim()) {
+      setError('Please tell us a bit about yourself first.');
+      return;
+    }
+    setStep('payment');
+    setError('');
+  }
+
+  async function handleFinalConfirm() {
     if (!listing || !user) return;
     setRequesting(true);
     setError('');
 
     try {
-      // POST /api/v1/adoption/requests/
       await createAdoptionRequest({
         pet: listing.pet,
         listing: listing.id,
         request_details: details,
       });
       setSuccess(true);
+      setStep('summary');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Request failed. Please try again.');
     } finally {
@@ -124,23 +134,69 @@ function AdoptionDetail() {
             </div>
           </div>
 
-          {/* Adoption Form */}
+          {/* Step-based Action Flow */}
           {!user ? (
             <div className="bg-orange-50 rounded-xl p-4 text-center">
               <p className="text-stone-600 text-sm">
                 <Link to="/login" className="text-brand-500 font-semibold hover:underline">Login</Link> to request adoption
               </p>
             </div>
-          ) : success ? (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-              <p className="text-green-700 font-semibold">🎉 Adoption request sent!</p>
-              <p className="text-green-600 text-sm mt-1">The shop owner will review your request shortly.</p>
-              <Link to="/dashboard/adoptions" className="text-brand-500 text-sm hover:underline mt-2 block">
-                View My Requests →
+          ) : step === 'summary' ? (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center fade-in">
+              <span className="text-4xl">🎉</span>
+              <h2 className="text-xl font-bold text-green-800 mt-2">Request Sent!</h2>
+              <p className="text-green-700 text-sm mt-1">Your request for {pet?.name} has been received.</p>
+              
+              <div className="card mt-4 text-left text-sm bg-white border-green-100">
+                <p className="text-stone-400">Order Summary</p>
+                <div className="flex justify-between mt-1">
+                  <span>Adoption Fee</span>
+                  <span className="font-bold">₹{listing.price}</span>
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span>Processing Fee</span>
+                  <span className="text-stone-400">₹0.00</span>
+                </div>
+              </div>
+
+              <Link to="/dashboard/adoptions" className="btn-primary w-full mt-6 inline-block">
+                Go to My Adoptions
               </Link>
             </div>
+          ) : step === 'payment' ? (
+            <div className="card !bg-brand-50 border-brand-100 p-6 space-y-4 fade-in">
+              <h3 className="font-bold text-brand-900">💳 Payment Confirmation</h3>
+              <p className="text-sm text-brand-700">
+                This is a secure checkout for the adoption fee. Please review the details before confirming.
+              </p>
+              
+              <div className="space-y-2 border-t border-brand-100 pt-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-stone-500">Pet Name</span>
+                  <span className="font-semibold">{pet?.name}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold text-brand-600">
+                  <span>Total Amount</span>
+                  <span>₹{listing.price}</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded-lg border border-brand-200">
+                <p className="text-xs text-stone-400 uppercase mb-2">Select Payment Method</p>
+                <div className="flex gap-4">
+                  <div className="flex-1 border-2 border-brand-500 bg-brand-50 rounded-lg p-2 text-center text-xs font-bold">UPI / Cards</div>
+                  <div className="flex-1 border-2 border-transparent bg-stone-50 rounded-lg p-2 text-center text-xs text-stone-400">Net Banking</div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="ghost" onClick={() => setStep('details')} className="flex-1">Back</Button>
+                <Button onClick={handleFinalConfirm} isLoading={requesting} className="flex-[2] justify-center">Confirm & Pay</Button>
+              </div>
+            </div>
           ) : listing.is_available ? (
-            <div className="space-y-3">
+            <div className="space-y-3 fade-in">
+              <label className="text-sm font-semibold text-stone-700">Adoption Inquiry</label>
               <textarea
                 className="input-field resize-none"
                 rows={3}
@@ -149,7 +205,7 @@ function AdoptionDetail() {
                 onChange={e => setDetails(e.target.value)}
               />
               {error && <p className="text-red-500 text-sm">{error}</p>}
-              <Button className="w-full justify-center" onClick={handleAdopt} isLoading={requesting}>
+              <Button className="w-full justify-center" onClick={handleProceedToPayment}>
                 ❤️ Request Adoption
               </Button>
             </div>

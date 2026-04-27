@@ -20,19 +20,19 @@ export async function searchListings(params: { species?: string; breed?: string;
 // GET /api/v1/adoption/listings/:id/
 export async function fetchListingDetail(id: number) {
   const res = await api.get(`/adoption/listings/${id}/`);
-  return res.data?.data as AdoptionListing;
+  return (res.data?.data || res.data) as AdoptionListing;
 }
 
 // POST /api/v1/adoption/listings/  (ShopOwner only)
 export async function createListing(data: { pet: number; price: string; description?: string }) {
   const res = await api.post('/adoption/listings/', data);
-  return res.data?.data as AdoptionListing;
+  return (res.data?.data || res.data) as AdoptionListing;
 }
 
 // PATCH /api/v1/adoption/listings/:id/  (ShopOwner only)
 export async function updateListing(id: number, data: Partial<AdoptionListing>) {
   const res = await api.patch(`/adoption/listings/${id}/`, data);
-  return res.data?.data as AdoptionListing;
+  return (res.data?.data || res.data) as AdoptionListing;
 }
 
 // DELETE /api/v1/adoption/listings/:id/  (ShopOwner only)

@@ -4,8 +4,12 @@ import { Service, Booking, Schedule } from '../../types';
 // GET /api/v1/pet-services/
 export async function fetchServices() {
   const res = await api.get('/pet-services/');
-  console.log(res.data.results)
   return (res.data?.results) as Service[];
+}
+
+export async function fetchServiceDetail(id: number) {
+  const res = await api.get(`/pet-services/${id}/`);
+  return res.data as Service;
 }
 
 // POST /api/v1/pet-services/  (Admin/ShopOwner)
