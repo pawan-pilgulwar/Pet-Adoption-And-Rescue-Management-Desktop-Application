@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 interface ReportCardProps {
   report: Report;
+  dashboard?: boolean;
 }
 
 // Card showing a single rescue report
-function ReportCard({ report }: ReportCardProps) {
+function ReportCard({ report, dashboard = false }: ReportCardProps) {
   const navigate = useNavigate();
   const pet = report.pet_detail;
 
@@ -20,7 +21,7 @@ function ReportCard({ report }: ReportCardProps) {
   return (
     <div 
       className="card fade-in hover:shadow-xl transition-shadow cursor-pointer"
-      onClick={() => navigate(`/rescue/${report.id}`)}
+      onClick={() => navigate(dashboard ? `/dashboard/reports/${report.id}` : `/rescue/${report.id}`)}
     >
       <div className="flex gap-4">
         {/* Pet Image */}

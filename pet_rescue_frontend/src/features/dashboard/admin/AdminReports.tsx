@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchAllReports, verifyReport } from '../../rescue/api';
 import { Report } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
@@ -53,7 +54,16 @@ function AdminReports() {
                 <tr key={r.id}>
                   <td>
                     <div className="font-mono text-xs text-stone-400 mb-1">{r.rescue_id}</div>
-                    <div className="font-semibold text-stone-900">{r.pet_detail?.name || 'Unknown'} ({r.pet_detail?.species})</div>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg overflow-hidden bg-stone-50 shrink-0 border border-stone-100">
+                        {r.pet_detail?.image_url ? (
+                          <img src={r.pet_detail.image_url} alt="Pet" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="flex items-center justify-center h-full text-lg">🐾</span>
+                        )}
+                      </div>
+                      <div className="font-semibold text-stone-900">{r.pet_detail?.name || 'Unknown'} ({r.pet_detail?.species})</div>
+                    </div>
                   </td>
                   <td>
                     <span className={`badge ${r.report_type === 'Lost' ? 'badge-red' : 'badge-green'}`}>
@@ -70,14 +80,19 @@ function AdminReports() {
                       {r.is_verified ? 'Verified' : 'Pending'}
                     </span>
                   </td>
-                  <td>
-                    {!r.is_verified ? (
-                      <Button variant="outline" size="sm" className="px-2 py-1 text-xs" onClick={() => handleVerify(r.id)}>
-                        Verify
-                      </Button>
-                    ) : (
-                      <span className="text-stone-400 text-xs">No actions</span>
-                    )}
+                   <td>
+                    <div className="flex gap-2">
+                       <Link to={`/admin/reports/${r.id}`}>
+                         <Button variant="ghost" size="sm" className="text-brand-500 font-bold px-2 py-1 text-xs">View</Button>
+                       </Link>
+                       {!r.is_verified ? (
+                         <Button variant="outline" size="sm" className="px-2 py-1 text-xs" onClick={() => handleVerify(r.id)}>
+                           Verify
+                         </Button>
+                       ) : (
+                         <span className="text-stone-400 text-xs self-center">✓ Verified</span>
+                       )}
+                    </div>
                   </td>
                 </tr>
               ))}

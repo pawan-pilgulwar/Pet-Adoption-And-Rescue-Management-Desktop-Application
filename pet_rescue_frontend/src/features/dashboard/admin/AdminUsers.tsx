@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../../services/api';
 import { User } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
+import Button from '../../../components/common/Button';
 
 function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function load() {
+    setLoading(true);
     // GET /api/v1/users/ 
     api.get('/users/')
       .then(res => setUsers(res.data?.data.users || []))
       .catch(() => { })
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function handleDelete(id: number, username: string) {
+    if (!window.confirm(`Are you sure you want to delete user @${username}? This action is permanent.`)) return;
+    try {
+      await api.delete(`/users/${id}/admin-delete-user/`);
+      load();
+    } catch {
+      alert("Failed to delete user");
+    }
+  }
 
   return (
     <div className="fade-in">
@@ -32,6 +47,7 @@ function AdminUsers() {
                 <th>Email</th>
                 <th>Role</th>
                 <th>Joined</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -48,6 +64,14 @@ function AdminUsers() {
                     </span>
                   </td>
                   <td className="text-stone-500">{new Date(u.created_at).toLocaleDateString()}</td>
+                  <td>
+                    <div className="flex gap-2">
+                       <Link to={`/admin/users/${u.id}`}>
+                         <Button variant="ghost" size="sm" className="text-brand-500 font-bold">View</Button>
+                       </Link>
+                       <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={() => handleDelete(u.id, u.username)}>Delete</Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

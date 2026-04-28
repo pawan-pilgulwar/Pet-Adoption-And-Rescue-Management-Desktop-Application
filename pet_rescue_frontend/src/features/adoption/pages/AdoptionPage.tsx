@@ -6,8 +6,10 @@ import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
 import Input from '../../../components/common/Input';
 import Button from '../../../components/common/Button';
+import { useAuth } from '../../../context/AuthContext';
 
 function AdoptionPage() {
+  const { user } = useAuth();
   const [listings, setListings] = useState<AdoptionListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [species, setSpecies] = useState('');
@@ -24,6 +26,8 @@ function AdoptionPage() {
 
   // Initial load
   useEffect(() => { loadListings(); }, []);
+
+  const displayListings = listings.filter(l => l.shop_owner !== user?.id);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -81,13 +85,13 @@ function AdoptionPage() {
       {/* Results */}
       {loading ? (
         <Spinner message="Loading pets..." />
-      ) : listings.length === 0 ? (
+      ) : displayListings.length === 0 ? (
         <Empty message="No pets found. Try different filters." />
       ) : (
         <>
-          <p className="text-stone-500 text-sm mb-4">{listings.length} pet(s) found</p>
+          <p className="text-stone-500 text-sm mb-4">{displayListings.length} pet(s) found</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map(listing => (
+            {displayListings.map(listing => (
               <PetCard key={listing.id} listing={listing} />
             ))}
           </div>

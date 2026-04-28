@@ -149,6 +149,8 @@ export interface Service {
   price: string;
   image_url: string | null;
   duration: string | null;
+  owner_name?: string;
+  created_by: number;
   schedules: Schedule[];
   created_at: string;
   updated_at: string;
@@ -206,6 +208,9 @@ export interface AdminDashboardData {
   total_users: number;
   total_reports: number;
   total_pets: number;
+  total_services: number;
+  total_adoptions: number;
+  total_rescues: number;
   report_stats: {
     pending: number;
     accepted: number;
@@ -214,5 +219,6 @@ export interface AdminDashboardData {
   recent_activity: {
     reports: Report[];
     users: User[];
+    adoptions: Adoption[];
   };
 }

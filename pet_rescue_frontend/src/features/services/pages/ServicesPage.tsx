@@ -34,10 +34,15 @@ function ServicesPage() {
     navigate('/booking', { state: { service } });
   }
 
-  const filteredServices = services.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServices = services.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          s.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Exclude own services for shop owners
+    const isNotMine = user?.role === 'SHOP_OWNER' ? s.created_by !== user.id : true;
+    
+    return matchesSearch && isNotMine;
+  });
 
   const economyCount = services.filter(s => parseFloat(s.price) < 500).length;
   const premiumCount = services.filter(s => parseFloat(s.price) >= 500).length;

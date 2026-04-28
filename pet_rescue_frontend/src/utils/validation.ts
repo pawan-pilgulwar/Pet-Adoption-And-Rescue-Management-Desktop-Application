@@ -31,6 +31,7 @@ export const serviceSchema = z.object({
   name: z.string().min(3, 'Service name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price'),
+  duration: z.string().optional(),
 });
 
 // Adoption Listing Schema

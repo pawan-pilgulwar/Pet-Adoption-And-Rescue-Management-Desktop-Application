@@ -49,8 +49,9 @@ function RescuePage() {
     loadReports();
   }
 
-  const lostCount  = reports.filter(r => r.report_type === 'Lost').length;
-  const foundCount = reports.filter(r => r.report_type === 'Found').length;
+  const displayReports = reports.filter(r => r.user !== user?.id);
+  const lostCount  = displayReports.filter(r => r.report_type === 'Lost').length;
+  const foundCount = displayReports.filter(r => r.report_type === 'Found').length;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -79,7 +80,7 @@ function RescuePage() {
           <p className="text-stone-500 text-sm">Found Pets</p>
         </div>
         <div className="card text-center col-span-2 md:col-span-1">
-          <p className="text-2xl font-bold text-brand-500">{reports.length}</p>
+          <p className="text-2xl font-bold text-brand-500">{displayReports.length}</p>
           <p className="text-stone-500 text-sm">Total Reports</p>
         </div>
       </div>
@@ -98,11 +99,11 @@ function RescuePage() {
       {/* Report List */}
       {loading ? (
         <Spinner message="Loading reports..." />
-      ) : reports.length === 0 ? (
+      ) : displayReports.length === 0 ? (
         <Empty message="No verified reports found." emoji="🐾" />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {reports.map(report => (
+          {displayReports.map(report => (
             <ReportCard key={report.id} report={report} />
           ))}
         </div>

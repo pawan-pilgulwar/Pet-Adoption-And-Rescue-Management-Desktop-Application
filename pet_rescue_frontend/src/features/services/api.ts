@@ -2,9 +2,10 @@ import api from '../../services/api';
 import { Service, Booking, Schedule } from '../../types';
 
 // GET /api/v1/pet-services/
-export async function fetchServices() {
-  const res = await api.get('/pet-services/');
-  return (res.data?.results) as Service[];
+export async function fetchServices(myServices = false) {
+  const url = myServices ? '/pet-services/?my_services=true' : '/pet-services/';
+  const res = await api.get(url);
+  return (res.data?.results || res.data) as Service[];
 }
 
 export async function fetchServiceDetail(id: number) {

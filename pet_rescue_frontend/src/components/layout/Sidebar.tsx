@@ -28,6 +28,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
       { label: 'Listings',   to: '/dashboard/listings', icon: '📋' },
       { label: 'Services',   to: '/dashboard/services', icon: '🛠️' },
       { label: 'Bookings',   to: '/dashboard/bookings', icon: '📅' },
+      { label: 'My Reports', to: '/dashboard/reports',  icon: '📄' },
     ];
   }
 

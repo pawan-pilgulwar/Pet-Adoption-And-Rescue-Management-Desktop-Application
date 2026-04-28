@@ -4,11 +4,13 @@ import { fetchMyReports } from '../../rescue/api';
 import { Report } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
+import SearchBar from '../../../components/common/SearchBar';
 import ReportCard from '../../rescue/components/ReportCard';
 
 function MyReports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchMyReports()
@@ -16,6 +18,12 @@ function MyReports() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const filteredReports = reports.filter(r => 
+    r.pet_detail?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.report_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="fade-in">
@@ -27,16 +35,22 @@ function MyReports() {
         <Link to="/dashboard/reports/new" className="btn-primary">+ New Report</Link>
       </div>
 
+      <SearchBar 
+        value={searchTerm} 
+        onChange={setSearchTerm} 
+        placeholder="Search reports by pet name, location or type..." 
+      />
+
       {loading ? (
         <Spinner />
-      ) : reports.length === 0 ? (
+      ) : filteredReports.length === 0 ? (
         <div className="card">
-          <Empty message="You haven't submitted any reports yet." />
+          <Empty message={searchTerm ? "No reports match your search." : "You haven't submitted any reports yet."} />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {reports.map(report => (
-            <ReportCard key={report.id} report={report} />
+          {filteredReports.map(report => (
+            <ReportCard key={report.id} report={report} dashboard />
           ))}
         </div>
       )}

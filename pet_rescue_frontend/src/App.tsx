@@ -29,6 +29,11 @@ import ShopPets from './features/dashboard/shop/ShopPets';
 import ShopListings from './features/dashboard/shop/ShopListings';
 import ShopServices from './features/dashboard/shop/ShopServices';
 import ShopBookings from './features/dashboard/shop/ShopBookings';
+import ShopPetDetail from './features/dashboard/shop/ShopPetDetail';
+import ShopServiceDetail from './features/dashboard/shop/ShopServiceDetail';
+import ShopReportDetail from './features/dashboard/shop/ShopReportDetail';
+import ShopBookingDetail from './features/dashboard/shop/ShopBookingDetail';
+import ShopListingDetail from './features/dashboard/shop/ShopListingDetail';
 
 // Admin pages
 import AdminDashboard from './features/dashboard/admin/AdminDashboard';
@@ -36,6 +41,10 @@ import AdminUsers from './features/dashboard/admin/AdminUsers';
 import AdminPets from './features/dashboard/admin/AdminPets';
 import AdminReports from './features/dashboard/admin/AdminReports';
 import AdminServices from './features/dashboard/admin/AdminServices';
+import AdminUserDetail from './features/dashboard/admin/AdminUserDetail';
+import AdminPetDetail from './features/dashboard/admin/AdminPetDetail';
+import AdminReportDetail from './features/dashboard/admin/AdminReportDetail';
+import AdminServiceDetail from './features/dashboard/admin/AdminServiceDetail';
 
 // Profile
 import Profile from './features/profile/pages/Profile';
@@ -72,6 +81,11 @@ function App() {
             <Route path="/dashboard/listings" element={<ShopListings />} />
             <Route path="/dashboard/services" element={<ShopServices />} />
             <Route path="/dashboard/bookings" element={<ShopBookings />} />
+            <Route path="/dashboard/pets/:id" element={<ShopPetDetail />} />
+            <Route path="/dashboard/services/:id" element={<ShopServiceDetail />} />
+            <Route path="/dashboard/reports/:id" element={<ShopReportDetail />} />
+            <Route path="/dashboard/bookings/:id" element={<ShopBookingDetail />} />
+            <Route path="/dashboard/listings/:id" element={<ShopListingDetail />} />
           </Route>
 
           {/* ─── Profile (all authenticated roles) ─── */}
@@ -79,13 +93,16 @@ function App() {
             <Route path="/profile" element={<Profile />} />
           </Route>
 
-          {/* ─── Admin Routes ─── */}
           <Route element={<DashboardLayout allowedRoles={['ADMIN']} />}>
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/pets" element={<AdminPets />} />
             <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/reports/:id" element={<AdminReportDetail />} />
             <Route path="/admin/services" element={<AdminServices />} />
+            <Route path="/admin/services/:id" element={<AdminServiceDetail />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/users/:id" element={<AdminUserDetail />} />
+            <Route path="/admin/pets" element={<AdminPets />} />
+            <Route path="/admin/pets/:id" element={<AdminPetDetail />} />
           </Route>
 
           {/* ─── Fallback ─── */}

@@ -3,10 +3,12 @@ import { fetchMyRescueRequests } from '../../rescue/api';
 import { RescueRequest } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
+import SearchBar from '../../../components/common/SearchBar';
 
 function MyRescue() {
   const [requests, setRequests] = useState<RescueRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchMyRescueRequests()
@@ -15,6 +17,11 @@ function MyRescue() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filteredRequests = requests.filter(r => 
+    r.report_detail?.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="fade-in">
       <div className="mb-8">
@@ -22,15 +29,21 @@ function MyRescue() {
         <p className="text-stone-500">Requests you have made to help rescue reported pets.</p>
       </div>
 
+      <SearchBar 
+        value={searchTerm} 
+        onChange={setSearchTerm} 
+        placeholder="Search by location or status..." 
+      />
+
       {loading ? (
         <Spinner />
-      ) : requests.length === 0 ? (
+      ) : filteredRequests.length === 0 ? (
         <div className="card">
-          <Empty message="You haven't submitted any rescue requests." />
+          <Empty message={searchTerm ? "No requests match your search." : "You haven't submitted any rescue requests."} />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {requests.map(req => (
+          {filteredRequests.map(req => (
             <div key={req.id} className="card">
               <div className="flex justify-between items-start mb-3">
                 <span className={`badge ${

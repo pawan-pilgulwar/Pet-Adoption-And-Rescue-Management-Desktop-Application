@@ -10,7 +10,7 @@ function AdminServices() {
          <span className="badge badge-blue mb-2">Admin Mode</span>
          <p className="text-stone-500 text-sm">Managing all global pet services.</p>
       </div>
-      <ShopServices />
+      <ShopServices allServices={true} />
     </div>
   );
 }
