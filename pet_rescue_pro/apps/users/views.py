@@ -202,9 +202,17 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     @action(detail=False, methods=['get'], url_path='admin-dashboard', permission_classes=[IsAdmin] )
     def admin_dashboard(self, request):
+        from apps.rescue.models import Report, RescueRequest
+        from apps.pets.models import Pet 
+        from apps.services.models import Service
+        from apps.adoption.models import Adoption
+
         total_users = User.objects.filter(role ="USER").count()
         total_reports = Report.objects.count()
         total_pets = Pet.objects.count()
+        total_services = Service.objects.count()
+        total_adoptions = Adoption.objects.count()
+        total_rescues = RescueRequest.objects.count()
 
         # Detailed Stats
         pending_reports = Report.objects.filter(status="Pending").count()
@@ -214,18 +222,24 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         # Recent Activity
         recent_reports = Report.objects.order_by('-created_at')[:5]
         recent_users = User.objects.filter(role="USER").order_by('-created_at')[:5]
+        recent_adoptions = Adoption.objects.order_by('-adopted_at')[:5]
 
         # Serialization for recent items
         from apps.rescue.serializer import ReportSerializer
         from .serializer import UserReadSerializer
+        from apps.adoption.serializer import AdoptionSerializer
 
         report_serializer = ReportSerializer(recent_reports, many=True, context={'request': request})
         user_serializer = UserReadSerializer(recent_users, many=True, context={'request': request})
+        adoption_serializer = AdoptionSerializer(recent_adoptions, many=True, context={'request': request})
 
         data = {
             "total_users": total_users,
             "total_reports": total_reports,
             "total_pets": total_pets,
+            "total_services": total_services,
+            "total_adoptions": total_adoptions,
+            "total_rescues": total_rescues,
             "report_stats": {
                 "pending": pending_reports,
                 "accepted": accepted_reports,
@@ -233,7 +247,8 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
             },
             "recent_activity": {
                 "reports": report_serializer.data,
-                "users": user_serializer.data
+                "users": user_serializer.data,
+                "adoptions": adoption_serializer.data
             }
         }
 

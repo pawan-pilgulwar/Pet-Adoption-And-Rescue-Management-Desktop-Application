@@ -16,9 +16,12 @@ class PetViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     @action(detail=False, methods=['get'], url_path='all-pets', permission_classes=[IsAuthenticated])
     def get_all_pets(self, request, *args, **kwargs):
-        # This endpoint now returns all pets. 
-        # Adoption-specific filtering should be done via /api/v1/adoption/listings/
         queryset = Pet.objects.all()
+        user = self.request.user
+        
+        # If accessing via dashboard, filter by owner
+        if request.query_params.get('my_pets') == 'true' and user.is_authenticated:
+            queryset = queryset.filter(created_by=user)
         
         serializer = self.serializer_class(queryset, many=True)
         return self.success_response(

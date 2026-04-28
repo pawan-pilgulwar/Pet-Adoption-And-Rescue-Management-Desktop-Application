@@ -20,23 +20,22 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
         serializer.save(shop_owner=self.request.user)
 
     def get_queryset(self):
-        queryset = AdoptionListing.objects.all()
+        queryset = AdoptionListing.objects.all().order_by('-created_at')
         user = self.request.user
-        if user.role == 'USER':
-            queryset = queryset.filter(is_available=True)
-            
-            # Simple filters
-            species = self.request.query_params.get('species')
-            breed = self.request.query_params.get('breed')
-            if species:
-                queryset = queryset.filter(pet__species__icontains=species)
-            if breed:
-                queryset = queryset.filter(pet__breed__icontains=breed)
-        elif user.role == 'SHOP_OWNER':
-            queryset = queryset.filter(shop_owner=user)
-        elif user.role == 'ADMIN':
-            queryset = queryset.all()   
-        return queryset
+        my_listings = self.request.query_params.get('my_listings') == 'true'
+
+        if user.is_authenticated:
+            if my_listings:
+                # Dashboard view: Show only MY listings
+                return queryset.filter(shop_owner=user)
+            elif user.role == 'SHOP_OWNER':
+                # Public view for Shop Owner: Show everyone ELSE's listings
+                return queryset.filter(is_available=True).exclude(shop_owner=user)
+            elif user.role == 'ADMIN':
+                return queryset
+        
+        # Default public view (USER or Anonymous)
+        return queryset.filter(is_available=True)
     
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])
     def search(self, request, *args, **kwargs):

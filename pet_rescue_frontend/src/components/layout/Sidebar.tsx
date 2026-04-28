@@ -13,31 +13,31 @@ interface MenuItem {
 function getMenuItems(role: UserRole): MenuItem[] {
   if (role === 'ADMIN') {
     return [
-      { label: 'Dashboard',  to: '/admin',            icon: '📊' },
-      { label: 'Users',      to: '/admin/users',       icon: '👥' },
-      { label: 'Pets',       to: '/admin/pets',        icon: '🐾' },
-      { label: 'Reports',    to: '/admin/reports',     icon: '🚨' },
-      { label: 'Services',   to: '/admin/services',    icon: '🛠️' },
+      { label: 'Dashboard', to: '/admin', icon: '📊' },
+      { label: 'Users', to: '/admin/users', icon: '👥' },
+      { label: 'Pets', to: '/admin/pets', icon: '🐾' },
+      { label: 'Reports', to: '/admin/reports', icon: '🚨' },
+      { label: 'Services', to: '/admin/services', icon: '🛠️' },
     ];
   }
 
   if (role === 'SHOP_OWNER') {
     return [
-      { label: 'Dashboard',  to: '/dashboard',          icon: '🏠' },
-      { label: 'My Pets',    to: '/dashboard/pets',     icon: '🐾' },
-      { label: 'Listings',   to: '/dashboard/listings', icon: '📋' },
-      { label: 'Services',   to: '/dashboard/services', icon: '🛠️' },
-      { label: 'Bookings',   to: '/dashboard/bookings', icon: '📅' },
-      { label: 'My Reports', to: '/dashboard/reports',  icon: '📄' },
+      { label: 'Dashboard', to: '/dashboard', icon: '🏠' },
+      { label: 'My Reports', to: '/dashboard/reports', icon: '📄' },
+      { label: 'My Pets', to: '/dashboard/pets', icon: '🐾' },
+      { label: 'Listings', to: '/dashboard/listings', icon: '📋' },
+      { label: 'Services', to: '/dashboard/services', icon: '🛠️' },
+      { label: 'Bookings', to: '/dashboard/bookings', icon: '📅' },
     ];
   }
 
   // USER role
   return [
-    { label: 'Dashboard',    to: '/dashboard',          icon: '🏠' },
-    { label: 'My Reports',   to: '/dashboard/reports',  icon: '📄' },
-    { label: 'My Adoptions', to: '/dashboard/adoptions',icon: '❤️' },
-    { label: 'My Rescue',    to: '/dashboard/rescue',   icon: '🆘' },
+    { label: 'Dashboard', to: '/dashboard', icon: '🏠' },
+    { label: 'My Reports', to: '/dashboard/reports', icon: '📄' },
+    { label: 'My Adoptions', to: '/dashboard/adoptions', icon: '❤️' },
+    { label: 'My Rescue', to: '/dashboard/rescue', icon: '🆘' },
   ];
 }
 
@@ -48,10 +48,9 @@ function Sidebar() {
   const items = getMenuItems(user.role);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-      isActive
-        ? 'bg-brand-500 text-white shadow-md'
-        : 'text-stone-600 hover:bg-orange-50 hover:text-brand-500'
+    `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+      ? 'bg-brand-500 text-white shadow-md'
+      : 'text-stone-600 hover:bg-orange-50 hover:text-brand-500'
     }`;
 
   return (
@@ -59,10 +58,9 @@ function Sidebar() {
       {/* Role badge */}
       <div className="mb-4 px-2">
         <p className="text-xs text-stone-400 uppercase font-semibold tracking-widest mb-1">Menu</p>
-        <span className={`badge ${
-          user.role === 'ADMIN' ? 'badge-blue' :
+        <span className={`badge ${user.role === 'ADMIN' ? 'badge-blue' :
           user.role === 'SHOP_OWNER' ? 'badge-orange' : 'badge-green'
-        }`}>
+          }`}>
           {user.role === 'SHOP_OWNER' ? 'Shop Owner' : user.role}
         </span>
       </div>
