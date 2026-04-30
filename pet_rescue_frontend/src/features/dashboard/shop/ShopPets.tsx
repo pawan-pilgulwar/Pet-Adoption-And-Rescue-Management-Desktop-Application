@@ -10,6 +10,7 @@ import SearchBar from '../../../components/common/SearchBar';
 import { uploadImage } from '../../../utils/cloudinary';
 import { petSchema } from '../../../utils/validation';
 import { z } from 'zod';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopPets() {
   const [pets, setPets] = useState<Pet[]>([]);
@@ -23,6 +24,44 @@ function ShopPets() {
   
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   const initialForm = {
     name: '',
@@ -89,15 +128,22 @@ function ShopPets() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("Are you sure you want to delete this pet?")) return;
-    try {
-      await api.delete(`/pets/${id}/admin-delete-pet/`);
-      loadPets();
-    } catch {
-      alert("Failed to delete pet");
-    }
-  }
+  const handleDelete = (id: number) => {
+    showConfirm(
+      "Delete Pet",
+      "Are you sure you want to remove this pet from your shop? This action is permanent.",
+      async () => {
+        try {
+          await api.delete(`/pets/${id}/admin-delete-pet/`);
+          loadPets();
+          showAlert("Deleted", "Pet removed successfully", "success");
+        } catch {
+          showAlert("Error", "Failed to delete pet", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -129,6 +175,7 @@ function ShopPets() {
       loadPets();
       setShowModal(false);
       resetForm();
+      showAlert("Success", `Pet ${isEditing ? 'updated' : 'registered'} successfully!`, "success");
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -137,7 +184,7 @@ function ShopPets() {
         });
         setErrors(fieldErrors);
       } else {
-        alert(`${isEditing ? 'Update' : 'Registration'} failed. Please check your permissions.`);
+        showAlert("Error", `${isEditing ? 'Update' : 'Registration'} failed. Please check your permissions.`, "danger");
       }
     } finally {
       setSaving(false);
@@ -299,6 +346,15 @@ function ShopPets() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

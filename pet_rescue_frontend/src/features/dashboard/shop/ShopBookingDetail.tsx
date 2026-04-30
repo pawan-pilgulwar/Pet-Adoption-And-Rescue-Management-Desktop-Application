@@ -5,11 +5,50 @@ import { Booking } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopBookingDetail() {
   const { id } = useParams<{ id: string }>();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -20,16 +59,22 @@ function ShopBookingDetail() {
     }
   }, [id]);
 
-  async function handleCancel() {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    try {
-      await api.post(`/pet-services/bookings/${id}/cancel/`);
-      alert("Booking cancelled successfully");
-      setBooking(prev => prev ? { ...prev, status: 'Cancelled' } : null);
-    } catch {
-      alert("Failed to cancel booking");
-    }
-  }
+  const handleCancel = () => {
+    showConfirm(
+      "Cancel Booking",
+      "Are you sure you want to cancel this booking? This action cannot be undone.",
+      async () => {
+        try {
+          await api.post(`/pet-services/bookings/${id}/cancel/`);
+          setBooking(prev => prev ? { ...prev, status: 'Cancelled' } : null);
+          showAlert("Cancelled", "Booking cancelled successfully", "success");
+        } catch {
+          showAlert("Error", "Failed to cancel booking", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   if (loading) return <Spinner message="Loading booking details..." />;
   if (!booking) return <div className="p-8 text-center text-red-500">Booking not found</div>;
@@ -72,6 +117,15 @@ function ShopBookingDetail() {
           <p className="text-xs text-stone-500 mt-2">Booking ID: {booking.id}</p>
         </div>
       </section>
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

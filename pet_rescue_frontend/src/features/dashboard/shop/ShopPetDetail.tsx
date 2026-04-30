@@ -5,12 +5,51 @@ import { Pet } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopPetDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -21,16 +60,21 @@ function ShopPetDetail() {
     }
   }, [id]);
 
-  async function handleDelete() {
-    if (!window.confirm(`Are you sure you want to delete ${pet?.name}?`)) return;
-    try {
-      await api.delete(`/pets/${id}/admin-delete-pet/`);
-      alert("Pet deleted successfully");
-      navigate('/dashboard/pets');
-    } catch {
-      alert("Failed to delete pet");
-    }
-  }
+  const handleDelete = () => {
+    showConfirm(
+      "Delete Pet",
+      `Are you sure you want to delete ${pet?.name}?`,
+      async () => {
+        try {
+          await api.delete(`/pets/${id}/admin-delete-pet/`);
+          navigate('/dashboard/pets');
+        } catch {
+          showAlert("Error", "Failed to delete pet", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   if (loading) return <Spinner message="Loading pet info..." />;
   if (!pet) return <div className="p-8 text-center text-red-500">Pet not found</div>;
@@ -82,6 +126,15 @@ function ShopPetDetail() {
           </div>
         </div>
       </section>
+      
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

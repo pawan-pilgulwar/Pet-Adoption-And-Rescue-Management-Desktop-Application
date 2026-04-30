@@ -10,6 +10,7 @@ export async function fetchServices(myServices = false) {
 
 export async function fetchServiceDetail(id: number) {
   const res = await api.get(`/pet-services/${id}/`);
+  console.log(res);
   return res.data as Service;
 }
 

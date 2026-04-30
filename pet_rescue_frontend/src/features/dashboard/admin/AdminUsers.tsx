@@ -4,10 +4,49 @@ import api from '../../../services/api';
 import { User } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   function load() {
     setLoading(true);
@@ -20,15 +59,22 @@ function AdminUsers() {
 
   useEffect(() => { load(); }, []);
 
-  async function handleDelete(id: number, username: string) {
-    if (!window.confirm(`Are you sure you want to delete user @${username}? This action is permanent.`)) return;
-    try {
-      await api.delete(`/users/${id}/admin-delete-user/`);
-      load();
-    } catch {
-      alert("Failed to delete user");
-    }
-  }
+  const handleDelete = (id: number, username: string) => {
+    showConfirm(
+      "Delete User",
+      `Are you sure you want to delete user @${username}? This action is permanent and cannot be undone.`,
+      async () => {
+        try {
+          await api.delete(`/users/${id}/admin-delete-user/`);
+          load();
+          showAlert("Deleted", "User deleted successfully", "success");
+        } catch {
+          showAlert("Error", "Failed to delete user", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   return (
     <div className="fade-in">
@@ -78,6 +124,15 @@ function AdminUsers() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

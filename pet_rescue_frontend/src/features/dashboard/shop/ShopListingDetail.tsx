@@ -5,12 +5,51 @@ import { AdoptionListing } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [listing, setListing] = useState<AdoptionListing | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -21,16 +60,21 @@ function ShopListingDetail() {
     }
   }, [id]);
 
-  async function handleDelete() {
-    if (!window.confirm("Are you sure you want to remove this listing?")) return;
-    try {
-      await api.delete(`/adoption/listings/${id}/`);
-      alert("Listing removed successfully");
-      navigate('/dashboard/listings');
-    } catch {
-      alert("Failed to remove listing");
-    }
-  }
+  const handleDelete = () => {
+    showConfirm(
+      "Remove Listing",
+      "Are you sure you want to delete this adoption listing? This action cannot be undone.",
+      async () => {
+        try {
+          await api.delete(`/adoption/listings/${id}/`);
+          navigate('/dashboard/listings');
+        } catch {
+          showAlert("Error", "Failed to remove listing", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   if (loading) return <Spinner message="Loading listing..." />;
   if (!listing) return <div className="p-8 text-center text-red-500">Listing not found</div>;
@@ -78,6 +122,15 @@ function ShopListingDetail() {
           </div>
         </div>
       </section>
+      
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

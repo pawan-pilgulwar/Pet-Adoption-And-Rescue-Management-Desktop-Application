@@ -9,6 +9,7 @@ import SearchBar from '../../../components/common/SearchBar';
 import api from '../../../services/api';
 import { listingSchema } from '../../../utils/validation';
 import { z } from 'zod';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopListings() {
   const [listings, setListings] = useState<AdoptionListing[]>([]);
@@ -28,6 +29,44 @@ function ShopListings() {
 
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   const loadData = () => {
     setLoading(true);
@@ -64,15 +103,22 @@ function ShopListings() {
     setShowModal(true);
   };
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("Delete this adoption listing?")) return;
-    try {
-      await api.delete(`/adoption/listings/${id}/`);
-      loadData();
-    } catch {
-      alert("Failed to delete listing");
-    }
-  }
+  const handleDelete = (id: number) => {
+    showConfirm(
+      "Remove Listing",
+      "Are you sure you want to delete this adoption listing? This cannot be undone.",
+      async () => {
+        try {
+          await api.delete(`/adoption/listings/${id}/`);
+          loadData();
+          showAlert("Deleted", "Listing removed successfully", "success");
+        } catch {
+          showAlert("Error", "Failed to delete listing", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,6 +145,7 @@ function ShopListings() {
       loadData();
       setShowModal(false);
       resetForm();
+      showAlert("Success", `Listing ${isEditing ? 'updated' : 'created'} successfully!`, "success");
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -107,7 +154,7 @@ function ShopListings() {
         });
         setErrors(fieldErrors);
       } else {
-        alert(`Failed to ${isEditing ? 'update' : 'create'} listing`);
+        showAlert("Error", `Failed to ${isEditing ? 'update' : 'create'} listing`, "danger");
       }
     } finally {
       setSaving(false);
@@ -253,6 +300,15 @@ function ShopListings() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

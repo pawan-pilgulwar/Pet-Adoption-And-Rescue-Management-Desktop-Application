@@ -5,11 +5,50 @@ import { Report } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminReportDetail() {
   const { id } = useParams<{ id: string }>();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -20,16 +59,21 @@ function AdminReportDetail() {
     }
   }, [id]);
 
-  async function handleVerify() {
-    if (!window.confirm("Verify this report?")) return;
-    try {
-      await api.post(`/rescue/reports/${id}/verify/`);
-      alert("Report verified successfully");
-      setReport(prev => prev ? { ...prev, is_verified: true, status: 'Accepted' } : null);
-    } catch {
-      alert("Verification failed");
-    }
-  }
+  const handleVerify = () => {
+    showConfirm(
+      "Verify Report",
+      "This action will mark the report as verified and notify the user. Continue?",
+      async () => {
+        try {
+          await api.post(`/rescue/reports/${id}/verify/`);
+          setReport(prev => prev ? { ...prev, is_verified: true, status: 'Accepted' } : null);
+          showAlert("Verified", "Report verified successfully", "success");
+        } catch {
+          showAlert("Error", "Verification failed", "danger");
+        }
+      }
+    );
+  };
 
   if (loading) return <Spinner message="Loading report..." />;
   if (!report) return <div className="p-8 text-center text-red-500">Report not found</div>;
@@ -89,6 +133,15 @@ function AdminReportDetail() {
           </div>
         </div>
       </section>
+      
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

@@ -5,12 +5,51 @@ import { User } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminUserDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -21,16 +60,21 @@ function AdminUserDetail() {
     }
   }, [id]);
 
-  async function handleDelete() {
-    if (!window.confirm(`Are you sure you want to delete user @${user?.username}? This action cannot be undone.`)) return;
-    try {
-      await api.delete(`/users/${id}/admin-delete-user/`);
-      alert("User deleted successfully");
-      navigate('/admin/users');
-    } catch {
-      alert("Failed to delete user");
-    }
-  }
+  const handleDelete = () => {
+    showConfirm(
+      "Delete User",
+      `Are you sure you want to delete user @${user?.username}? This action is permanent and cannot be undone.`,
+      async () => {
+        try {
+          await api.delete(`/users/${id}/admin-delete-user/`);
+          navigate('/admin/users');
+        } catch {
+          showAlert("Error", "Failed to delete user", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   if (loading) return <Spinner message="Fetching user details..." />;
   if (!user) return <div className="p-8 text-center text-red-500">User not found</div>;
@@ -108,6 +152,15 @@ function AdminUserDetail() {
           <p className="text-stone-500 italic">No profile information available.</p>
         )}
       </section>
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

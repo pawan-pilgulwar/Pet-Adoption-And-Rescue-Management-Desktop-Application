@@ -6,6 +6,7 @@ import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
 import Input from '../../../components/common/Input';
 import { uploadImage } from '../../../utils/cloudinary';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminPets() {
   const [pets, setPets] = useState<Pet[]>([]);
@@ -14,6 +15,44 @@ function AdminPets() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   // Form State
   const [name, setName] = useState('');
@@ -54,15 +93,22 @@ function AdminPets() {
     setShowModal(true);
   };
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("Delete this pet registry?")) return;
-    try {
-      await api.delete(`/pets/${id}/admin-delete-pet/`);
-      loadPets();
-    } catch {
-      alert("Failed to delete pet");
-    }
-  }
+  const handleDelete = (id: number) => {
+    showConfirm(
+      "Delete Pet Registry",
+      "Are you sure you want to remove this pet from the global registry? This action cannot be undone.",
+      async () => {
+        try {
+          await api.delete(`/pets/${id}/admin-delete-pet/`);
+          loadPets();
+          showAlert("Deleted", "Pet registry removed successfully", "success");
+        } catch {
+          showAlert("Error", "Failed to delete pet", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -89,8 +135,9 @@ function AdminPets() {
       loadPets();
       setShowModal(false);
       resetForm();
+      showAlert("Success", `${isEditing ? 'Updated' : 'Registered'} successfully!`, "success");
     } catch {
-      alert(`${isEditing ? 'Update' : 'Registration'} failed`);
+      showAlert("Error", `${isEditing ? 'Update' : 'Registration'} failed`, "danger");
     } finally {
       setSaving(false);
     }
@@ -174,6 +221,15 @@ function AdminPets() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </div>
   );
 }

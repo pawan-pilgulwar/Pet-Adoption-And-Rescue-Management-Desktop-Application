@@ -13,7 +13,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Service
-        fields = ['id', 'name', 'description', 'price', 'image_url', 'duration', 'owner_name', 'created_by', 'schedules', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'description', 'price', 'image_url', 'duration', 'service_type', 'medical_type', 'doctor_name', 'clinic_address', 'owner_name', 'created_by', 'schedules', 'created_at', 'updated_at']
 
 class BookingSerializer(serializers.ModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')

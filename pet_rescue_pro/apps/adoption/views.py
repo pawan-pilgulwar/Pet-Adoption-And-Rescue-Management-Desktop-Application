@@ -60,8 +60,8 @@ class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     def get_permissions(self):
         if self.action == 'accept' or self.action == 'reject':
-            return [IsAuthenticated & IsShopOwner]
-        return [IsAuthenticated]
+            return [IsAuthenticated(), IsShopOwner()]
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         user = self.request.user

@@ -7,6 +7,17 @@ class Service(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.URLField(blank=True, null=True)
     duration = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 1 hour, 30 mins")
+    
+    # Medical Service Fields
+    service_type = models.CharField(
+        max_length=20,
+        choices=[("General", "General"), ("Medical", "Medical")],
+        default="General"
+    )
+    medical_type = models.CharField(max_length=50, blank=True, null=True)
+    doctor_name = models.CharField(max_length=100, blank=True, null=True)
+    clinic_address = models.TextField(blank=True, null=True)
+
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='services_created', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -73,9 +73,28 @@ function ServiceDetail() {
             </div>
             <div className="bg-orange-50 rounded-xl px-4 py-3">
               <p className="text-xs text-stone-400 uppercase tracking-wide">Category</p>
-              <p className="font-semibold text-stone-800 mt-0.5">Professional Care</p>
+              <p className="font-semibold text-stone-800 mt-0.5">{service.service_type === 'Medical' ? 'Medical Care' : 'Professional Care'}</p>
             </div>
           </div>
+
+          {service.service_type === 'Medical' && (
+            <div className="space-y-4 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 fade-in">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-widest">Medical Service</span>
+                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">{service.medical_type}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <p className="text-xs text-stone-400 uppercase tracking-wide">Primary Doctor</p>
+                  <p className="font-bold text-stone-800 mt-0.5">🩺 {service.doctor_name || 'Expert Veterinarian'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-stone-400 uppercase tracking-wide">Clinic Address</p>
+                  <p className="text-stone-600 text-sm mt-1 italic">{service.clinic_address || 'Available at our main center'}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Schedule */}
           {service.schedules && service.schedules.length > 0 && (

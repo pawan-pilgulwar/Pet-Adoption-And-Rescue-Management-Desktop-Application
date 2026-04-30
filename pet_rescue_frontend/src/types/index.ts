@@ -149,6 +149,10 @@ export interface Service {
   price: string;
   image_url: string | null;
   duration: string | null;
+  service_type: 'General' | 'Medical';
+  medical_type?: string;
+  doctor_name?: string;
+  clinic_address?: string;
   owner_name?: string;
   created_by: number;
   schedules: Schedule[];

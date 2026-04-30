@@ -5,12 +5,51 @@ import { Service } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminServiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -21,16 +60,21 @@ function AdminServiceDetail() {
     }
   }, [id]);
 
-  async function handleDelete() {
-    if (!window.confirm(`Are you sure you want to delete the service "${service?.name}"?`)) return;
-    try {
-      await api.delete(`/pet-services/${id}/`);
-      alert("Service deleted successfully");
-      navigate('/admin/services');
-    } catch {
-      alert("Failed to delete service");
-    }
-  }
+  const handleDelete = () => {
+    showConfirm(
+      "Delete Service",
+      `Are you sure you want to delete the service "${service?.name}"?`,
+      async () => {
+        try {
+          await api.delete(`/pet-services/${id}/`);
+          navigate('/admin/services');
+        } catch {
+          showAlert("Error", "Failed to delete service", "danger");
+        }
+      },
+      'danger'
+    );
+  };
 
   if (loading) return <Spinner message="Loading service details..." />;
   if (!service) return <div className="p-8 text-center text-red-500">Service not found</div>;
@@ -77,6 +121,15 @@ function AdminServiceDetail() {
           <p className="text-stone-500 italic">No specific schedules defined for this service.</p>
         )}
       </section>
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </DetailLayout>
   );
 }

@@ -12,12 +12,9 @@ class ServiceViewSet(viewsets.ModelViewSet, ResponseMixin):
     def get_queryset(self):
         queryset = Service.objects.all().order_by('-created_at')
         user = self.request.user
-        my_services = self.request.query_params.get('my_services') == 'true'
 
         if user.is_authenticated:
-            if my_services:
-                return queryset.filter(created_by=user)
-            elif user.role == 'SHOP_OWNER':
+            if user.role == 'SHOP_OWNER':
                 # Public view for Shop Owner: Show everyone ELSE's services
                 return queryset.exclude(created_by=user)
             elif user.role == 'ADMIN':

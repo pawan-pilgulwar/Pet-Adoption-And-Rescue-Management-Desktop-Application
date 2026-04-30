@@ -4,10 +4,49 @@ import { fetchAllReports, verifyReport } from '../../rescue/api';
 import { Report } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function AdminReports() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+    type?: 'danger' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => {
+        onConfirm();
+        setModalConfig(prev => ({ ...prev, isOpen: false }));
+      },
+      onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
+
+  const showAlert = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   function load() {
     setLoading(true);
@@ -19,15 +58,21 @@ function AdminReports() {
 
   useEffect(() => { load(); }, []);
 
-  async function handleVerify(id: number) {
-    if (!window.confirm("Verify this report? This action will mark it as Verified and trigger a notification.")) return;
-    try {
-      await verifyReport(id);
-      load();
-    } catch {
-      alert("Failed to verify report");
-    }
-  }
+  const handleVerify = (id: number) => {
+    showConfirm(
+      "Verify Report",
+      "This action will mark the report as verified and trigger a notification to the user.",
+      async () => {
+        try {
+          await verifyReport(id);
+          load();
+          showAlert("Verified", "Report verified successfully!", "success");
+        } catch {
+          showAlert("Error", "Failed to verify report", "danger");
+        }
+      }
+    );
+  };
 
   return (
     <div className="fade-in">
@@ -100,6 +145,15 @@ function AdminReports() {
           </table>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={modalConfig.isOpen}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onCancel={modalConfig.onCancel}
+        type={modalConfig.type}
+      />
     </div>
   );
 }
