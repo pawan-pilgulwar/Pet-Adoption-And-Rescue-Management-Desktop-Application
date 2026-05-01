@@ -83,11 +83,20 @@ class Command(BaseCommand):
 
     def create_shop_owners(self, count):
         shop_owners = []
+        shop_name_suffixes = ["Pet Store", "Clinic", "Pet Care", "Animal Hospital", "Pet World", "Paws & Claws"]
+        cities = ["Mumbai", "Pune", "Delhi", "Bangalore", "Hyderabad", "Chennai"]
+
         for i in range(count):
             first_name = fake.first_name()
             last_name = fake.last_name()
-            username = f'shop_{i+1}'
-            email = f'{username}@petrescue.in'
+            
+            # Realistic Shop Name
+            raw_shop_name = f"{fake.first_name()}'s {random.choice(shop_name_suffixes)} {random.choice(cities)}"
+            
+            # Username from shop name
+            username = raw_shop_name.lower().replace(" ", "").replace("'", "")
+            username = f"{username}{random.randint(100, 999)}"
+            email = f"{username}@petshop.in"
             
             user = User.objects.create(
                 email=email,
@@ -101,10 +110,11 @@ class Command(BaseCommand):
 
             # Profile is created by signal, but let's update it
             profile = user.shop_profile
-            profile.shop_name = f"{fake.company()} Pet Shop"
+            profile.shop_name = raw_shop_name
             profile.shop_address = f"{fake.building_number()}, {fake.street_name()}, {fake.city()}, {fake.state()}"
             profile.phone_number = f"+91 {fake.msisdn()[3:]}"
             profile.shop_license = f"LIC-{fake.random_number(digits=8)}"
+            profile.profile_picture_url = f"https://loremflickr.com/200/200/person,face?lock={random.randint(1, 1000)}"
             profile.save()
             
             shop_owners.append(user)
@@ -115,8 +125,12 @@ class Command(BaseCommand):
         for i in range(count):
             first_name = fake.first_name()
             last_name = fake.last_name()
-            username = f'user_{i+1}'
-            email = f'{username}@gmail.com'
+            full_name = f"{first_name} {last_name}"
+            
+            # Username from name
+            username = full_name.lower().replace(" ", "")
+            username = f"{username}{random.randint(100, 999)}"
+            email = f"{username}@gmail.com"
             
             user = User.objects.create(
                 email=email,
@@ -132,6 +146,7 @@ class Command(BaseCommand):
             profile = user.user_profile
             profile.address = f"{fake.building_number()}, {fake.street_name()}, {fake.city()}"
             profile.phone_number = f"+91 {fake.msisdn()[3:]}"
+            profile.profile_picture_url = f"https://loremflickr.com/200/200/person,face?lock={random.randint(1, 1000)}"
             profile.save()
             
             users.append(user)
@@ -166,7 +181,8 @@ class Command(BaseCommand):
                 description=fake.paragraph(nb_sentences=3),
                 vaccination_status=random.choice(vaccination_statuses),
                 created_by=owner,
-                owner=owner
+                owner=owner,
+                image_url=f"https://loremflickr.com/400/400/pet,{species.lower()}?lock={random.randint(1, 1000)}"
             )
             pets.append(pet)
         return pets
@@ -227,12 +243,14 @@ class Command(BaseCommand):
                 m_type = random.choice(medical_types)
                 doc = f"Dr. {fake.name()}"
                 addr = owner.shop_profile.shop_address
+                img = f"https://loremflickr.com/400/400/veterinary,clinic?lock={random.randint(1, 1000)}"
             else:
                 name = random.choice(general_names)
                 s_type = 'General'
                 m_type = None
                 doc = None
                 addr = None
+                img = f"https://loremflickr.com/400/400/pet,grooming?lock={random.randint(1, 1000)}"
                 
             service = Service.objects.create(
                 name=f"{name} - {fake.word().capitalize()}",
@@ -243,7 +261,8 @@ class Command(BaseCommand):
                 medical_type=m_type,
                 doctor_name=doc,
                 clinic_address=addr,
-                created_by=owner
+                created_by=owner,
+                image_url=img
             )
             services.append(service)
         return services

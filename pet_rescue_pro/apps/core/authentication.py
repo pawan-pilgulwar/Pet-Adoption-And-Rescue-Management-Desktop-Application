@@ -26,12 +26,12 @@ class CustomJWTAuthentication(BaseAuthentication):
             decoded_token = AccessToken(token)
             user_id = decoded_token['user_id']
         except Exception:
-            raise AuthenticationFailed("Invalid or expired token")
+            return None
 
         # 4. Get the user
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            raise AuthenticationFailed("User not found")
+            return None
         
         return (user, token)

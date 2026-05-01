@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-@$z3*wct8t00xwoy-zf%w*_21o&u#8#z8!)#s=x=r0!#9j(mp+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.31.75"]
 
 
 # Application definition
@@ -183,11 +183,17 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.31.75:3000",
+]
+
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
-AUTHENTICATION_BACKENDS = {
-    "apps.users.authentication.EmailBackend"
-}
+AUTHENTICATION_BACKENDS = [
+    "apps.users.authentication.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 # Cloudinary Configuration
 cloudinary.config(

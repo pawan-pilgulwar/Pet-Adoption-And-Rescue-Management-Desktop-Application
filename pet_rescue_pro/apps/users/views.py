@@ -13,7 +13,11 @@ from apps.core.permission import IsAdmin
 from apps.rescue.models import Report
 from apps.pets.models import Pet 
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
+@method_decorator(csrf_exempt, name='dispatch')
 class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
     queryset = User.objects.all()   
     serializer_class = UserReadSerializer
@@ -33,6 +37,11 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         elif self.request.method == 'POST' or self.request.method == 'PUT' or self.request.method == 'PATCH':
             return UserWriteSerializer
         return UserReadSerializer
+
+    def get_permissions(self):
+        if self.action in ['login', 'register']:
+            return [AllowAny()]
+        return super().get_permissions()
 
     
     def list(self, request, *args, **kwargs):
