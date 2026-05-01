@@ -18,6 +18,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
       { label: 'Pets', to: '/admin/pets', icon: '🐾' },
       { label: 'Reports', to: '/admin/reports', icon: '🚨' },
       { label: 'Services', to: '/admin/services', icon: '🛠️' },
+      { label: 'Adoptions', to: '/admin/adoptions', icon: '❤️' },
     ];
   }
 

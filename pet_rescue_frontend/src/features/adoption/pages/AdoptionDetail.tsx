@@ -37,11 +37,10 @@ function AdoptionDetail() {
     setError('');
 
     try {
-      const res = await createAdoption({
+      await createAdoption({
         pet: listing.pet,
         notes: details,
       });
-      console.log(res);
       setSuccess(true);
       setStep('summary');
     } catch (err: any) {

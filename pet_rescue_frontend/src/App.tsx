@@ -47,6 +47,8 @@ import AdminUserDetail from './features/dashboard/admin/AdminUserDetail';
 import AdminPetDetail from './features/dashboard/admin/AdminPetDetail';
 import AdminReportDetail from './features/dashboard/admin/AdminReportDetail';
 import AdminServiceDetail from './features/dashboard/admin/AdminServiceDetail';
+import AdminAdoptions from './features/dashboard/admin/AdminAdoptions';
+import AdminAdoptionDetail from './features/dashboard/admin/AdminAdoptionDetail';
 
 // Profile
 import Profile from './features/profile/pages/Profile';
@@ -113,6 +115,8 @@ function AppRoutes() {
         <Route path="/admin/users/:id" element={<AdminUserDetail />} />
         <Route path="/admin/pets" element={<AdminPets />} />
         <Route path="/admin/pets/:id" element={<AdminPetDetail />} />
+        <Route path="/admin/adoptions" element={<AdminAdoptions />} />
+        <Route path="/admin/adoptions/:id" element={<AdminAdoptionDetail />} />
       </Route>
 
       {/* ─── Fallback ─── */}

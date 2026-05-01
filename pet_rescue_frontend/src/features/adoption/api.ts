@@ -83,3 +83,9 @@ export async function createAdoption(data: { pet: number; notes?: string }) {
   const res = await api.post('/adoption/adoptions/', data);
   return res.data?.data as Adoption;
 }
+
+// GET /api/v1/adoption/adoptions/:id/
+export async function fetchAdoptionDetail(id: number) {
+  const res = await api.get(`/adoption/adoptions/${id}/`);
+  return (res.data?.data || res.data) as Adoption;
+}
