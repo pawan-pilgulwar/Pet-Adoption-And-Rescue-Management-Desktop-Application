@@ -39,7 +39,7 @@ function ServicesPage() {
                           s.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     // Exclude own services for shop owners
-    const isNotMine = user?.role === 'SHOP_OWNER' ? s.created_by !== user.id : true;
+    const isNotMine = user?.role === 'SHOP_OWNER' ? s.created_by.id !== user.id : true;
     
     return matchesSearch && isNotMine;
   });

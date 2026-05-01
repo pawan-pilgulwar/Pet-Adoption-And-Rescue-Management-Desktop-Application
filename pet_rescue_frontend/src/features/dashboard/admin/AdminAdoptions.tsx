@@ -4,6 +4,8 @@ import { fetchAdoptions } from '../../adoption/api';
 import { Adoption } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
+import { isShopOwnerProfile } from '../../../utils/typeGuards';
+
 
 function AdminAdoptions() {
   const [adoptions, setAdoptions] = useState<Adoption[]>([]);
@@ -47,25 +49,32 @@ function AdminAdoptions() {
               {adoptions.map(adoption => (
                 <tr key={adoption.id}>
                   <td className="font-mono text-xs text-stone-500">#{adoption.id}</td>
-                  <td className="flex items-center gap-3">
+                   <td className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg overflow-hidden bg-orange-50 shrink-0">
-                      {adoption.pet_detail?.image_url ? (
-                        <img src={adoption.pet_detail.image_url} alt="Pet" className="h-full w-full object-cover" />
+                      {adoption.pet?.image_url ? (
+                        <img src={adoption.pet.image_url} alt="Pet" className="h-full w-full object-cover" />
                       ) : (
                         <span className="flex items-center justify-center h-full w-full text-lg">🐾</span>
                       )}
                     </div>
                     <div>
-                        <p className="font-semibold text-stone-900">{adoption.pet_detail?.name}</p>
-                        <p className="text-xs text-stone-500">{adoption.pet_detail?.species} • {adoption.pet_detail?.breed || 'Unknown'}</p>
+                        <p className="font-semibold text-stone-900">{adoption.pet?.name}</p>
+                        <p className="text-xs text-stone-500">{adoption.pet?.species} • {adoption.pet?.breed || 'Unknown'}</p>
                     </div>
                   </td>
                   <td>
-                    <p className="text-sm font-medium text-stone-900">{adoption.user_detail}</p>
+                    <p className="text-sm font-medium text-stone-900">{adoption.user.first_name} {adoption.user.last_name}</p>
+                    <p className="text-[10px] text-stone-400">@{adoption.user.username}</p>
                   </td>
                   <td>
-                    <p className="text-sm text-stone-600">{adoption.shop_name || adoption.shop_detail || '-'}</p>
+                    <p className="text-sm text-stone-600">
+                      {isShopOwnerProfile(adoption.shop_owner.profile) 
+                        ? adoption.shop_owner.profile.shop_name 
+                        : `${adoption.shop_owner.first_name} ${adoption.shop_owner.last_name}`}
+                    </p>
                   </td>
+
+
                   <td className="font-semibold text-brand-500">₹{adoption.price}</td>
                   <td className="text-stone-500 text-sm">{new Date(adoption.adopted_at || '').toLocaleDateString()}</td>
                   <td className="text-right">

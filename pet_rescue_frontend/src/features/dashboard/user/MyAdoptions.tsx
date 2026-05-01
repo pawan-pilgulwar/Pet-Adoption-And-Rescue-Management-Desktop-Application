@@ -3,6 +3,8 @@ import { fetchAdoptions } from '../../adoption/api';
 import { Adoption } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
+import { isShopOwnerProfile } from '../../../utils/typeGuards';
+
 
 function MyAdoptions() {
   const [adoptions, setAdoptions] = useState<Adoption[]>([]);
@@ -44,17 +46,23 @@ function MyAdoptions() {
                 <tr key={adoption.id}>
                   <td className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-lg overflow-hidden bg-orange-50 shrink-0">
-                      {adoption.pet_detail?.image_url ? (
-                        <img src={adoption.pet_detail.image_url} alt="Pet" className="h-full w-full object-cover" />
+                      {adoption.pet?.image_url ? (
+                        <img src={adoption.pet.image_url} alt="Pet" className="h-full w-full object-cover" />
                       ) : (
                         <span className="flex items-center justify-center h-full w-full text-lg">🐾</span>
                       )}
                     </div>
-                    <span className="font-semibold text-stone-900">{adoption.pet_detail?.name}</span>
+                    <span className="font-semibold text-stone-900">{adoption.pet?.name}</span>
                   </td>
-                  <td>{adoption.shop_name || adoption.shop_detail || '-'}</td>
+                  <td>
+                    {isShopOwnerProfile(adoption.shop_owner.profile) 
+                      ? adoption.shop_owner.profile.shop_name 
+                      : `${adoption.shop_owner.first_name} ${adoption.shop_owner.last_name}`}
+                  </td>
+
                   <td className="font-semibold text-brand-500">₹{adoption.price}</td>
                   <td className="text-stone-500">{new Date(adoption.adopted_at || '').toLocaleDateString()}</td>
+
                 </tr>
               ))}
             </tbody>

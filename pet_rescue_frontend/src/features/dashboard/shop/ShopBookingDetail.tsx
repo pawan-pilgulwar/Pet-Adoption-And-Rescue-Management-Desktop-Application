@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../../services/api';
-import { Booking } from '../../../types';
+import { Booking, UserProfile } from '../../../types';
+
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
@@ -79,18 +80,21 @@ function ShopBookingDetail() {
   if (loading) return <Spinner message="Loading booking details..." />;
   if (!booking) return <div className="p-8 text-center text-red-500">Booking not found</div>;
 
+  const { user, service } = booking;
+  const profile = user.profile;
+
   return (
     <DetailLayout
-      title={booking.service_name || 'Service Booking'}
-      subtitle={`Customer: ${booking.user_name}`}
+      title={service.name || 'Service Booking'}
+      subtitle={`Customer: ${user.first_name} ${user.last_name}`}
       backLink="/dashboard/bookings"
       backText="Back to Bookings"
-      imageFallback="📅"
+      image={service.image_url || undefined}
       stats={[
         { label: 'Status', value: booking.status },
         { label: 'Date', value: new Date(booking.booking_date).toLocaleDateString() },
         { label: 'Time', value: new Date(booking.booking_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-        { label: 'Price', value: `₹${booking.service_price}` }
+        { label: 'Price', value: `₹${service.price}` }
       ]}
       actions={
         booking.status === 'Pending' || booking.status === 'Confirmed' ? (
@@ -100,23 +104,95 @@ function ShopBookingDetail() {
         ) : null
       }
     >
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Customer Notes</h3>
-        <p className="text-stone-700 leading-relaxed italic">
-          {booking.additional_notes || "No additional notes provided."}
-        </p>
-      </section>
+      <div className="space-y-12">
+        {/* Booking Details Section */}
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Booking Information</h3>
+          <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100 mb-6">
+            <p className="text-stone-700 leading-relaxed italic">
+              "{booking.additional_notes || "No additional notes provided."}"
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Booking ID</p>
+              <p className="font-semibold text-stone-900">#{booking.id}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Created At</p>
+              <p className="font-semibold text-stone-900">{new Date(booking.created_at).toLocaleString()}</p>
+            </div>
+          </div>
+        </section>
 
-      <hr className="border-stone-100" />
+        <hr className="border-stone-100" />
 
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Service Information</h3>
-        <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
-          <p className="text-xs text-stone-400 uppercase font-bold mb-2 tracking-wider">Service Name</p>
-          <p className="text-stone-900 font-semibold">{booking.service_name}</p>
-          <p className="text-xs text-stone-500 mt-2">Booking ID: {booking.id}</p>
-        </div>
-      </section>
+        {/* Customer Section */}
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">Customer Details</h3>
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-20 h-20 rounded-2xl bg-stone-100 overflow-hidden border border-stone-200">
+              {profile?.profile_picture_url ? (
+                <img src={profile.profile_picture_url} alt={user.username} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-stone-400 font-bold text-2xl uppercase">
+                  {user.username.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-stone-900 text-xl">{user.first_name} {user.last_name}</p>
+              <p className="text-stone-500">@{user.username} • Customer</p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Email</p>
+              <p className="font-semibold text-stone-900">{user.email}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Phone</p>
+              <p className="font-semibold text-stone-900">{(profile as UserProfile)?.phone_number || '—'}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Address</p>
+              <p className="font-semibold text-stone-900 truncate">{(profile as UserProfile)?.address || '—'}</p>
+            </div>
+          </div>
+        </section>
+
+        <hr className="border-stone-100" />
+
+        {/* Service Section */}
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">Service Details</h3>
+          <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="font-bold text-stone-900 text-lg">{service.name}</p>
+                <p className="text-stone-500 text-sm">{service.service_type} Service • {service.duration || 'Flexible'}</p>
+              </div>
+              <p className="font-bold text-stone-900 text-xl">₹{service.price}</p>
+            </div>
+            <p className="text-stone-700 text-sm leading-relaxed">{service.description}</p>
+            
+            {service.service_type === 'Medical' && (
+              <div className="mt-6 pt-6 border-t border-stone-200 grid md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Medical Type</p>
+                  <p className="font-semibold text-stone-900">{service.medical_type || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Doctor</p>
+                  <p className="font-semibold text-stone-900">{service.doctor_name || '—'}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+
 
       <ConfirmModal
         isOpen={modalConfig.isOpen}

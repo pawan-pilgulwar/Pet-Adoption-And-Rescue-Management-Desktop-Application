@@ -5,6 +5,8 @@ import { Service } from '../../../types';
 import { useAuth } from '../../../context/AuthContext';
 import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
+import { isShopOwnerProfile } from '../../../utils/typeGuards';
+
 
 function ServiceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -104,24 +106,29 @@ function ServiceDetail() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-brand-700">Shop Name</span>
-                <span className="font-semibold text-brand-900">{service.shop_name || service.owner_name}</span>
+                <span className="font-semibold text-brand-900">
+                  {isShopOwnerProfile(service.created_by.profile) 
+                    ? service.created_by.profile.shop_name 
+                    : `${service.created_by.first_name} ${service.created_by.last_name}`}
+                </span>
               </div>
-              {service.shop_address && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-brand-700">Address</span>
-                  <span className="font-semibold text-brand-900 text-right">{service.shop_address}</span>
-                </div>
-              )}
-              {service.shop_contact && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-brand-700">Contact</span>
-                  <a href={`tel:${service.shop_contact}`} className="font-semibold text-brand-900 hover:underline">
-                    {service.shop_contact}
-                  </a>
-                </div>
+              {isShopOwnerProfile(service.created_by.profile) && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-700">Address</span>
+                    <span className="font-semibold text-brand-900 text-right">{service.created_by.profile.shop_address}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-700">Contact</span>
+                    <a href={`tel:${service.created_by.profile.phone_number}`} className="font-semibold text-brand-900 hover:underline">
+                      {service.created_by.profile.phone_number}
+                    </a>
+                  </div>
+                </>
               )}
             </div>
           </div>
+
 
           {/* Schedule */}
           {service.schedules && service.schedules.length > 0 && (

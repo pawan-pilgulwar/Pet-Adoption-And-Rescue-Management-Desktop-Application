@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
-import { User } from '../../../types';
+import { User, UserProfile, ShopOwnerProfile } from '../../../types';
+
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
@@ -79,13 +80,17 @@ function AdminUserDetail() {
   if (loading) return <Spinner message="Fetching user details..." />;
   if (!user) return <div className="p-8 text-center text-red-500">User not found</div>;
 
+  const profile = user.profile;
+  const isUserProfile = (p: any): p is UserProfile => p && 'address' in p;
+  const isShopOwnerProfile = (p: any): p is ShopOwnerProfile => p && 'shop_name' in p;
+
   return (
     <DetailLayout
       title={`${user.first_name} ${user.last_name}`}
       subtitle={`@${user.username}`}
       backLink="/admin/users"
       backText="Back to Users"
-      image={user.profile?.profile_picture_url || undefined}
+      image={profile?.profile_picture_url || undefined}
       imageFallback="👤"
       stats={[
         { label: 'Role', value: user.role },
@@ -97,61 +102,75 @@ function AdminUserDetail() {
         </Button>
       }
     >
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Account Information</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <p className="text-xs text-stone-400 mb-1">Email Address</p>
-            <p className="font-medium text-stone-900">{user.email}</p>
+      <div className="space-y-12">
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">Account Information</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Email Address</p>
+              <p className="font-semibold text-stone-900">{user.email}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">User ID</p>
+              <p className="font-mono text-stone-900">#{user.id}</p>
+            </div>
+             <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">System Role</p>
+              <p className="font-semibold text-stone-900">{user.role}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-stone-400 mb-1">User ID</p>
-            <p className="font-mono text-stone-900">{user.id}</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <hr className="border-stone-100" />
+        <hr className="border-stone-100" />
 
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Profile Details</h3>
-        {user.profile ? (
-          (() => {
-            const profile = user.profile as any;
-            return (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-xs text-stone-400 mb-1">Phone Number</p>
-                    <p className="font-medium text-stone-900">{profile.phone_number || 'Not provided'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-stone-400 mb-1">Address</p>
-                    <p className="font-medium text-stone-900">{profile.address || profile.shop_address || 'Not provided'}</p>
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">Profile Details</h3>
+          {profile ? (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100">
+                  <p className="text-xs text-stone-400 uppercase font-bold mb-4 tracking-wider">Contact Details</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between border-b border-stone-200/50 pb-2">
+                      <span className="text-stone-500 text-sm">Phone</span>
+                      <span className="font-semibold text-stone-900">
+                         {isUserProfile(profile) ? profile.phone_number : (isShopOwnerProfile(profile) ? profile.phone_number : '—')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500 text-sm">Address</span>
+                      <span className="font-semibold text-stone-900 text-right max-w-[200px]">
+                        {isUserProfile(profile) ? profile.address : (isShopOwnerProfile(profile) ? profile.shop_address : '—')}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                {user.role === 'SHOP_OWNER' && (
-                  <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100">
-                    <p className="text-xs text-orange-600 font-bold uppercase mb-2">Shop Information</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs text-orange-400">Shop Name</p>
-                        <p className="font-bold text-orange-900">{profile.shop_name}</p>
+
+                {isShopOwnerProfile(profile) && (
+                  <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100">
+                    <p className="text-xs text-amber-600 font-bold uppercase mb-4 tracking-wider">Shop Information</p>
+                    <div className="space-y-3">
+                      <div className="flex justify-between border-b border-amber-200/50 pb-2">
+                        <span className="text-amber-500 text-sm">Shop Name</span>
+                        <span className="font-bold text-amber-900">{profile.shop_name}</span>
                       </div>
-                      <div>
-                        <p className="text-xs text-orange-400">License ID</p>
-                        <p className="font-mono text-orange-900">{profile.shop_license}</p>
+                      <div className="flex justify-between">
+                        <span className="text-amber-500 text-sm">License ID</span>
+                        <span className="font-mono text-amber-900 font-bold">{profile.shop_license || '—'}</span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-            );
-          })()
-        ) : (
-          <p className="text-stone-500 italic">No profile information available.</p>
-        )}
-      </section>
+            </div>
+          ) : (
+            <div className="bg-stone-50 p-8 rounded-3xl border border-stone-100 text-center">
+              <p className="text-stone-500 italic">No profile information available for this user.</p>
+            </div>
+          )}
+        </section>
+      </div>
+
 
       <ConfirmModal
         isOpen={modalConfig.isOpen}

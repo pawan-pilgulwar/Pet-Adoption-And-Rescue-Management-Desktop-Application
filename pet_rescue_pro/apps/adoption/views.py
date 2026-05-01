@@ -1,14 +1,16 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from .models import Adoption, AdoptionListing, AdoptionRequest
-from .serializer import AdoptionSerializer, AdoptionListingSerializer, AdoptionRequestSerializer
+from .models import Adoption, AdoptionListing
+from .serializer import AdoptionSerializer, AdoptionListingSerializer
 from apps.core.mixins import ResponseMixin
 from apps.core.permission import IsAdmin, IsShopOwner, IsAdminOrShopOwner
 from apps.notifications.models import Notification
 
 class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = AdoptionListing.objects.all()
+    queryset = AdoptionListing.objects.select_related(
+        'pet', 'shop_owner', 'shop_owner__shop_profile'
+    ).all()
     serializer_class = AdoptionListingSerializer
 
     def get_permissions(self):
@@ -20,7 +22,7 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
         serializer.save(shop_owner=self.request.user)
 
     def get_queryset(self):
-        queryset = AdoptionListing.objects.all().order_by('-created_at')
+        queryset = self.queryset.order_by('-created_at')
         user = self.request.user
         my_listings = self.request.query_params.get('my_listings') == 'true'
 
@@ -54,83 +56,12 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
         serializer = self.get_serializer(queryset, many=True)
         return self.success_response(data=serializer.data)
 
-class AdoptionRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = AdoptionRequest.objects.all()
-    serializer_class = AdoptionRequestSerializer
-
-    def get_permissions(self):
-        if self.action == 'accept' or self.action == 'reject':
-            return [IsAuthenticated(), IsShopOwner()]
-        return [IsAuthenticated()]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == 'ADMIN':
-            return AdoptionRequest.objects.all()
-        if user.role == 'SHOP_OWNER':
-            return AdoptionRequest.objects.filter(listing__shop_owner=user)
-        return AdoptionRequest.objects.filter(user=user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    @action(detail=True, methods=['patch'], url_path='accept-request')
-    def accept(self, request, pk=None):
-        adoption_request = self.get_object()
-        if adoption_request.status == 'Approved':
-            return self.error_response(message="This request is already approved")
-
-        adoption_request.status = 'Approved'
-        adoption_request.save()
-
-        # Update Listing
-        if adoption_request.listing:
-            adoption_request.listing.is_available = False
-            adoption_request.listing.save()
-
-        # Create Final Adoption Record
-        Adoption.objects.create(
-            user=adoption_request.user,
-            pet=adoption_request.pet,
-            shop_owner=adoption_request.listing.shop_owner if adoption_request.listing else adoption_request.pet.created_by,
-            price=adoption_request.listing.price if adoption_request.listing else 0.00,
-        )
-
-        # Create Notification
-        Notification.objects.create(
-            user=adoption_request.user,
-            title="Adoption Request Accepted",
-            message=f"Your adoption request for {adoption_request.pet.name} has been accepted.",
-            notification_type="Adoption_Status"
-        )
-
-        return self.success_response(
-            message="Adoption request accepted successfully",
-            data=self.get_serializer(adoption_request).data
-        )
-
-    @action(detail=True, methods=['post'], url_path='reject-request')
-    def reject(self, request, pk=None):
-        adoption_request = self.get_object()
-        adoption_request.status = 'Rejected'
-        adoption_request.save()
-
-        # Create Notification
-        Notification.objects.create(
-            user=adoption_request.user,
-            title="Adoption Request Rejected",
-            message=f"Your adoption request for {adoption_request.pet.name} has been rejected.",
-            notification_type="Adoption_Status"
-        )
-
-        return self.success_response(
-            message="Adoption request rejected successfully",
-            data=self.get_serializer(adoption_request).data
-        )
-
 class AdoptionViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = Adoption.objects.all()
+    queryset = Adoption.objects.select_related(
+        'user', 'user__user_profile', 'pet', 'shop_owner', 'shop_owner__shop_profile'
+    ).all()
     serializer_class = AdoptionSerializer
+
 
     def get_permissions(self):
         return [IsAuthenticated()]

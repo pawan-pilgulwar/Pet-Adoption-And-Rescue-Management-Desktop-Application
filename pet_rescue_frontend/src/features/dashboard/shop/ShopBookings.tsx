@@ -27,8 +27,8 @@ function ShopBookings() {
   const filteredBookings = useMemo(() => {
     return bookings
       .filter(b => {
-        const matchesSearch = b.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (b.service_name && b.service_name.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesSearch = (b.user.first_name + ' ' + b.user.last_name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (b.service?.name && b.service.name.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesTab = b.status === activeTab;
         return matchesSearch && matchesTab;
       })
@@ -46,7 +46,7 @@ function ShopBookings() {
 
     // Populate groups with filtered bookings
     filteredBookings.forEach(b => {
-      const name = b.service_name || 'Other';
+      const name = b.service?.name || 'Other';
       if (!groups[name]) groups[name] = [];
       groups[name].push(b);
     });
@@ -142,7 +142,7 @@ function ShopBookings() {
                           <tr key={b.id} className="hover:bg-stone-50/50 transition-colors">
                             <td className="font-semibold text-stone-900">
                               <Link to={`/dashboard/bookings/${b.id}`} className="hover:text-brand-500">
-                                {b.user_name}
+                                {b.user.first_name} {b.user.last_name}
                               </Link>
                             </td>
                             <td className="text-stone-500">{new Date(b.booking_date).toLocaleString()}</td>

@@ -18,7 +18,7 @@ function MyRescue() {
   }, []);
 
   const filteredRequests = requests.filter(r => 
-    r.report_detail?.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.report?.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -53,12 +53,12 @@ function MyRescue() {
                 }`}>
                   {req.status}
                 </span>
-                <span className="text-xs text-stone-400 font-mono">{req.report_detail?.rescue_id}</span>
+                <span className="text-xs text-stone-400 font-mono">{req.report?.rescue_id}</span>
               </div>
               <p className="font-semibold text-stone-900 mb-1">
-                {req.report_detail?.report_type === 'Lost' ? '🔴 Lost' : '🟢 Found'} Pet Request
+                {req.report?.report_type === 'Lost' ? '🔴 Lost' : '🟢 Found'} Pet Request
               </p>
-              <p className="text-sm text-stone-500 mb-3">{req.report_detail?.location}</p>
+              <p className="text-sm text-stone-500 mb-3">{req.report?.location}</p>
               {req.message && (
                 <div className="bg-orange-50 rounded-lg p-3 text-sm text-stone-700 italic">
                   "{req.message}"

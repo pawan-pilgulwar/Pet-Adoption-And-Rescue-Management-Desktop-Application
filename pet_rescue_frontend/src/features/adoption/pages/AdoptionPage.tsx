@@ -27,7 +27,7 @@ function AdoptionPage() {
   // Initial load
   useEffect(() => { loadListings(); }, []);
 
-  const displayListings = listings.filter(l => l.shop_owner !== user?.id);
+  const displayListings = listings.filter(l => l.shop_owner.id !== user?.id);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();

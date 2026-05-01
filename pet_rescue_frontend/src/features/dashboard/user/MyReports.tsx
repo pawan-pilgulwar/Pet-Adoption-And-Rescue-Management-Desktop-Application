@@ -20,10 +20,11 @@ function MyReports() {
   }, []);
 
   const filteredReports = reports.filter(r => 
-    r.pet_detail?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.pet?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.report_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <div className="fade-in">

@@ -22,7 +22,7 @@ function MyBookings() {
 
   const filteredBookings = bookings
     .filter(b => {
-      const matchesSearch = (b.service_name && b.service_name.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = (b.service?.name && b.service.name.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesTab = b.status === activeTab;
       return matchesSearch && matchesTab;
     })
@@ -86,7 +86,7 @@ function MyBookings() {
               {filteredBookings.map(b => (
                 <tr key={b.id} className="hover:bg-stone-50/50 transition-colors">
                   <td className="font-semibold text-stone-900">
-                    {b.service_name}
+                    {b.service?.name}
                   </td>
                   <td className="text-stone-500">{new Date(b.booking_date).toLocaleString()}</td>
                   <td>

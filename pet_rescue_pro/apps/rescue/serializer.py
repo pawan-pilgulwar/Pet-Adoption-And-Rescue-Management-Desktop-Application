@@ -3,44 +3,16 @@ from .models import Report, RescueRequest
 from apps.pets.models import Pet
 from apps.pets.serializer import PetSerializer
 
+from apps.users.serializer import UserReadSerializer
+
 class ReportSerializer(serializers.ModelSerializer):
-    user_detail = serializers.StringRelatedField(source="user", read_only=True)
-    pet_detail = PetSerializer(source="pet", read_only=True)
-    user_contact = serializers.SerializerMethodField()
-    phone = serializers.SerializerMethodField()
-    email = serializers.ReadOnlyField(source="user.email")
+    user = UserReadSerializer(read_only=True)
+    pet = PetSerializer(read_only=True)
 
     class Meta:
         model = Report
         fields = '__all__'
         read_only_fields = ['rescue_id', 'created_at', 'updated_at', 'user']
-
-    def get_phone(self, obj):
-        if obj.user.role == 'USER' and hasattr(obj.user, 'user_profile'):
-            return obj.user.user_profile.phone_number
-        elif obj.user.role == 'SHOP_OWNER' and hasattr(obj.user, 'shop_profile'):
-            return obj.user.shop_profile.phone_number
-        return "—"
-
-    def get_user_contact(self, obj):
-        profile_data = {}
-        if obj.user.role == 'USER' and hasattr(obj.user, 'user_profile'):
-            profile_data = {
-                "phone": obj.user.user_profile.phone_number,
-                "address": obj.user.user_profile.address,
-            }
-        elif obj.user.role == 'SHOP_OWNER' and hasattr(obj.user, 'shop_profile'):
-            profile_data = {
-                "phone": obj.user.shop_profile.phone_number,
-                "address": obj.user.shop_profile.shop_address,
-            }
-            
-        return {
-            "username": obj.user.username,
-            "email": obj.user.email,
-            "phone": profile_data.get("phone", "—"),
-            "address": profile_data.get("address", "—"),
-        }
 
 class ReportCreateSerializer(serializers.ModelSerializer):
     pet_data = serializers.DictField(write_only=True)
@@ -76,10 +48,11 @@ class ReportCreateSerializer(serializers.ModelSerializer):
         return report
 
 class RescueRequestSerializer(serializers.ModelSerializer):
-    user_detail = serializers.StringRelatedField(source="user", read_only=True)
-    report_detail = ReportSerializer(source="report", read_only=True)
+    user = UserReadSerializer(read_only=True)
+    report = ReportSerializer(read_only=True)
 
     class Meta:
         model = RescueRequest
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at', 'user']
+

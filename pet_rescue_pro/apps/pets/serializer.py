@@ -2,14 +2,15 @@ from rest_framework import serializers
 from .models import Pet
 import re
 
+from apps.users.serializer import UserReadSerializer
+
 class PetSerializer(serializers.ModelSerializer):
-    created_by = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
+    owner = UserReadSerializer(read_only=True)
+    created_by = UserReadSerializer(read_only=True)
     
-    created_by_detail = serializers.StringRelatedField(
-        source="created_by",
-        read_only=True
+    created_by_write = serializers.HiddenField(
+        default=serializers.CurrentUserDefault(),
+        source='created_by'
     )
 
     class Meta:
@@ -32,14 +33,14 @@ class PetSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "created_by",
-            "created_by_detail"
+            "created_by_write"
         ]
         read_only_fields = [
             "pet_id",
             "created_at",
             "updated_at",
-            "created_by_detail"
         ]
+
 
     def validate_name(self, value):
         if not re.match(r'^[A-Za-z\s]+$', value):

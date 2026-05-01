@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
-import { AdoptionListing } from '../../../types';
+import { AdoptionListing, ShopOwnerProfile } from '../../../types';
+
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
@@ -79,7 +80,7 @@ function ShopListingDetail() {
   if (loading) return <Spinner message="Loading listing..." />;
   if (!listing) return <div className="p-8 text-center text-red-500">Listing not found</div>;
 
-  const pet = listing.pet_detail;
+  const { pet, shop_owner } = listing;
 
   return (
     <DetailLayout
@@ -100,28 +101,84 @@ function ShopListingDetail() {
         </Button>
       }
     >
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Listing Description</h3>
-        <p className="text-stone-700 leading-relaxed">
-          {listing.description || "No specific description provided for this listing."}
-        </p>
-      </section>
-
-      <hr className="border-stone-100" />
-
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Pet Details</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-             <p className="text-xs text-stone-400 mb-1">Gender</p>
-             <p className="font-medium text-stone-900">{pet?.gender || '—'}</p>
+      <div className="space-y-12">
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Listing Description</h3>
+          <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100 italic">
+            <p className="text-stone-700 leading-relaxed">
+              "{listing.description || "No specific description provided for this listing."}"
+            </p>
           </div>
-          <div>
-             <p className="text-xs text-stone-400 mb-1">Age</p>
-             <p className="font-medium text-stone-900">{pet?.age ? `${pet.age} yrs` : '—'}</p>
+        </section>
+
+        <hr className="border-stone-100" />
+
+        <section>
+          <div className="flex justify-between items-end mb-6">
+            <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest">🐾 Pet Details</h3>
+            <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full border border-amber-100">
+              {pet.pet_id}
+            </span>
           </div>
-        </div>
-      </section>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Gender</p>
+              <p className="font-semibold text-stone-900">{pet.gender || '—'}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Age</p>
+              <p className="font-semibold text-stone-900">{pet.age ? `${pet.age} yrs` : '—'}</p>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Size</p>
+              <p className="font-semibold text-stone-900">{pet.size || '—'}</p>
+            </div>
+             <div className="bg-white p-4 rounded-2xl border border-stone-100 shadow-sm">
+              <p className="text-[10px] text-stone-400 uppercase font-bold mb-1">Color</p>
+              <p className="font-semibold text-stone-900">{pet.color || '—'}</p>
+            </div>
+          </div>
+          <div className="mt-6">
+             <p className="text-xs text-stone-400 uppercase font-bold mb-2 tracking-wider px-1">Pet Description</p>
+             <p className="text-stone-600 text-sm bg-white p-4 rounded-2xl border border-stone-50 leading-relaxed shadow-sm">
+               {pet.description || "No description available for the pet instance."}
+             </p>
+          </div>
+        </section>
+
+        <hr className="border-stone-100" />
+
+        <section>
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">Shop / Provider Info</h3>
+          <div className="bg-stone-50 p-6 rounded-3xl border border-stone-100 flex items-center gap-6">
+             <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-stone-200">
+              {shop_owner.profile?.profile_picture_url ? (
+                <img src={shop_owner.profile.profile_picture_url} alt={shop_owner.username} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-stone-400 font-bold text-xl uppercase">
+                  {shop_owner.username.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-bold text-stone-900 text-lg">{(shop_owner.profile as ShopOwnerProfile)?.shop_name || `${shop_owner.first_name} ${shop_owner.last_name}`}</p>
+                  <p className="text-stone-500 text-sm">@{shop_owner.username} • {shop_owner.role}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-stone-400 uppercase font-bold mb-1">Contact</p>
+                  <p className="text-stone-900 font-semibold">{shop_owner.email}</p>
+                  <p className="text-stone-600 text-sm font-medium">
+                    {(shop_owner.profile as ShopOwnerProfile)?.phone_number || '—'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
       
       <ConfirmModal
         isOpen={modalConfig.isOpen}

@@ -5,12 +5,14 @@ from .serializer import ServiceSerializer, BookingSerializer, ScheduleSerializer
 from apps.core.mixins import ResponseMixin
 
 class ServiceViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = Service.objects.all().order_by('-created_at')
+    queryset = Service.objects.select_related(
+        'created_by', 'created_by__shop_profile'
+    ).prefetch_related('schedules').all().order_by('-created_at')
     serializer_class = ServiceSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        queryset = Service.objects.all().order_by('-created_at')
+        queryset = self.queryset
         user = self.request.user
         my_services = self.request.query_params.get('my_services')
 
@@ -30,18 +32,20 @@ class ServiceViewSet(viewsets.ModelViewSet, ResponseMixin):
         serializer.save(created_by=self.request.user)
 
 class BookingViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = Booking.objects.all().order_by('-created_at')
+    queryset = Booking.objects.select_related(
+        'user', 'user__user_profile', 'service', 'service__created_by', 'service__created_by__shop_profile'
+    ).prefetch_related('service__schedules').all().order_by('-created_at')
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.role == "ADMIN":
-            return Booking.objects.all()
+            return self.queryset
         elif user.role == "SHOP_OWNER":
             # Show bookings for services created by this shop owner
-            return Booking.objects.filter(service__created_by=user)
-        return Booking.objects.filter(user=user)
+            return self.queryset.filter(service__created_by=user)
+        return self.queryset.filter(user=user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -54,14 +58,15 @@ class BookingViewSet(viewsets.ModelViewSet, ResponseMixin):
         return self.success_response(message="Booking cancelled successfully")
 
 class ScheduleViewSet(viewsets.ModelViewSet):
-    queryset = Schedule.objects.all().order_by('-created_at')
+    queryset = Schedule.objects.select_related('service').all().order_by('-created_at')
     serializer_class = ScheduleSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
         if not user or not user.is_authenticated:
-            return Schedule.objects.all()
+            return self.queryset
         if user.role == "ADMIN":
-            return Schedule.objects.all()
-        return Schedule.objects.filter(service__created_by=user)
+            return self.queryset
+        return self.queryset.filter(service__created_by=user)
+

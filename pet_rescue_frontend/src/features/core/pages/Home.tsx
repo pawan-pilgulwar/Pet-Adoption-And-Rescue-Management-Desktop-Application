@@ -128,18 +128,19 @@ function Home() {
             {listings.map(listing => (
               <Link key={listing.id} to={`/adoption/${listing.id}`} className="card hover:shadow-xl transition-shadow group fade-in">
                 <div className="aspect-square rounded-xl overflow-hidden bg-orange-50 mb-4">
-                  {listing.pet_detail?.image_url ? (
+                  {listing.pet?.image_url ? (
                     <img
-                      src={listing.pet_detail.image_url}
-                      alt={listing.pet_detail.name}
+                      src={listing.pet.image_url}
+                      alt={listing.pet.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl">🐾</div>
                   )}
                 </div>
-                <h3 className="font-bold text-stone-900 text-lg">{listing.pet_detail?.name}</h3>
-                <p className="text-stone-500 text-sm">{listing.pet_detail?.species} · {listing.pet_detail?.breed || 'Mixed'}</p>
+                <h3 className="font-bold text-stone-900 text-lg">{listing.pet?.name}</h3>
+                <p className="text-stone-500 text-sm">{listing.pet?.species} · {listing.pet?.breed || 'Mixed'}</p>
+
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-brand-500 font-bold text-lg">₹{listing.price}</span>
                   <span className={`badge ${listing.is_available ? 'badge-green' : 'badge-red'}`}>

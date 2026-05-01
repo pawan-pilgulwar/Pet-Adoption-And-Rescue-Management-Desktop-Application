@@ -9,8 +9,11 @@ from apps.notifications.models import Notification
 from django.db.models import Q
 
 class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = Report.objects.all()
+    queryset = Report.objects.select_related(
+        'user', 'user__user_profile', 'user__shop_profile', 'pet'
+    ).all()
     serializer_class = ReportSerializer
+
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'search']:
             return [AllowAny()]
@@ -22,7 +25,7 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
         return ReportSerializer
 
     def get_queryset(self):
-        queryset = Report.objects.all()
+        queryset = self.queryset
         user = self.request.user
 
         if not user.is_authenticated:
@@ -38,7 +41,7 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
 
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[AllowAny])
     def search(self, request):
-        queryset = Report.objects.filter(is_verified=True)
+        queryset = self.get_queryset().filter(is_verified=True)
         species = request.query_params.get('species')
         breed = request.query_params.get('breed')
         location = request.query_params.get('location')
@@ -76,15 +79,18 @@ class ReportViewSet(viewsets.ModelViewSet, ResponseMixin):
         return self.success_response(data=serializer.data)
 
 class RescueRequestViewSet(viewsets.ModelViewSet, ResponseMixin):
-    queryset = RescueRequest.objects.all()
+    queryset = RescueRequest.objects.select_related(
+        'user', 'user__user_profile', 'report', 'report__user', 'report__pet'
+    ).all()
     serializer_class = RescueRequestSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.role == 'ADMIN':
-            return RescueRequest.objects.all()
-        return RescueRequest.objects.filter(user=user)
+            return self.queryset
+        return self.queryset.filter(user=user)
+
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

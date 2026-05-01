@@ -25,7 +25,16 @@ function RescueDetail() {
     </div>
   );
 
-  const pet = report.pet_detail;
+  const pet = report.pet;
+  const user = report.user;
+  const profile = user.profile;
+
+  // Type guards
+  const isUserProfile = (p: any): p is { phone_number: string } => p && 'phone_number' in p;
+  const isShopOwnerProfile = (p: any): p is { phone_number: string } => p && 'phone_number' in p;
+
+  const phone = isUserProfile(profile) ? profile.phone_number : (isShopOwnerProfile(profile) ? profile.phone_number : null);
+
   const isLost = report.report_type === 'Lost';
 
   return (
@@ -87,31 +96,28 @@ function RescueDetail() {
             <h3 className="font-bold text-brand-900 mb-3 flex items-center gap-2">
               📞 Contact Information
             </h3>
-            {report.user_contact ? (
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-brand-700">Reporter</span>
+                <span className="font-semibold text-brand-900">{user.first_name} {user.last_name} (@{user.username})</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-brand-700">Email</span>
+                <a href={`mailto:${user.email}`} className="font-semibold text-brand-900 hover:underline">
+                  {user.email}
+                </a>
+              </div>
+              {phone && phone !== '—' && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-brand-700">Reporter</span>
-                  <span className="font-semibold text-brand-900">{report.user_contact.username}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-brand-700">Email</span>
-                  <a href={`mailto:${report.user_contact.email}`} className="font-semibold text-brand-900 hover:underline">
-                    {report.user_contact.email}
+                  <span className="text-brand-700">Phone</span>
+                  <a href={`tel:${phone}`} className="font-semibold text-brand-900 hover:underline">
+                    {phone}
                   </a>
                 </div>
-                {report.user_contact.phone && report.user_contact.phone !== '—' && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-brand-700">Phone</span>
-                    <a href={`tel:${report.user_contact.phone}`} className="font-semibold text-brand-900 hover:underline">
-                      {report.user_contact.phone}
-                    </a>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-brand-700 italic">Contact information is hidden or unavailable.</p>
-            )}
+              )}
+            </div>
           </div>
+
 
           <div className="pt-4">
             <Button className="w-full justify-center py-4 text-lg" variant="outline">

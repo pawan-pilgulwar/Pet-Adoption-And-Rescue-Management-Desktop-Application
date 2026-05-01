@@ -49,7 +49,7 @@ function RescuePage() {
     loadReports();
   }
 
-  const displayReports = reports.filter(r => r.user !== user?.id);
+  const displayReports = reports.filter(r => r.user.id !== user?.id);
   const lostCount  = displayReports.filter(r => r.report_type === 'Lost').length;
   const foundCount = displayReports.filter(r => r.report_type === 'Found').length;
 

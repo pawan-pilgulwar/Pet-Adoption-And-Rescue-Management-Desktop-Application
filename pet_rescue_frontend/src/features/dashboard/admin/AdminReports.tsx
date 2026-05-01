@@ -101,13 +101,13 @@ function AdminReports() {
                     <div className="font-mono text-xs text-stone-400 mb-1">{r.rescue_id}</div>
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-lg overflow-hidden bg-stone-50 shrink-0 border border-stone-100">
-                        {r.pet_detail?.image_url ? (
-                          <img src={r.pet_detail.image_url} alt="Pet" className="h-full w-full object-cover" />
+                        {r.pet?.image_url ? (
+                          <img src={r.pet.image_url} alt="Pet" className="h-full w-full object-cover" />
                         ) : (
                           <span className="flex items-center justify-center h-full text-lg">🐾</span>
                         )}
                       </div>
-                      <div className="font-semibold text-stone-900">{r.pet_detail?.name || 'Unknown'} ({r.pet_detail?.species})</div>
+                      <div className="font-semibold text-stone-900">{r.pet?.name || 'Unknown'} ({r.pet?.species})</div>
                     </div>
                   </td>
                   <td>
@@ -117,9 +117,10 @@ function AdminReports() {
                   </td>
                   <td className="text-sm max-w-[150px] truncate">{r.location}</td>
                   <td>
-                    <div className="text-sm">{r.user_detail}</div>
-                    <div className="text-xs text-stone-500">{r.user_contact?.email}</div>
+                    <div className="text-sm">{r.user.first_name} {r.user.last_name}</div>
+                    <div className="text-xs text-stone-500">{r.user.email}</div>
                   </td>
+
                   <td>
                     <span className={`badge ${r.is_verified ? 'badge-blue' : 'badge-yellow'}`}>
                       {r.is_verified ? 'Verified' : 'Pending'}

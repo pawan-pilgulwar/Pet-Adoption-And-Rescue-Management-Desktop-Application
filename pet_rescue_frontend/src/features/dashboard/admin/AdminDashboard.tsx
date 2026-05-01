@@ -93,7 +93,7 @@ function AdminDashboard() {
             {data.recent_activity.reports.map(r => (
                <Link key={r.id} to={`/admin/reports/${r.id}`} className="flex justify-between items-center p-2 rounded-xl hover:bg-stone-50 transition-colors border border-transparent hover:border-stone-100">
                  <div>
-                    <p className="font-bold text-stone-900 text-sm">{r.pet_detail?.name || 'Unknown'}</p>
+                    <p className="font-bold text-stone-900 text-sm">{r.pet?.name || 'Unknown'}</p>
                     <p className="text-xs text-stone-500">{r.report_type} • {r.location}</p>
                  </div>
                  <span className={`badge text-[10px] ${r.status === 'Pending' ? 'badge-yellow' : r.status === 'Accepted' ? 'badge-green' : 'badge-red'}`}>
@@ -114,12 +114,13 @@ function AdminDashboard() {
             {data.recent_activity.adoptions.map(a => (
                <div key={a.id} className="flex justify-between items-center p-2 rounded-xl bg-stone-50/50 border border-stone-100">
                  <div>
-                    <p className="font-bold text-stone-900 text-sm">{a.pet_detail?.name}</p>
-                    <p className="text-xs text-stone-500">Adopted by {a.user_detail}</p>
+                    <p className="font-bold text-stone-900 text-sm">{a.pet?.name}</p>
+                    <p className="text-xs text-stone-500">Adopted by {a.user.first_name} {a.user.last_name}</p>
                  </div>
                  <span className="text-brand-600 font-bold text-xs">₹{a.price}</span>
                </div>
             ))}
+
             {data.recent_activity.adoptions.length === 0 && <p className="text-stone-400 text-sm italic text-center py-4">No adoptions yet.</p>}
           </div>
         </div>

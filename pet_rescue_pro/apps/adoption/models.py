@@ -17,21 +17,6 @@ class AdoptionListing(models.Model):
     class Meta:
         db_table = 'adoption_listing'
 
-class AdoptionRequest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='adoption_requests')
-    pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='adoption_requests')
-    listing = models.ForeignKey(AdoptionListing, on_delete=models.CASCADE, related_name='requests', null=True, blank=True)
-    status = models.CharField(max_length=20, choices=ADOPTION_REQUEST_STATUS_CHOICES, default="Pending")
-    request_details = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Request for {self.pet.name} by {self.user.username}"
-
-    class Meta:
-        db_table = 'adoption_request'
-
 class Adoption(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='adoptions')
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='adoptions')

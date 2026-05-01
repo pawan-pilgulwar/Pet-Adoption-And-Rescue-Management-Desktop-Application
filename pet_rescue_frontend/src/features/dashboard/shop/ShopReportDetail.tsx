@@ -22,7 +22,7 @@ function ShopReportDetail() {
   if (loading) return <Spinner message="Loading report..." />;
   if (!report) return <div className="p-8 text-center text-red-500">Report not found</div>;
 
-  const pet = report.pet_detail;
+  const pet = report.pet;
 
   return (
     <DetailLayout
@@ -30,13 +30,14 @@ function ShopReportDetail() {
       subtitle={`${report.report_type} Report • ${report.location}`}
       backLink="/dashboard/reports"
       backText="Back to My Reports"
-      image={report.pet_detail?.image_url || undefined}
+      image={pet?.image_url || undefined}
       stats={[
         { label: 'Rescue ID', value: report.rescue_id },
         { label: 'Status', value: report.status },
         { label: 'Verified', value: report.is_verified ? 'Yes' : 'No' },
         { label: 'Date', value: new Date(report.created_at).toLocaleDateString() }
       ]}
+
     >
       <section>
         <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Pet Information</h3>

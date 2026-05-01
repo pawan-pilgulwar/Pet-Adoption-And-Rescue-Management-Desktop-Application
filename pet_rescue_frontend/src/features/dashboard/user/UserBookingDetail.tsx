@@ -6,6 +6,8 @@ import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
+import { isShopOwnerProfile } from '../../../utils/typeGuards';
+
 
 function UserBookingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +25,7 @@ function UserBookingDetail() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
@@ -79,10 +81,14 @@ function UserBookingDetail() {
   if (loading) return <Spinner message="Loading booking details..." />;
   if (!booking) return <div className="p-8 text-center text-red-500">Booking not found</div>;
 
+  const service = booking.service;
+  const shop = service.created_by;
+  const shopProfile = isShopOwnerProfile(shop.profile) ? shop.profile : null;
+
   return (
     <DetailLayout
-      title={booking.service_name || 'Service Booking'}
-      subtitle={`With ${booking.shop_name || 'Service Provider'}`}
+      title={service.name || 'Service Booking'}
+      subtitle={`With ${shopProfile?.shop_name || `${shop.first_name} ${shop.last_name}`}`}
       backLink="/dashboard/bookings"
       backText="Back to My Bookings"
       imageFallback="📅"
@@ -90,7 +96,7 @@ function UserBookingDetail() {
         { label: 'Status', value: booking.status === 'Confirmed' ? 'Upcoming' : booking.status },
         { label: 'Date', value: new Date(booking.booking_date).toLocaleDateString() },
         { label: 'Time', value: new Date(booking.booking_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-        { label: 'Fee', value: `₹${booking.service_price}` }
+        { label: 'Fee', value: `₹${service.price}` }
       ]}
       actions={
         booking.status === 'Pending' || booking.status === 'Confirmed' ? (
@@ -113,19 +119,20 @@ function UserBookingDetail() {
           <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 space-y-3">
             <div>
               <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Shop Name</p>
-              <p className="text-stone-900 font-bold">{booking.shop_name || 'N/A'}</p>
+              <p className="text-stone-900 font-bold">{shopProfile?.shop_name || `${shop.first_name} ${shop.last_name}`}</p>
             </div>
             <div>
               <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Contact Number</p>
-              <p className="text-stone-700 font-medium">{booking.shop_contact || 'N/A'}</p>
+              <p className="text-stone-700 font-medium">{shopProfile?.phone_number || shop.email}</p>
             </div>
             <div>
               <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Location</p>
-              <p className="text-stone-600 text-sm">{booking.shop_address || 'N/A'}</p>
+              <p className="text-stone-600 text-sm">{shopProfile?.shop_address || 'N/A'}</p>
             </div>
           </div>
         </section>
       </div>
+
 
       <hr className="border-stone-100" />
 

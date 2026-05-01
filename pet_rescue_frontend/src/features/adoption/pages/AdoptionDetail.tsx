@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchListingDetail, createAdoption } from '../api';
-import { AdoptionListing } from '../../../types';
+import { AdoptionListing, ShopOwnerProfile } from '../../../types';
+
 import { useAuth } from '../../../context/AuthContext';
 import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
@@ -15,7 +16,7 @@ function AdoptionDetail() {
   const [requesting, setRequesting] = useState(false);
   const [step, setStep] = useState<'details' | 'payment' | 'summary'>('details');
   const [details, setDetails] = useState('');
-  const [success, setSuccess] = useState(false);
+
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -38,10 +39,9 @@ function AdoptionDetail() {
 
     try {
       await createAdoption({
-        pet: listing.pet,
+        pet: listing.pet.id,
         notes: details,
       });
-      setSuccess(true);
       setStep('summary');
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Adoption failed. Please try again.');
@@ -57,7 +57,9 @@ function AdoptionDetail() {
     </div>
   );
 
-  const pet = listing.pet_detail;
+  const pet = listing.pet;
+  const shop = listing.shop_owner;
+  const shopProfile = shop.profile as ShopOwnerProfile;
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 fade-in">
@@ -124,12 +126,13 @@ function AdoptionDetail() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-stone-400">Shop Details</p>
-                <p className="font-semibold text-stone-800">{listing.shop_name || listing.shop_detail?.username || 'Shop'}</p>
-                <p className="text-xs text-stone-500">{listing.shop_address || 'Address not provided'}</p>
-                <p className="text-xs text-stone-500">{listing.shop_contact || 'Contact not provided'}</p>
+                <p className="font-semibold text-stone-800">{shopProfile?.shop_name || `${shop.first_name} ${shop.last_name}`}</p>
+                <p className="text-xs text-stone-500">{shopProfile?.shop_address || 'Address not provided'}</p>
+                <p className="text-xs text-stone-500">{shopProfile?.phone_number || shop.email}</p>
               </div>
             </div>
           </div>
+
 
           {/* Step-based Action Flow */}
           {!user ? (

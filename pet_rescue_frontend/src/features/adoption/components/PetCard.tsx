@@ -8,7 +8,7 @@ interface PetCardProps {
 
 // Card showing a pet available for adoption
 function PetCard({ listing }: PetCardProps) {
-  const pet = listing.pet_detail;
+  const pet = listing.pet;
   const navigate = useNavigate();
 
   const handleAdoptClick = (e: React.MouseEvent) => {

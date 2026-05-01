@@ -11,6 +11,8 @@ import { uploadImage } from '../../../utils/cloudinary';
 import { serviceSchema } from '../../../utils/validation';
 import { z } from 'zod';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
+import { isShopOwnerProfile } from '../../../utils/typeGuards';
+
 
 interface ShopServicesProps {
   allServices?: boolean;
@@ -256,7 +258,13 @@ function ShopServices({ allServices = false }: ShopServicesProps) {
                       </td>
                       <td className="text-brand-500 font-bold">₹{s.price}</td>
                       <td className="text-stone-500 text-sm">{s.duration || '-'}</td>
-                      {allServices && <td className="text-stone-500 text-sm italic">{s.owner_name || 'Admin'}</td>}
+                      {allServices && (
+                        <td className="text-stone-500 text-sm italic">
+                          {isShopOwnerProfile(s.created_by.profile) 
+                            ? s.created_by.profile.shop_name 
+                            : `${s.created_by.first_name} ${s.created_by.last_name}`}
+                        </td>
+                      )}
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" className="text-stone-600" onClick={() => handleEdit(s)}>Edit</Button>

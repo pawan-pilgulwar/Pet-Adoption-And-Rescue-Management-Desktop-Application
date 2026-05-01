@@ -52,41 +52,32 @@ export interface Pet {
   gender: string | null;
   size: string | null;
   description: string | null;
-  owner: number | null;
+  owner: User | null;
   vaccination_status: string | null;
   image_url: string | null;
   image_public_id: string | null;
   created_at: string;
   updated_at: string;
-  created_by_detail: string;
+  created_by: User;
 }
 
 // Adoption Listing (matches AdoptionListingSerializer)
 export interface AdoptionListing {
   id: number;
-  pet: number;
-  pet_detail: Pet;
-  shop_owner: number;
-  shop_detail: User;
-  shop_name: string;
-  shop_contact: string;
-  shop_address: string;
+  pet: Pet;
+  shop_owner: User;
   price: string;
   is_available: boolean;
   created_at: string;
   description: string | null;
-  image_url: string | null;
 }
 
 // Adoption Request (matches AdoptionRequestSerializer)
 export interface AdoptionRequest {
   id: number;
-  user: number;
-  user_detail: string;
-  pet: number;
-  pet_detail: Pet;
-  listing: number | null;
-  listing_detail: AdoptionListing | null;
+  user: User;
+  pet: Pet;
+  listing: AdoptionListing | null;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
   request_details: string | null;
   created_at: string;
@@ -96,15 +87,9 @@ export interface AdoptionRequest {
 // Adoption record (matches AdoptionSerializer)
 export interface Adoption {
   id: number;
-  user: number;
-  user_detail: string;
-  pet: number;
-  pet_detail: Pet;
-  shop_owner: number;
-  shop_detail: string;
-  shop_name: string;
-  shop_contact: string;
-  shop_address: string;
+  user: User;
+  pet: Pet;
+  shop_owner: User;
   price: string;
   adopted_at: string | null;
   notes: string | null;
@@ -114,10 +99,8 @@ export interface Adoption {
 export interface Report {
   id: number;
   rescue_id: string;
-  user: number;
-  user_detail: string;
-  pet: number | null;
-  pet_detail: Pet | null;
+  user: User;
+  pet: Pet | null;
   report_type: 'Lost' | 'Found';
   location: string;
   description: string | null;
@@ -125,23 +108,13 @@ export interface Report {
   status: 'Pending' | 'Accepted' | 'Rejected' | 'Closed';
   created_at: string;
   updated_at: string;
-  phone: string;
-  email: string;
-  user_contact: {
-    username: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
 }
 
 // Rescue Request (matches RescueRequestSerializer)
 export interface RescueRequest {
   id: number;
-  report: number;
-  report_detail: Report;
-  user: number;
-  user_detail: string;
+  report: Report;
+  user: User;
   status: 'Pending' | 'Accepted' | 'Rejected' | 'Completed';
   message: string | null;
   created_at: string;
@@ -160,11 +133,7 @@ export interface Service {
   medical_type?: string;
   doctor_name?: string;
   clinic_address?: string;
-  owner_name?: string;
-  shop_name?: string;
-  shop_contact?: string;
-  shop_address?: string;
-  created_by: number;
+  created_by: User;
   schedules: Schedule[];
   created_at: string;
   updated_at: string;
@@ -173,14 +142,8 @@ export interface Service {
 // Booking (matches BookingSerializer)
 export interface Booking {
   id: number;
-  user: number;
-  user_name: string;
-  service: number;
-  service_name: string;
-  service_price: string;
-  shop_name: string;
-  shop_contact: string;
-  shop_address: string;
+  user: User;
+  service: Service;
   booking_date: string;
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
   additional_notes: string | null;
@@ -198,6 +161,7 @@ export interface Schedule {
   created_at: string;
   updated_at: string;
 }
+
 
 // Notification (matches NotificationSerializer)
 export interface Notification {

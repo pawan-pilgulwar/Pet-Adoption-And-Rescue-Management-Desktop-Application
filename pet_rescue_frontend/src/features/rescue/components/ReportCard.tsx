@@ -9,7 +9,15 @@ interface ReportCardProps {
 // Card showing a single rescue report
 function ReportCard({ report, dashboard = false }: ReportCardProps) {
   const navigate = useNavigate();
-  const pet = report.pet_detail;
+  const pet = report.pet;
+  const user = report.user;
+  const profile = user.profile;
+
+  // Type guards
+  const isUserProfile = (p: any): p is { phone_number: string } => p && 'phone_number' in p;
+  const isShopOwnerProfile = (p: any): p is { phone_number: string } => p && 'phone_number' in p;
+
+  const phone = isUserProfile(profile) ? profile.phone_number : (isShopOwnerProfile(profile) ? profile.phone_number : '—');
 
   const statusColors: Record<string, string> = {
     Pending:  'badge-yellow',
@@ -63,14 +71,13 @@ function ReportCard({ report, dashboard = false }: ReportCardProps) {
           )}
 
           {/* Contact */}
-          {report.user_contact && (
-            <div className="flex gap-4 mt-2 text-xs text-stone-400">
-              <span>✉️ {report.user_contact.email}</span>
-              {report.user_contact.phone !== '—' && (
-                <span>📞 {report.user_contact.phone}</span>
-              )}
-            </div>
-          )}
+          <div className="flex gap-4 mt-2 text-xs text-stone-400">
+            <span>✉️ {user.email}</span>
+            {phone !== '—' && (
+              <span>📞 {phone}</span>
+            )}
+          </div>
+
         </div>
       </div>
     </div>

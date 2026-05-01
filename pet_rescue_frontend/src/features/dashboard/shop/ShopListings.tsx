@@ -94,7 +94,7 @@ function ShopListings() {
   };
 
   const handleEdit = (l: AdoptionListing) => {
-    setFormPet(l.pet.toString());
+    setFormPet(l.pet.id.toString());
     setFormPrice(l.price.toString());
     setFormDesc(l.description || '');
     setFormAvailable(l.is_available);
@@ -198,20 +198,20 @@ function ShopListings() {
               </thead>
               <tbody>
                 {listings
-                  .filter(l => l.pet_detail?.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .filter(l => l.pet.name.toLowerCase().includes(searchTerm.toLowerCase()))
                   .map(l => (
                     <tr key={l.id} className="hover:bg-stone-50/50 transition-colors">
                       <td>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0 bg-orange-50">
-                            {l.pet_detail?.image_url ? (
-                              <img src={l.pet_detail?.image_url} alt={l.pet_detail?.name} className="w-full h-full object-cover" />
+                            {l.pet.image_url ? (
+                              <img src={l.pet.image_url} alt={l.pet.name} className="w-full h-full object-cover" />
                             ) : (
                               <span className="flex items-center justify-center h-full">🐾</span>
                             )}
                           </div>
                           <Link to={`/dashboard/listings/${l.id}`} className="font-semibold text-stone-900 hover:text-brand-500">
-                            {l.pet_detail?.name}
+                            {l.pet.name}
                           </Link>
                         </div>
                       </td>
