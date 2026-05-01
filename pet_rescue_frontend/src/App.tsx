@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
@@ -24,6 +24,8 @@ import RescueDetail from './features/rescue/pages/RescueDetail';
 import Dashboard from './features/dashboard/pages/Dashboard';
 import MyReports from './features/dashboard/user/MyReports';
 import MyAdoptions from './features/dashboard/user/MyAdoptions';
+import MyBookings from './features/dashboard/user/MyBookings';
+import UserBookingDetail from './features/dashboard/user/UserBookingDetail';
 import MyRescue from './features/dashboard/user/MyRescue';
 import ShopPets from './features/dashboard/shop/ShopPets';
 import ShopListings from './features/dashboard/shop/ShopListings';
@@ -49,65 +51,81 @@ import AdminServiceDetail from './features/dashboard/admin/AdminServiceDetail';
 // Profile
 import Profile from './features/profile/pages/Profile';
 
+function AppRoutes() {
+  const { user } = useAuth();
+  
+  return (
+    <Routes>
+      {/* ─── Public Routes ─── */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/adoption" element={<AdoptionPage />} />
+        <Route path="/adoption/:id" element={<AdoptionDetail />} />
+        <Route path="/rescue" element={<RescuePage />} />
+        <Route path="/rescue/:id" element={<RescueDetail />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/:id" element={<ServiceDetail />} />
+        <Route path="/booking" element={<BookingPage />} />
+      </Route>
+
+      {/* ─── User & Shop Owner Dashboard ─── */}
+      <Route element={<DashboardLayout allowedRoles={['USER', 'SHOP_OWNER']} />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/* User routes */}
+        <Route path="/dashboard/reports" element={<MyReports />} />
+        <Route path="/dashboard/reports/new" element={<CreateReport />} />
+        <Route path="/dashboard/adoptions" element={<MyAdoptions />} />
+        <Route path="/dashboard/rescue" element={<MyRescue />} />
+        <Route 
+          path="/dashboard/bookings" 
+          element={user?.role === 'SHOP_OWNER' ? <ShopBookings /> : <MyBookings />} 
+        />
+        <Route 
+          path="/dashboard/bookings/:id" 
+          element={user?.role === 'SHOP_OWNER' ? <ShopBookingDetail /> : <UserBookingDetail />} 
+        />
+        
+        {/* Shop Owner routes */}
+        <Route path="/dashboard/pets" element={<ShopPets />} />
+        <Route path="/dashboard/listings" element={<ShopListings />} />
+        <Route path="/dashboard/services" element={<ShopServices />} />
+        <Route path="/dashboard/pets/:id" element={<ShopPetDetail />} />
+        <Route path="/dashboard/services/:id" element={<ShopServiceDetail />} />
+        <Route path="/dashboard/reports/:id" element={<ShopReportDetail />} />
+        <Route path="/dashboard/listings/:id" element={<ShopListingDetail />} />
+      </Route>
+
+      {/* ─── Profile (all authenticated roles) ─── */}
+      <Route element={<DashboardLayout />}>
+        <Route path="/profile" element={<Profile />} />
+      </Route>
+
+      <Route element={<DashboardLayout allowedRoles={['ADMIN']} />}>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
+        <Route path="/admin/reports/:id" element={<AdminReportDetail />} />
+        <Route path="/admin/services" element={<AdminServices />} />
+        <Route path="/admin/services/:id" element={<AdminServiceDetail />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/users/:id" element={<AdminUserDetail />} />
+        <Route path="/admin/pets" element={<AdminPets />} />
+        <Route path="/admin/pets/:id" element={<AdminPetDetail />} />
+      </Route>
+
+      {/* ─── Fallback ─── */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* ─── Public Routes ─── */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/adoption" element={<AdoptionPage />} />
-            <Route path="/adoption/:id" element={<AdoptionDetail />} />
-            <Route path="/rescue" element={<RescuePage />} />
-            <Route path="/rescue/:id" element={<RescueDetail />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/services/:id" element={<ServiceDetail />} />
-            <Route path="/booking" element={<BookingPage />} />
-          </Route>
-
-          {/* ─── User & Shop Owner Dashboard ─── */}
-          <Route element={<DashboardLayout allowedRoles={['USER', 'SHOP_OWNER']} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/reports" element={<MyReports />} />
-            <Route path="/dashboard/reports/new" element={<CreateReport />} />
-            <Route path="/dashboard/adoptions" element={<MyAdoptions />} />
-            <Route path="/dashboard/rescue" element={<MyRescue />} />
-            {/* Shop Owner routes */}
-            <Route path="/dashboard/pets" element={<ShopPets />} />
-            <Route path="/dashboard/listings" element={<ShopListings />} />
-            <Route path="/dashboard/services" element={<ShopServices />} />
-            <Route path="/dashboard/bookings" element={<ShopBookings />} />
-            <Route path="/dashboard/pets/:id" element={<ShopPetDetail />} />
-            <Route path="/dashboard/services/:id" element={<ShopServiceDetail />} />
-            <Route path="/dashboard/reports/:id" element={<ShopReportDetail />} />
-            <Route path="/dashboard/bookings/:id" element={<ShopBookingDetail />} />
-            <Route path="/dashboard/listings/:id" element={<ShopListingDetail />} />
-          </Route>
-
-          {/* ─── Profile (all authenticated roles) ─── */}
-          <Route element={<DashboardLayout />}>
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-
-          <Route element={<DashboardLayout allowedRoles={['ADMIN']} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/reports" element={<AdminReports />} />
-            <Route path="/admin/reports/:id" element={<AdminReportDetail />} />
-            <Route path="/admin/services" element={<AdminServices />} />
-            <Route path="/admin/services/:id" element={<AdminServiceDetail />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/users/:id" element={<AdminUserDetail />} />
-            <Route path="/admin/pets" element={<AdminPets />} />
-            <Route path="/admin/pets/:id" element={<AdminPetDetail />} />
-          </Route>
-
-          {/* ─── Fallback ─── */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AppRoutes />
       </AuthProvider>
     </BrowserRouter>
   );

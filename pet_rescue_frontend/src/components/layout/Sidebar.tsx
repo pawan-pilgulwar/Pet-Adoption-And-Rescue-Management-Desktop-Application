@@ -37,6 +37,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
     { label: 'Dashboard', to: '/dashboard', icon: '🏠' },
     { label: 'My Reports', to: '/dashboard/reports', icon: '📄' },
     { label: 'My Adoptions', to: '/dashboard/adoptions', icon: '❤️' },
+    { label: 'My Bookings', to: '/dashboard/bookings', icon: '📅' },
     { label: 'My Rescue', to: '/dashboard/rescue', icon: '🆘' },
   ];
 }

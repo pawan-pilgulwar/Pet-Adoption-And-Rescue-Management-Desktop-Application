@@ -47,6 +47,11 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.user.username} booked {self.service.name} on {self.booking_date}"
 
+    @property
+    def is_upcoming(self):
+        from django.utils.timezone import now
+        return self.status == "Confirmed" and self.booking_date > now()
+
     class Meta:
         db_table = 'booking'
 

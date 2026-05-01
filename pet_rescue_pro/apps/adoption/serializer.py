@@ -7,6 +7,10 @@ class AdoptionListingSerializer(serializers.ModelSerializer):
     pet_detail = PetSerializer(source="pet", read_only=True)
     shop_detail = UserReadSerializer(source="shop_owner", read_only=True)
 
+    shop_name = serializers.ReadOnlyField(source="shop_owner.shop_profile.shop_name")
+    shop_contact = serializers.ReadOnlyField(source="shop_owner.shop_profile.phone_number")
+    shop_address = serializers.ReadOnlyField(source="shop_owner.shop_profile.shop_address")
+
     class Meta:
         model = AdoptionListing
         fields = '__all__'
@@ -27,7 +31,11 @@ class AdoptionSerializer(serializers.ModelSerializer):
     shop_detail = serializers.StringRelatedField(source="shop_owner", read_only=True)
     pet_detail = PetSerializer(source="pet", read_only=True)
 
+    shop_name = serializers.ReadOnlyField(source="shop_owner.shop_profile.shop_name")
+    shop_contact = serializers.ReadOnlyField(source="shop_owner.shop_profile.phone_number")
+    shop_address = serializers.ReadOnlyField(source="shop_owner.shop_profile.shop_address")
+
     class Meta:
         model = Adoption
         fields = '__all__'
-        read_only_fields = ['adopted_at']
+        read_only_fields = ['adopted_at', 'user', 'shop_owner', 'price']

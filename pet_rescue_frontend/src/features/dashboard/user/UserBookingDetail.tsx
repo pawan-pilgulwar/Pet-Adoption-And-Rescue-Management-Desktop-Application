@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api from '../../../services/api';
 import { Booking } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
@@ -7,7 +7,7 @@ import DetailLayout from '../../../components/common/DetailLayout';
 import Button from '../../../components/common/Button';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
 
-function ShopBookingDetail() {
+function UserBookingDetail() {
   const { id } = useParams<{ id: string }>();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ function ShopBookingDetail() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => { },
+    onConfirm: () => {},
   });
 
   const showConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'info' | 'success' = 'info') => {
@@ -62,14 +62,14 @@ function ShopBookingDetail() {
   const handleCancel = () => {
     showConfirm(
       "Cancel Booking",
-      "Are you sure you want to cancel this booking? This action cannot be undone.",
+      "Are you sure you want to cancel your booking? This action cannot be undone.",
       async () => {
         try {
           await api.post(`/bookings/${id}/cancel/`);
           setBooking(prev => prev ? { ...prev, status: 'Cancelled' } : null);
-          showAlert("Cancelled", "Booking cancelled successfully", "success");
+          showAlert("Cancelled", "Your booking has been cancelled successfully.", "success");
         } catch {
-          showAlert("Error", "Failed to cancel booking", "danger");
+          showAlert("Error", "Failed to cancel booking. Please try again.", "danger");
         }
       },
       'danger'
@@ -82,15 +82,15 @@ function ShopBookingDetail() {
   return (
     <DetailLayout
       title={booking.service_name || 'Service Booking'}
-      subtitle={`Customer: ${booking.user_name}`}
+      subtitle={`With ${booking.shop_name || 'Service Provider'}`}
       backLink="/dashboard/bookings"
-      backText="Back to Bookings"
+      backText="Back to My Bookings"
       imageFallback="📅"
       stats={[
-        { label: 'Status', value: booking.status },
+        { label: 'Status', value: booking.status === 'Confirmed' ? 'Upcoming' : booking.status },
         { label: 'Date', value: new Date(booking.booking_date).toLocaleDateString() },
         { label: 'Time', value: new Date(booking.booking_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
-        { label: 'Price', value: `₹${booking.service_price}` }
+        { label: 'Fee', value: `₹${booking.service_price}` }
       ]}
       actions={
         booking.status === 'Pending' || booking.status === 'Confirmed' ? (
@@ -100,22 +100,51 @@ function ShopBookingDetail() {
         ) : null
       }
     >
-      <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Customer Notes</h3>
-        <p className="text-stone-700 leading-relaxed italic">
-          {booking.additional_notes || "No additional notes provided."}
-        </p>
-      </section>
+      <div className="grid md:grid-cols-2 gap-8">
+        <section className="space-y-4">
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest">My Notes</h3>
+          <p className="text-stone-700 leading-relaxed italic bg-stone-50 p-4 rounded-2xl border border-stone-100">
+            {booking.additional_notes || "No additional notes provided."}
+          </p>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest">Provider Details</h3>
+          <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 space-y-3">
+            <div>
+              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Shop Name</p>
+              <p className="text-stone-900 font-bold">{booking.shop_name || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Contact Number</p>
+              <p className="text-stone-700 font-medium">{booking.shop_contact || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wider">Location</p>
+              <p className="text-stone-600 text-sm">{booking.shop_address || 'N/A'}</p>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <hr className="border-stone-100" />
 
       <section>
-        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Service Information</h3>
-        <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
-          <p className="text-xs text-stone-400 uppercase font-bold mb-2 tracking-wider">Service Name</p>
-          <p className="text-stone-900 font-semibold">{booking.service_name}</p>
-          <p className="text-xs text-stone-500 mt-2">Booking ID: {booking.id}</p>
-        </div>
+        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">How to Prepare</h3>
+        <ul className="space-y-2 text-stone-600 text-sm">
+          <li className="flex items-start gap-2">
+            <span className="text-brand-500">✓</span>
+            Reach the location 10 minutes before the scheduled time.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-brand-500">✓</span>
+            Carry your pet's basic medical history if available.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-brand-500">✓</span>
+            Keep the shop's contact number handy for any delays.
+          </li>
+        </ul>
       </section>
 
       <ConfirmModal
@@ -130,4 +159,4 @@ function ShopBookingDetail() {
   );
 }
 
-export default ShopBookingDetail;
+export default UserBookingDetail;

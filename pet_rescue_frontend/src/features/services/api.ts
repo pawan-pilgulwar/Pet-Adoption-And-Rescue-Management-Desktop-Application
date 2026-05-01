@@ -1,11 +1,14 @@
 import api from '../../services/api';
 import { Service, Booking, Schedule } from '../../types';
 
+interface FetchServicesParams {
+  my_services?: string;
+}
+
 // GET /api/v1/pet-services/
-export async function fetchServices(myServices = false) {
-  const url = myServices ? '/pet-services/?my_services=true' : '/pet-services/';
-  const res = await api.get(url);
-  return (res.data?.results || res.data) as Service[];
+export async function fetchServices(params?: FetchServicesParams) {
+  const res = await api.get('/pet-services/', { params });
+  return (res.data?.results || res.data?.data?.results || res.data?.data || res.data || []) as Service[];
 }
 
 export async function fetchServiceDetail(id: number) {
@@ -36,7 +39,7 @@ export async function deleteService(id: number) {
 // GET /api/v1/bookings/
 export async function fetchBookings() {
   const res = await api.get('/bookings/');
-  return (res.data?.results || []) as Booking[];
+  return (res.data?.results || res.data?.data?.results || res.data?.data || res.data || []) as Booking[];
 }
 
 // POST /api/v1/bookings/

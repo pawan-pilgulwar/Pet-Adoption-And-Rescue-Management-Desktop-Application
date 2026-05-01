@@ -7,11 +7,20 @@ class ReportSerializer(serializers.ModelSerializer):
     user_detail = serializers.StringRelatedField(source="user", read_only=True)
     pet_detail = PetSerializer(source="pet", read_only=True)
     user_contact = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
+    email = serializers.ReadOnlyField(source="user.email")
 
     class Meta:
         model = Report
         fields = '__all__'
         read_only_fields = ['rescue_id', 'created_at', 'updated_at', 'user']
+
+    def get_phone(self, obj):
+        if obj.user.role == 'USER' and hasattr(obj.user, 'user_profile'):
+            return obj.user.user_profile.phone_number
+        elif obj.user.role == 'SHOP_OWNER' and hasattr(obj.user, 'shop_profile'):
+            return obj.user.shop_profile.phone_number
+        return "—"
 
     def get_user_contact(self, obj):
         profile_data = {}

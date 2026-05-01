@@ -87,7 +87,7 @@ function ShopServices({ allServices = false }: ShopServicesProps) {
     setLoading(true);
     // If allServices is true, we fetch all services (myServices = false)
     // If allServices is false (default for shop), we fetch only my services (myServices = true)
-    fetchServices(!allServices).then(setServices).finally(() => setLoading(false));
+    fetchServices(!allServices ? { my_services: 'true' } : undefined).then(setServices).finally(() => setLoading(false));
   };
 
   useEffect(() => {

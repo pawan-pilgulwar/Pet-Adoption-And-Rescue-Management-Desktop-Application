@@ -68,6 +68,9 @@ export interface AdoptionListing {
   pet_detail: Pet;
   shop_owner: number;
   shop_detail: User;
+  shop_name: string;
+  shop_contact: string;
+  shop_address: string;
   price: string;
   is_available: boolean;
   created_at: string;
@@ -99,8 +102,10 @@ export interface Adoption {
   pet_detail: Pet;
   shop_owner: number;
   shop_detail: string;
+  shop_name: string;
+  shop_contact: string;
+  shop_address: string;
   price: string;
-  status: string;
   adopted_at: string | null;
   notes: string | null;
 }
@@ -120,6 +125,8 @@ export interface Report {
   status: 'Pending' | 'Accepted' | 'Rejected' | 'Closed';
   created_at: string;
   updated_at: string;
+  phone: string;
+  email: string;
   user_contact: {
     username: string;
     email: string;
@@ -154,6 +161,9 @@ export interface Service {
   doctor_name?: string;
   clinic_address?: string;
   owner_name?: string;
+  shop_name?: string;
+  shop_contact?: string;
+  shop_address?: string;
   created_by: number;
   schedules: Schedule[];
   created_at: string;
@@ -168,6 +178,9 @@ export interface Booking {
   service: number;
   service_name: string;
   service_price: string;
+  shop_name: string;
+  shop_contact: string;
+  shop_address: string;
   booking_date: string;
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
   additional_notes: string | null;

@@ -15,6 +15,6 @@ class AdoptionRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Adoption)
 class AdoptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'pet', 'user', 'shop_owner', 'price', 'status', 'adopted_at')
-    list_filter = ('adopted_at', 'status')
-    search_fields = ('pet__name', 'user__username', 'shop_owner__username', 'status')
+    list_display = ('id', 'pet', 'user', 'shop_owner', 'price', 'adopted_at')
+    list_filter = ('adopted_at',)
+    search_fields = ('pet__name', 'user__username', 'shop_owner__username')

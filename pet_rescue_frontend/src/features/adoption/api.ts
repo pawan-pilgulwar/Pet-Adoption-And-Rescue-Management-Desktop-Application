@@ -75,5 +75,11 @@ export async function rejectRequest(id: number) {
 // GET /api/v1/adoption/adoptions/   — role-filtered
 export async function fetchAdoptions() {
   const res = await api.get('/adoption/adoptions/');
-  return (res.data?.data?.results || res.data?.data || []) as Adoption[];
+  return (res.data?.results || []) as Adoption[];
+}
+
+// POST /api/v1/adoption/adoptions/
+export async function createAdoption(data: { pet: number; notes?: string }) {
+  const res = await api.post('/adoption/adoptions/', data);
+  return res.data?.data as Adoption;
 }

@@ -36,7 +36,6 @@ function MyAdoptions() {
                 <th>Pet</th>
                 <th>Shop Owner</th>
                 <th>Price</th>
-                <th>Status</th>
                 <th>Date</th>
               </tr>
             </thead>
@@ -53,11 +52,8 @@ function MyAdoptions() {
                     </div>
                     <span className="font-semibold text-stone-900">{adoption.pet_detail?.name}</span>
                   </td>
-                  <td>{adoption.shop_detail || '-'}</td>
+                  <td>{adoption.shop_name || adoption.shop_detail || '-'}</td>
                   <td className="font-semibold text-brand-500">₹{adoption.price}</td>
-                  <td>
-                    <span className="badge badge-green">{adoption.status}</span>
-                  </td>
                   <td className="text-stone-500">{new Date(adoption.adopted_at || '').toLocaleDateString()}</td>
                 </tr>
               ))}

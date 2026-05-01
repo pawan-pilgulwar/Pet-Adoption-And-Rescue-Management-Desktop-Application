@@ -142,3 +142,39 @@ class AdoptionViewSet(viewsets.ModelViewSet, ResponseMixin):
         if user.role == 'SHOP_OWNER':
             return Adoption.objects.filter(shop_owner=user)
         return Adoption.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        pet = serializer.validated_data.get('pet')
+        # Assign shop_owner and price from pet's listing or creator
+        listing = AdoptionListing.objects.filter(pet=pet, is_available=True).first()
+        
+        shop_owner = listing.shop_owner if listing else pet.created_by
+        price = listing.price if listing else 0.00
+        
+        # Save adoption
+        serializer.save(
+            user=self.request.user,
+            shop_owner=shop_owner,
+            price=price,
+        )
+        
+        # Mark pet as unavailable
+        if listing:
+            listing.is_available = False
+            listing.save()
+        
+        # Create Notification
+        Notification.objects.create(
+            user=self.request.user,
+            title="Adoption Successful 🎉",
+            message=f"Congratulations! You have successfully adopted {pet.name}.",
+            notification_type="Adoption_Status"
+        )
+        
+        # Also notify Shop Owner
+        Notification.objects.create(
+            user=shop_owner,
+            title="New Adoption",
+            message=f"{self.request.user.username} has adopted {pet.name}.",
+            notification_type="Adoption_Status"
+        )

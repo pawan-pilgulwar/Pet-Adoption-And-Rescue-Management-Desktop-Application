@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AdoptionListing } from '../../../types';
 
 interface PetCardProps {
@@ -9,11 +9,18 @@ interface PetCardProps {
 // Card showing a pet available for adoption
 function PetCard({ listing }: PetCardProps) {
   const pet = listing.pet_detail;
+  const navigate = useNavigate();
+
+  const handleAdoptClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/adoption/${listing.id}`);
+  };
 
   return (
-    <Link
-      to={`/adoption/${listing.id}`}
-      className="card group hover:shadow-xl transition-all duration-300 flex flex-col fade-in"
+    <div
+      onClick={() => navigate(`/adoption/${listing.id}`)}
+      className="card group hover:shadow-xl transition-all duration-300 flex flex-col fade-in cursor-pointer"
     >
       {/* Pet Image */}
       <div className="aspect-square rounded-xl overflow-hidden bg-orange-50 mb-4 relative">
@@ -53,11 +60,15 @@ function PetCard({ listing }: PetCardProps) {
       {/* Footer */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
         <span className="text-brand-500 font-bold text-lg">₹{listing.price}</span>
-        <span className="text-xs text-stone-400">
-          by {listing.shop_detail?.username || 'Shop'}
-        </span>
+        <button 
+          onClick={handleAdoptClick}
+          className="btn-primary py-1.5 px-4 text-sm"
+          disabled={!listing.is_available}
+        >
+          {listing.is_available ? 'Adopt' : 'Adopted'}
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }
 

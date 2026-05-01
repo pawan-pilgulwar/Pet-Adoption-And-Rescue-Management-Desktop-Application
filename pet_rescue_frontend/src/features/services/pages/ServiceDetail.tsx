@@ -96,6 +96,33 @@ function ServiceDetail() {
             </div>
           )}
 
+          {/* Shop details */}
+          <div className="card !bg-brand-50 border-brand-100 p-5">
+            <h3 className="font-bold text-brand-900 mb-3 flex items-center gap-2 text-sm">
+              🏢 Provided by Shop
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-brand-700">Shop Name</span>
+                <span className="font-semibold text-brand-900">{service.shop_name || service.owner_name}</span>
+              </div>
+              {service.shop_address && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-brand-700">Address</span>
+                  <span className="font-semibold text-brand-900 text-right">{service.shop_address}</span>
+                </div>
+              )}
+              {service.shop_contact && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-brand-700">Contact</span>
+                  <a href={`tel:${service.shop_contact}`} className="font-semibold text-brand-900 hover:underline">
+                    {service.shop_contact}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Schedule */}
           {service.schedules && service.schedules.length > 0 && (
             <div className="space-y-3">

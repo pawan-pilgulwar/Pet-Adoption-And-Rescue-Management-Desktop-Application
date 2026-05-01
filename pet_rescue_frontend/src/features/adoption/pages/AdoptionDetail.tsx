@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchListingDetail, createAdoptionRequest } from '../api';
+import { fetchListingDetail, createAdoption } from '../api';
 import { AdoptionListing } from '../../../types';
 import { useAuth } from '../../../context/AuthContext';
 import Spinner from '../../../components/common/Spinner';
@@ -27,10 +27,6 @@ function AdoptionDetail() {
   }, [id]);
 
   function handleProceedToPayment() {
-    if (!details.trim()) {
-      setError('Please tell us a bit about yourself first.');
-      return;
-    }
     setStep('payment');
     setError('');
   }
@@ -41,15 +37,15 @@ function AdoptionDetail() {
     setError('');
 
     try {
-      await createAdoptionRequest({
+      const res = await createAdoption({
         pet: listing.pet,
-        listing: listing.id,
-        request_details: details,
+        notes: details,
       });
+      console.log(res);
       setSuccess(true);
       setStep('summary');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Request failed. Please try again.');
+      setError(err?.response?.data?.message || 'Adoption failed. Please try again.');
     } finally {
       setRequesting(false);
     }
@@ -89,7 +85,7 @@ function AdoptionDetail() {
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-extrabold text-stone-900">{pet?.name}</h1>
               <span className={`badge ${listing.is_available ? 'badge-green' : 'badge-red'}`}>
-                {listing.is_available ? 'Available' : 'Not Available'}
+                {listing.is_available ? 'Available' : 'Adopted'}
               </span>
             </div>
             <p className="text-stone-500">
@@ -128,8 +124,10 @@ function AdoptionDetail() {
                 <p className="text-2xl font-bold text-brand-500">₹{listing.price}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-stone-400">Listed by</p>
-                <p className="font-semibold text-stone-800">{listing.shop_detail?.username || 'Shop'}</p>
+                <p className="text-xs text-stone-400">Shop Details</p>
+                <p className="font-semibold text-stone-800">{listing.shop_name || listing.shop_detail?.username || 'Shop'}</p>
+                <p className="text-xs text-stone-500">{listing.shop_address || 'Address not provided'}</p>
+                <p className="text-xs text-stone-500">{listing.shop_contact || 'Contact not provided'}</p>
               </div>
             </div>
           </div>
@@ -138,29 +136,29 @@ function AdoptionDetail() {
           {!user ? (
             <div className="bg-orange-50 rounded-xl p-4 text-center">
               <p className="text-stone-600 text-sm">
-                <Link to="/login" className="text-brand-500 font-semibold hover:underline">Login</Link> to request adoption
+                <Link to="/login" className="text-brand-500 font-semibold hover:underline">Login</Link> to adopt this pet
               </p>
             </div>
           ) : step === 'summary' ? (
             <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center fade-in">
               <span className="text-4xl">🎉</span>
-              <h2 className="text-xl font-bold text-green-800 mt-2">Request Sent!</h2>
-              <p className="text-green-700 text-sm mt-1">Your request for {pet?.name} has been received.</p>
-              
+              <h2 className="text-xl font-bold text-green-800 mt-2">Pet adopted successfully 🎉</h2>
+              <p className="text-green-700 text-sm mt-1">Congratulations! {pet?.name} is now part of your family.</p>
+
               <div className="card mt-4 text-left text-sm bg-white border-green-100">
                 <p className="text-stone-400">Order Summary</p>
                 <div className="flex justify-between mt-1">
-                  <span>Adoption Fee</span>
+                  <span>Adoption Fee Paid</span>
                   <span className="font-bold">₹{listing.price}</span>
                 </div>
                 <div className="flex justify-between mt-1">
-                  <span>Processing Fee</span>
-                  <span className="text-stone-400">₹0.00</span>
+                  <span>Status</span>
+                  <span className="text-green-600 font-bold">Success</span>
                 </div>
               </div>
 
               <Link to="/dashboard/adoptions" className="btn-primary w-full mt-6 inline-block">
-                Go to My Adoptions
+                View My Adoptions
               </Link>
             </div>
           ) : step === 'payment' ? (
@@ -169,7 +167,7 @@ function AdoptionDetail() {
               <p className="text-sm text-brand-700">
                 This is a secure checkout for the adoption fee. Please review the details before confirming.
               </p>
-              
+
               <div className="space-y-2 border-t border-brand-100 pt-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-stone-500">Pet Name</span>
@@ -196,17 +194,17 @@ function AdoptionDetail() {
             </div>
           ) : listing.is_available ? (
             <div className="space-y-3 fade-in">
-              <label className="text-sm font-semibold text-stone-700">Adoption Inquiry</label>
+              <label className="text-sm font-semibold text-stone-700">Optional Notes</label>
               <textarea
                 className="input-field resize-none"
                 rows={3}
-                placeholder="Tell us a bit about yourself and why you'd like to adopt..."
+                placeholder="Any special requests or notes for the shop..."
                 value={details}
                 onChange={e => setDetails(e.target.value)}
               />
               {error && <p className="text-red-500 text-sm">{error}</p>}
               <Button className="w-full justify-center" onClick={handleProceedToPayment}>
-                ❤️ Request Adoption
+                Adopt Pet
               </Button>
             </div>
           ) : (
