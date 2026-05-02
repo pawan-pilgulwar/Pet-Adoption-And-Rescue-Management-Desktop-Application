@@ -180,12 +180,14 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
+    "https://pet-adoption-and-rescue-management-wkpz.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
+    "https://pet-adoption-and-rescue-management-wkpz.onrender.com",
 ]
 
 # Custom User Model
