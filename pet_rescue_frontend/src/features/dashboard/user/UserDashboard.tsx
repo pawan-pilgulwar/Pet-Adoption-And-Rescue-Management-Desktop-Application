@@ -2,27 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import DashboardCard from '../../../components/common/DashboardCard';
-import { fetchMyReports } from '../../rescue/api';
-import { fetchAdoptions } from '../../adoption/api';
-import { fetchMyRescueRequests } from '../../rescue/api';
+import api from '../../../services/api';
+import { UserDashboardData } from '../../../types';
 
 function UserDashboard() {
   const { user } = useAuth();
-  const [reportCount, setReportCount] = useState(0);
-  const [adoptionCount, setAdoptionCount] = useState(0);
-  const [rescueReqCount, setRescueReqCount] = useState(0);
+  const [stats, setStats] = useState<UserDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetchMyReports().catch(() => []),
-      fetchAdoptions().catch(() => []),
-      fetchMyRescueRequests().catch(() => []),
-    ]).then(([reports, adoptions, rescueReqs]) => {
-      setReportCount(reports.length);
-      setAdoptionCount(adoptions.length);
-      setRescueReqCount(rescueReqs.length);
-    }).finally(() => setLoading(false));
+    api.get('/users/user-dashboard/')
+      .then(res => {
+        setStats(res.data?.data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -35,21 +29,21 @@ function UserDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <DashboardCard 
           title="My Reports" 
-          value={loading ? '-' : reportCount} 
+          value={loading || !stats ? '-' : stats.total_reports} 
           icon="📄" 
           color="bg-blue-100" 
           textColor="text-blue-600" 
         />
         <DashboardCard 
           title="My Adoptions" 
-          value={loading ? '-' : adoptionCount} 
+          value={loading || !stats ? '-' : stats.total_adoptions} 
           icon="❤️" 
           color="bg-red-100" 
           textColor="text-red-600" 
         />
         <DashboardCard 
           title="Rescue Requests" 
-          value={loading ? '-' : rescueReqCount} 
+          value={loading || !stats ? '-' : stats.total_rescue_requests} 
           icon="🆘" 
           color="bg-orange-100" 
           textColor="text-orange-600" 

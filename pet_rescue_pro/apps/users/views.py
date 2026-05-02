@@ -266,6 +266,50 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
             message="Admin dashboard data fetched successfully",
             status_code=status.HTTP_200_OK
         )
+
+    @action(detail=False, methods=['get'], url_path='shop-dashboard', permission_classes=[IsAuthenticated])
+    def shop_dashboard(self, request):
+        if request.user.role != 'SHOP_OWNER' and request.user.role != 'ADMIN':
+            return self.error_response(message="Permission denied", status_code=status.HTTP_403_FORBIDDEN)
+            
+        from apps.adoption.models import AdoptionListing, Adoption
+        from apps.services.models import Service, Booking
+        
+        user = request.user
+        total_listings = AdoptionListing.objects.filter(shop_owner=user).count()
+        total_services = Service.objects.filter(created_by=user).count()
+        total_adoptions = Adoption.objects.filter(shop_owner=user).count()
+        total_bookings = Booking.objects.filter(service__created_by=user).count()
+        
+        data = {
+            "total_listings": total_listings,
+            "total_services": total_services,
+            "total_adoptions": total_adoptions,
+            "total_bookings": total_bookings
+        }
+        
+        return self.success_response(data=data, message="Shop dashboard data fetched successfully")
+
+    @action(detail=False, methods=['get'], url_path='user-dashboard', permission_classes=[IsAuthenticated])
+    def user_dashboard(self, request):
+        from apps.rescue.models import Report, RescueRequest
+        from apps.adoption.models import Adoption
+        from apps.services.models import Booking
+        
+        user = request.user
+        total_reports = Report.objects.filter(user=user).count()
+        total_adoptions = Adoption.objects.filter(user=user).count()
+        total_rescue_requests = RescueRequest.objects.filter(user=user).count()
+        total_bookings = Booking.objects.filter(user=user).count()
+        
+        data = {
+            "total_reports": total_reports,
+            "total_adoptions": total_adoptions,
+            "total_rescue_requests": total_rescue_requests,
+            "total_bookings": total_bookings
+        }
+        
+        return self.success_response(data=data, message="User dashboard data fetched successfully")
     
     @action( detail=False, methods=['get'], url_path='admin-users', permission_classes=[IsAdmin] )
     def admin_users(self, request):

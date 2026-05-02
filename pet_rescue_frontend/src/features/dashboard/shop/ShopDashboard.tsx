@@ -3,29 +3,20 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import DashboardCard from '../../../components/common/DashboardCard';
 import api from '../../../services/api';
+import { ShopDashboardData } from '../../../types';
 
 function ShopDashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ listings: 0, services: 0, adoptions: 0, bookings: 0 });
+  const [stats, setStats] = useState<ShopDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app with proper endpoints, you'd fetch these from a dedicated dashboard endpoint.
-    // For now, we'll try to fetch counts from existing endpoints.
-    Promise.all([
-      api.get('/adoption/listings/'),
-      api.get('/pet-services/'),
-      api.get('/adoption/adoptions/'),
-      api.get('/bookings/')
-    ]).then(([listingsRes, servicesRes, adoptionsRes, bookingsRes]) => {
-      const p = (res: any) => res.data?.data?.results?.length || res.data?.data?.length || 0;
-      setStats({
-        listings: p(listingsRes),
-        services: p(servicesRes),
-        adoptions: p(adoptionsRes),
-        bookings: p(bookingsRes)
-      });
-    }).catch(() => {}).finally(() => setLoading(false));
+    api.get('/users/shop-dashboard/')
+      .then(res => {
+        setStats(res.data?.data);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -36,10 +27,10 @@ function ShopDashboard() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-        <DashboardCard title="Active Listings" value={loading ? '-' : stats.listings} icon="📋" color="bg-brand-100" />
-        <DashboardCard title="Services" value={loading ? '-' : stats.services} icon="🛠️" color="bg-blue-100" textColor="text-blue-600" />
-        <DashboardCard title="Adoptions" value={loading ? '-' : stats.adoptions} icon="❤️" color="bg-red-100" textColor="text-red-600" />
-        <DashboardCard title="Bookings" value={loading ? '-' : stats.bookings} icon="📅" color="bg-green-100" textColor="text-green-600" />
+        <DashboardCard title="Active Listings" value={loading || !stats ? '-' : stats.total_listings} icon="📋" color="bg-brand-100" />
+        <DashboardCard title="Services" value={loading || !stats ? '-' : stats.total_services} icon="🛠️" color="bg-blue-100" textColor="text-blue-600" />
+        <DashboardCard title="Adoptions" value={loading || !stats ? '-' : stats.total_adoptions} icon="❤️" color="bg-red-100" textColor="text-red-600" />
+        <DashboardCard title="Bookings" value={loading || !stats ? '-' : stats.total_bookings} icon="📅" color="bg-green-100" textColor="text-green-600" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

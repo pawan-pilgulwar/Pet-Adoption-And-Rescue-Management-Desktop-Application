@@ -203,3 +203,17 @@ export interface AdminDashboardData {
     adoptions: Adoption[];
   };
 }
+
+export interface ShopDashboardData {
+  total_listings: number;
+  total_services: number;
+  total_adoptions: number;
+  total_bookings: number;
+}
+
+export interface UserDashboardData {
+  total_reports: number;
+  total_adoptions: number;
+  total_rescue_requests: number;
+  total_bookings: number;
+}
