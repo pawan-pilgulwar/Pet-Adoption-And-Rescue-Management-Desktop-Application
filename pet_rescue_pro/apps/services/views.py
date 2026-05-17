@@ -21,10 +21,18 @@ class ServiceViewSet(viewsets.ModelViewSet, ResponseMixin):
                 return queryset.filter(created_by=user)
             
             if user.role == 'SHOP_OWNER':
-                # Default view for Shop Owner in main list: show OTHER shops
-                return queryset.exclude(created_by=user)
+                if self.action == 'list':
+                    # Default view for Shop Owner in main list: show OTHER shops
+                    return queryset.exclude(created_by=user)
+                elif self.action in ['update', 'partial_update', 'destroy']:
+                    # Shop Owners can only edit or delete their own services
+                    return queryset.filter(created_by=user)
             elif user.role == 'ADMIN':
                 return queryset
+            elif user.role == 'USER':
+                if self.action in ['update', 'partial_update', 'destroy']:
+                    # Standard users cannot edit or delete services at all
+                    return queryset.none()
         
         return queryset
 
@@ -56,6 +64,15 @@ class BookingViewSet(viewsets.ModelViewSet, ResponseMixin):
         booking.status = 'Cancelled'
         booking.save()
         return self.success_response(message="Booking cancelled successfully")
+
+    @action(detail=True, methods=['post'], url_path='complete')
+    def complete_booking(self, request, pk=None):
+        booking = self.get_object()
+        if request.user.role not in ['SHOP_OWNER', 'ADMIN']:
+            return self.error_response(message="Only shop owners can complete bookings", status_code=status.HTTP_403_FORBIDDEN)
+        booking.status = 'Completed'
+        booking.save()
+        return self.success_response(message="Booking marked as completed successfully")
 
 class ScheduleViewSet(viewsets.ModelViewSet):
     queryset = Schedule.objects.select_related('service').all().order_by('-created_at')

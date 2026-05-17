@@ -30,7 +30,6 @@ class Service(models.Model):
 
 class Booking(models.Model):
     STATUS_CHOICES = [
-        ('Pending', 'Pending'),
         ('Confirmed', 'Confirmed'),
         ('Cancelled', 'Cancelled'),
         ('Completed', 'Completed'),
@@ -39,18 +38,13 @@ class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
     booking_date = models.DateTimeField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Confirmed')
     additional_notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.username} booked {self.service.name} on {self.booking_date}"
-
-    @property
-    def is_upcoming(self):
-        from django.utils.timezone import now
-        return self.status == "Confirmed" and self.booking_date > now()
 
     class Meta:
         db_table = 'booking'
