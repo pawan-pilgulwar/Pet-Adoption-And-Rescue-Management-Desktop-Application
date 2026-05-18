@@ -209,6 +209,7 @@ export interface ShopDashboardData {
   total_services: number;
   total_adoptions: number;
   total_bookings: number;
+  total_rescues?: number;
 }
 
 export interface UserDashboardData {
@@ -216,4 +217,33 @@ export interface UserDashboardData {
   total_adoptions: number;
   total_rescue_requests: number;
   total_bookings: number;
+  total_rescues?: number;
+}
+
+// Chat & Rescue Operation types
+export interface Message {
+  id: number;
+  room: number;
+  sender: number;
+  sender_username: string;
+  sender_role: string;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+export interface ChatRoom {
+  id: number;
+  report: Report;
+  reporter: User;
+  rescuer: User;
+  reporter_marked_completed: boolean;
+  rescuer_marked_completed: boolean;
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+  latest_message: Message | null;
+  unread_count: number;
+  reporter_online?: boolean;
+  rescuer_online?: boolean;
 }

@@ -19,6 +19,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
       { label: 'Reports', to: '/admin/reports', icon: '🚨' },
       { label: 'Services', to: '/admin/services', icon: '🛠️' },
       { label: 'Adoptions', to: '/admin/adoptions', icon: '❤️' },
+      { label: 'Rescues', to: '/admin/rescues', icon: '🤝' },
     ];
   }
 
@@ -30,6 +31,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
       { label: 'Listings', to: '/dashboard/listings', icon: '📋' },
       { label: 'Services', to: '/dashboard/services', icon: '🛠️' },
       { label: 'Bookings', to: '/dashboard/bookings', icon: '📅' },
+      { label: 'My Rescue', to: '/dashboard/rescue', icon: '🤝' },
     ];
   }
 
@@ -39,7 +41,7 @@ function getMenuItems(role: UserRole): MenuItem[] {
     { label: 'My Reports', to: '/dashboard/reports', icon: '📄' },
     { label: 'My Adoptions', to: '/dashboard/adoptions', icon: '❤️' },
     { label: 'My Bookings', to: '/dashboard/bookings', icon: '📅' },
-    { label: 'My Rescue', to: '/dashboard/rescue', icon: '🆘' },
+    { label: 'My Rescue', to: '/dashboard/rescue', icon: '🤝' },
   ];
 }
 

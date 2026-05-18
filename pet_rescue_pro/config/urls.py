@@ -35,6 +35,7 @@ urlpatterns = [
         path('rescue/', include('apps.rescue.urls')), 
         path('notifications/', include('apps.notifications.urls')),
         path('pets/', include('apps.pets.urls')),
+        path('chats/', include('apps.chats.urls')),
         path('', include('apps.services.urls')),
         ])
     ),

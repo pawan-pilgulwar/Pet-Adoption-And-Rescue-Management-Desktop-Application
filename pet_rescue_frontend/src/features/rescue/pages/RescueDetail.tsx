@@ -4,11 +4,16 @@ import { fetchReportDetail } from '../api';
 import { Report } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Button from '../../../components/common/Button';
+import { useAuth } from '../../../context/AuthContext';
+import { useChat } from '../../../context/ChatContext';
 
 function RescueDetail() {
   const { id } = useParams<{ id: string }>();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { user: currentUser } = useAuth();
+  const { initiateChat } = useChat();
 
   useEffect(() => {
     if (!id) return;
@@ -119,11 +124,28 @@ function RescueDetail() {
           </div>
 
 
-          <div className="pt-4">
-            <Button className="w-full justify-center py-4 text-lg" variant="outline">
-              🤝 Offer Help / Send Message
-            </Button>
-          </div>
+          {(!currentUser || (currentUser.role !== 'ADMIN' && currentUser.id !== user.id)) && (
+            <div className="pt-4">
+              <Button 
+                onClick={() => {
+                  if (!currentUser) {
+                    window.location.href = '/login';
+                  } else {
+                    initiateChat(report.id);
+                  }
+                }}
+                className="w-full justify-center py-4 text-emerald-600 border-emerald-500 hover:bg-emerald-50 text-lg" 
+                variant="outline"
+              >
+                🤝 Offer Help / Send Message
+              </Button>
+            </div>
+          )}
+          {currentUser && currentUser.id === user.id && (
+            <div className="pt-4 text-center">
+              <span className="text-stone-400 text-sm font-semibold">📢 This is your rescue report. Manage updates below or check your dashboard.</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

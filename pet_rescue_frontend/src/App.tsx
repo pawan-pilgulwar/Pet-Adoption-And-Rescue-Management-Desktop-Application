@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ChatProvider } from './context/ChatContext';
+import ChatWidget from './components/chat/ChatWidget';
 
 // Layouts
 import PublicLayout from './components/layout/PublicLayout';
@@ -49,6 +51,8 @@ import AdminReportDetail from './features/dashboard/admin/AdminReportDetail';
 import AdminServiceDetail from './features/dashboard/admin/AdminServiceDetail';
 import AdminAdoptions from './features/dashboard/admin/AdminAdoptions';
 import AdminAdoptionDetail from './features/dashboard/admin/AdminAdoptionDetail';
+import AdminRescues from './features/dashboard/admin/AdminRescues';
+import AdminRescueDetail from './features/dashboard/admin/AdminRescueDetail';
 
 // Profile
 import Profile from './features/profile/pages/Profile';
@@ -117,6 +121,8 @@ function AppRoutes() {
         <Route path="/admin/pets/:id" element={<AdminPetDetail />} />
         <Route path="/admin/adoptions" element={<AdminAdoptions />} />
         <Route path="/admin/adoptions/:id" element={<AdminAdoptionDetail />} />
+        <Route path="/admin/rescues" element={<AdminRescues />} />
+        <Route path="/admin/rescues/:id" element={<AdminRescueDetail />} />
       </Route>
 
       {/* ─── Fallback ─── */}
@@ -129,7 +135,10 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ChatProvider>
+          <AppRoutes />
+          <ChatWidget />
+        </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
   );

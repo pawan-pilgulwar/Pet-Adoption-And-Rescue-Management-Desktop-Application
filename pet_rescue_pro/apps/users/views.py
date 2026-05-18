@@ -215,13 +215,14 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         from apps.pets.models import Pet 
         from apps.services.models import Service
         from apps.adoption.models import Adoption
+        from apps.chats.models import ChatRoom
 
         total_users = User.objects.filter(role ="USER").count()
         total_reports = Report.objects.count()
         total_pets = Pet.objects.count()
         total_services = Service.objects.count()
         total_adoptions = Adoption.objects.count()
-        total_rescues = RescueRequest.objects.count()
+        total_rescues = ChatRoom.objects.count()
 
         # Detailed Stats
         pending_reports = Report.objects.filter(status="Pending").count()
@@ -276,16 +277,21 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         from apps.services.models import Service, Booking
         
         user = request.user
+        from django.db.models import Q
+        from apps.chats.models import ChatRoom
+        
         total_listings = AdoptionListing.objects.filter(shop_owner=user).count()
         total_services = Service.objects.filter(created_by=user).count()
         total_adoptions = Adoption.objects.filter(shop_owner=user).count()
         total_bookings = Booking.objects.filter(service__created_by=user).count()
+        total_rescues = ChatRoom.objects.filter(Q(reporter=user) | Q(rescuer=user)).count()
         
         data = {
             "total_listings": total_listings,
             "total_services": total_services,
             "total_adoptions": total_adoptions,
-            "total_bookings": total_bookings
+            "total_bookings": total_bookings,
+            "total_rescues": total_rescues
         }
         
         return self.success_response(data=data, message="Shop dashboard data fetched successfully")
@@ -297,16 +303,21 @@ class UserViewSet(viewsets.ModelViewSet, ResponseMixin):
         from apps.services.models import Booking
         
         user = request.user
+        from django.db.models import Q
+        from apps.chats.models import ChatRoom
+        
         total_reports = Report.objects.filter(user=user).count()
         total_adoptions = Adoption.objects.filter(user=user).count()
         total_rescue_requests = RescueRequest.objects.filter(user=user).count()
         total_bookings = Booking.objects.filter(user=user).count()
+        total_rescues = ChatRoom.objects.filter(Q(reporter=user) | Q(rescuer=user)).count()
         
         data = {
             "total_reports": total_reports,
             "total_adoptions": total_adoptions,
             "total_rescue_requests": total_rescue_requests,
-            "total_bookings": total_bookings
+            "total_bookings": total_bookings,
+            "total_rescues": total_rescues
         }
         
         return self.success_response(data=data, message="User dashboard data fetched successfully")

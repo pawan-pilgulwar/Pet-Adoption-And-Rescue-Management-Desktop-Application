@@ -42,11 +42,11 @@ function UserDashboard() {
           textColor="text-red-600" 
         />
         <DashboardCard 
-          title="Rescue Requests" 
-          value={loading || !stats ? '-' : stats.total_rescue_requests} 
-          icon="🆘" 
-          color="bg-orange-100" 
-          textColor="text-orange-600" 
+          title="My Rescues" 
+          value={loading || !stats ? '-' : stats.total_rescues ?? 0} 
+          icon="🤝" 
+          color="bg-purple-100" 
+          textColor="text-purple-600" 
         />
       </div>
 

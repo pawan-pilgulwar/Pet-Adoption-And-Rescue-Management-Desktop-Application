@@ -26,11 +26,12 @@ function ShopDashboard() {
         <p className="text-stone-500">Manage your shop's pets, services, and bookings.</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
         <DashboardCard title="Active Listings" value={loading || !stats ? '-' : stats.total_listings} icon="📋" color="bg-brand-100" />
         <DashboardCard title="Services" value={loading || !stats ? '-' : stats.total_services} icon="🛠️" color="bg-blue-100" textColor="text-blue-600" />
         <DashboardCard title="Adoptions" value={loading || !stats ? '-' : stats.total_adoptions} icon="❤️" color="bg-red-100" textColor="text-red-600" />
         <DashboardCard title="Bookings" value={loading || !stats ? '-' : stats.total_bookings} icon="📅" color="bg-green-100" textColor="text-green-600" />
+        <DashboardCard title="My Rescues" value={loading || !stats ? '-' : stats.total_rescues ?? 0} icon="🤝" color="bg-purple-100" textColor="text-purple-600" />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

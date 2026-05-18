@@ -30,6 +30,7 @@ REPORT_STATUS_CHOICES = [
     ("Accepted", "Accepted"),
     ("Rejected", "Rejected"),
     ("Closed", "Closed"),
+    ("Resolved", "Resolved"),
 ]
 
 RESCUE_REQUEST_STATUS_CHOICES = [

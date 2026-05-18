@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 interface DetailLayoutProps {
   title: string;
   subtitle?: string;
-  backLink: string;
+  backLink?: string;
   backText: string;
+  onBack?: () => void;
   image?: string;
   imageFallback?: string;
   actions?: React.ReactNode;
@@ -18,6 +19,7 @@ const DetailLayout: React.FC<DetailLayoutProps> = ({
   subtitle,
   backLink,
   backText,
+  onBack,
   image,
   imageFallback = "🐾",
   actions,
@@ -28,9 +30,18 @@ const DetailLayout: React.FC<DetailLayoutProps> = ({
     <div className="max-w-6xl mx-auto py-6 px-4 fade-in">
       {/* Breadcrumb / Back Link */}
       <nav className="mb-6">
-        <Link to={backLink} className="text-sm text-stone-500 hover:text-brand-500 transition-colors flex items-center gap-1">
-          ← {backText}
-        </Link>
+        {onBack ? (
+          <button 
+            onClick={onBack} 
+            className="text-sm text-stone-500 hover:text-brand-500 transition-colors flex items-center gap-1 focus:outline-none bg-transparent border-none p-0 cursor-pointer"
+          >
+            ← {backText}
+          </button>
+        ) : (
+          <Link to={backLink || '#'} className="text-sm text-stone-500 hover:text-brand-500 transition-colors flex items-center gap-1">
+            ← {backText}
+          </Link>
+        )}
       </nav>
 
       <div className="flex flex-col lg:flex-row gap-8">

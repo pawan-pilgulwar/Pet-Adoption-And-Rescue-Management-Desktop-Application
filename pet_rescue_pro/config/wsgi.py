@@ -8,9 +8,11 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
-
+import socketio
 from django.core.wsgi import get_wsgi_application
+from apps.chats.sockets import sio
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pet_rescue_pro.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-application = get_wsgi_application()
+django_app = get_wsgi_application()
+application = socketio.WSGIApp(sio, django_app)

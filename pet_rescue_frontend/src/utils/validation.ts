@@ -7,19 +7,21 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  first_name: z.string().min(2, 'First name is required'),
+  first_name: z.string().min(2, 'First name must be at least 2 characters'),
   last_name: z.string().min(1, 'Last name is required'),
   username: z.string().min(5, 'Username must be at least 5 characters'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Password must contain uppercase, lowercase, number, and special character'),
   role: z.enum(['USER', 'SHOP_OWNER'] as const),
   address: z.string().optional(),
-  phone_number: z.string().min(10, 'Phone number must be at least 10 characters'),
+  phone_number: z.string().regex(/^\+?[\d\s-]{10,}$/, 'Enter a valid phone number with at least 10 digits'),
   shop_name: z.string().optional(),
   shop_address: z.string().optional(),
   shop_license: z.string().optional(),
 }).refine((data) => {
-  if (data.role === 'USER') return !!data.address;
+  if (data.role === 'USER') return !!data.address && data.address.trim().length > 0;
   return !!data.shop_name && !!data.shop_address && !!data.shop_license;
 }, {
   message: "Missing required fields for selected role",
@@ -30,14 +32,14 @@ export const registerSchema = z.object({
 export const serviceSchema = z.object({
   name: z.string().min(3, 'Service name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price'),
+  price: z.string().regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/, 'Enter a valid price greater than or equal to 0'),
   duration: z.string().optional(),
 });
 
 // Adoption Listing Schema
 export const listingSchema = z.object({
   pet: z.string().min(1, 'Please select a pet'),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price'),
+  price: z.string().regex(/^(0|[1-9]\d*)(\.\d{1,2})?$/, 'Enter a valid price greater than or equal to 0'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
 });
 
@@ -46,7 +48,7 @@ export const petSchema = z.object({
   name: z.string().min(2, 'Pet name is required'),
   species: z.string().min(2, 'Species is required'),
   breed: z.string().optional(),
-  age: z.string().regex(/^\d*$/, 'Age must be a number').optional(),
+  age: z.string().regex(/^(0|[1-9]\d*)$/, 'Age must be a valid positive number').optional().or(z.literal('')),
   gender: z.string().optional(),
   size: z.string().optional(),
   color: z.string().optional(),
@@ -63,7 +65,7 @@ export const reportSchema = z.object({
   species: z.string().min(2, 'Species is required'),
   breed: z.string().optional(),
   color: z.string().optional(),
-  age: z.string().regex(/^\d*$/, 'Age must be a number').optional(),
+  age: z.string().regex(/^(0|[1-9]\d*)$/, 'Age must be a valid positive number').optional().or(z.literal('')),
   gender: z.string().optional(),
   size: z.string().optional(),
 });
@@ -71,6 +73,8 @@ export const reportSchema = z.object({
 // Booking Schema
 export const bookingSchema = z.object({
   service: z.number().or(z.string().min(1, 'Please select a service')),
-  booking_date: z.string().min(1, 'Please select a date and time'),
+  booking_date: z.string().min(1, 'Please select a date and time').refine((val) => new Date(val) >= new Date(), {
+    message: "Booking date must be in the future",
+  }),
   additional_notes: z.string().optional(),
 });

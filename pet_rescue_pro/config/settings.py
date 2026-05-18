@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.services',
     'apps.adoption',
     'apps.rescue',
+    'apps.chats',
 ]
 
 MIDDLEWARE = [
