@@ -42,6 +42,12 @@ export async function fetchBookings() {
   return (res.data?.results || res.data?.data?.results || res.data?.data || res.data || []) as Booking[];
 }
 
+// POST /api/v1/bookings/:id/complete/
+export async function completeBooking(id: number) {
+  const res = await api.post(`/bookings/${id}/complete/`);
+  return res.data;
+}
+
 // POST /api/v1/bookings/
 export async function createBooking(data: {
   service: number;

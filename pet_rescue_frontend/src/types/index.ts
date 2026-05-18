@@ -145,7 +145,7 @@ export interface Booking {
   user: User;
   service: Service;
   booking_date: string;
-  status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
+  status: 'Confirmed' | 'Cancelled' | 'Completed';
   additional_notes: string | null;
   created_at: string;
   updated_at: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
-import { AdoptionListing, ShopOwnerProfile } from '../../../types';
+import { AdoptionListing, ShopOwnerProfile, Adoption } from '../../../types';
 
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
@@ -12,6 +12,7 @@ function ShopListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [listing, setListing] = useState<AdoptionListing | null>(null);
+  const [adoption, setAdoption] = useState<Adoption | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [modalConfig, setModalConfig] = useState<{
@@ -54,8 +55,20 @@ function ShopListingDetail() {
 
   useEffect(() => {
     if (id) {
-      api.get(`/adoption/listings/${id}/`)
-        .then(res => setListing(res.data))
+      setLoading(true);
+      api.get(`/adoption/listings/${id}/?my_listings=true`)
+        .then(async res => {
+          const lData = res.data;
+          setListing(lData);
+          if (!lData.is_available) {
+            try {
+              const adRes = await api.get('/adoption/adoptions/');
+              const adoptions = adRes.data?.results || adRes.data || [];
+              const matched = adoptions.find((a: Adoption) => a.pet.id === lData.pet.id);
+              setAdoption(matched || null);
+            } catch {}
+          }
+        })
         .catch(() => {})
         .finally(() => setLoading(false));
     }
@@ -145,6 +158,45 @@ function ShopListingDetail() {
              </p>
           </div>
         </section>
+
+        {adoption && (
+          <>
+            <hr className="border-stone-100" />
+            <section>
+              <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6">🎉 Adoption Details</h3>
+              <div className="bg-green-50 p-6 rounded-3xl border border-green-100 flex items-center gap-6">
+                 <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden border border-green-200">
+                  {adoption.user.profile?.profile_picture_url ? (
+                    <img src={adoption.user.profile.profile_picture_url} alt={adoption.user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-green-400 font-bold text-xl uppercase">
+                      {adoption.user.username.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1">Adopted By</p>
+                      <p className="font-bold text-stone-900 text-lg">{adoption.user.first_name} {adoption.user.last_name}</p>
+                      <p className="text-stone-500 text-sm">@{adoption.user.username}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-stone-400 uppercase font-bold mb-1">Adopted On</p>
+                      <p className="text-stone-900 font-semibold">{adoption.adopted_at ? new Date(adoption.adopted_at).toLocaleDateString() : '—'}</p>
+                    </div>
+                  </div>
+                  {adoption.notes && (
+                    <div className="mt-4 pt-4 border-t border-green-100 text-sm text-green-800">
+                      <span className="font-bold mr-2">Notes:</span>
+                      {adoption.notes}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          </>
+        )}
 
         <hr className="border-stone-100" />
 

@@ -93,16 +93,18 @@ function UserBookingDetail() {
       backText="Back to My Bookings"
       imageFallback="📅"
       stats={[
-        { label: 'Status', value: booking.status === 'Confirmed' ? 'Upcoming' : booking.status },
+        { label: 'Status', value: booking.status },
         { label: 'Date', value: new Date(booking.booking_date).toLocaleDateString() },
         { label: 'Time', value: new Date(booking.booking_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
         { label: 'Fee', value: `₹${service.price}` }
       ]}
       actions={
-        booking.status === 'Pending' || booking.status === 'Confirmed' ? (
-          <Button variant="outline" className="text-red-500 hover:bg-red-50 border-red-200" onClick={handleCancel}>
-            Cancel Booking
-          </Button>
+        booking.status === 'Confirmed' ? (
+          <div className="flex gap-2">
+            <Button variant="outline" className="text-red-500 hover:bg-red-50 border-red-200" onClick={handleCancel}>
+              Cancel Booking
+            </Button>
+          </div>
         ) : null
       }
     >

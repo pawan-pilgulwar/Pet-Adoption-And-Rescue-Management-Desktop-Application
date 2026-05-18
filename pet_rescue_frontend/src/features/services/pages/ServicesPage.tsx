@@ -15,6 +15,7 @@ function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'All' | 'Medical'>('All');
 
   function loadServices() {
     setLoading(true);
@@ -41,11 +42,14 @@ function ServicesPage() {
     // Exclude own services for shop owners
     const isNotMine = user?.role === 'SHOP_OWNER' ? s.created_by.id !== user.id : true;
     
-    return matchesSearch && isNotMine;
+    // Tab filtering
+    const matchesTab = activeTab === 'Medical' ? s.service_type === 'Medical' : true;
+
+    return matchesSearch && isNotMine && matchesTab;
   });
 
-  const economyCount = services.filter(s => parseFloat(s.price) < 500).length;
-  const premiumCount = services.filter(s => parseFloat(s.price) >= 500).length;
+  const economyCount = filteredServices.filter(s => parseFloat(s.price) < 500).length;
+  const premiumCount = filteredServices.filter(s => parseFloat(s.price) >= 500).length;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -74,9 +78,33 @@ function ServicesPage() {
           <p className="text-stone-500 text-sm">Premium Care</p>
         </div>
         <div className="card text-center col-span-2 md:col-span-1">
-          <p className="text-2xl font-bold text-brand-500">{services.length}</p>
-          <p className="text-stone-500 text-sm">Total Services</p>
+          <p className="text-2xl font-bold text-brand-500">{filteredServices.length}</p>
+          <p className="text-stone-500 text-sm">{activeTab === 'All' ? 'Total' : 'Medical'} Services</p>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 border-b border-stone-200 pb-2">
+        <button
+          onClick={() => setActiveTab('All')}
+          className={`px-4 py-2 font-bold rounded-lg transition-all ${
+            activeTab === 'All'
+              ? 'bg-brand-50 text-brand-600'
+              : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700'
+          }`}
+        >
+          All Services
+        </button>
+        <button
+          onClick={() => setActiveTab('Medical')}
+          className={`px-4 py-2 font-bold rounded-lg transition-all ${
+            activeTab === 'Medical'
+              ? 'bg-brand-50 text-brand-600'
+              : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700'
+          }`}
+        >
+          Medical Services
+        </button>
       </div>
 
       {/* Search */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AdoptionListing, Pet } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
@@ -12,6 +12,7 @@ import { z } from 'zod';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
 
 function ShopListings() {
+  const navigate = useNavigate();
   const [listings, setListings] = useState<AdoptionListing[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -224,6 +225,7 @@ function ShopListings() {
                       <td className="text-stone-500 text-sm">{new Date(l.created_at).toLocaleDateString()}</td>
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="sm" className="text-brand-500 hover:bg-brand-50" onClick={() => navigate(`/dashboard/listings/${l.id}`)}>View</Button>
                           <Button variant="ghost" size="sm" className="text-stone-600" onClick={() => handleEdit(l)}>Edit</Button>
                           <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={() => handleDelete(l.id)}>Delete</Button>
                         </div>

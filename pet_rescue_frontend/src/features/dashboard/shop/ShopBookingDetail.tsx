@@ -97,10 +97,30 @@ function ShopBookingDetail() {
         { label: 'Price', value: `₹${service.price}` }
       ]}
       actions={
-        booking.status === 'Pending' || booking.status === 'Confirmed' ? (
-          <Button variant="outline" className="text-red-500 hover:bg-red-50 border-red-200" onClick={handleCancel}>
-            Cancel Booking
-          </Button>
+        booking.status === 'Confirmed' ? (
+          <div className="flex gap-2">
+            <Button variant="outline" className="text-red-500 hover:bg-red-50 border-red-200" onClick={handleCancel}>
+              Cancel Booking
+            </Button>
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => {
+              showConfirm(
+                "Complete Booking",
+                "Are you sure you want to mark this booking as completed?",
+                async () => {
+                  try {
+                    await api.post(`/bookings/${id}/complete/`);
+                    setBooking(prev => prev ? { ...prev, status: 'Completed' } : null);
+                    showAlert("Success", "Booking marked as completed", "success");
+                  } catch {
+                    showAlert("Error", "Failed to update booking", "danger");
+                  }
+                },
+                'success'
+              );
+            }}>
+              Mark as Completed
+            </Button>
+          </div>
         ) : null
       }
     >

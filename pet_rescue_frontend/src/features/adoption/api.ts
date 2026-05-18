@@ -6,8 +6,8 @@ import { AdoptionListing, AdoptionRequest, Adoption } from '../../types';
 // GET /api/v1/adoption/listings/   — all available listings (paginated)
 export async function fetchListings(params?: { species?: string; breed?: string; price?: string }) {
   const res = await api.get('/adoption/listings/', { params });
-  // Backend returns paginated results: { results: [...] } or direct array
-  const data = res.data?.results || [];
+  // Backend might return paginated results: { results: [...] } or direct array
+  const data = res.data?.results || res.data?.data?.results || res.data?.data || res.data || [];
   return data as AdoptionListing[];
 }
 
@@ -45,7 +45,7 @@ export async function deleteListing(id: number) {
 // GET /api/v1/adoption/requests/  — filtered by role (user sees own, shop owner sees for their listings)
 export async function fetchRequests() {
   const res = await api.get('/adoption/requests/');
-  return (res.data?.data?.results || res.data?.data || []) as AdoptionRequest[];
+  return (res.data?.results || res.data?.data?.results || res.data?.data || res.data || []) as AdoptionRequest[];
 }
 
 // POST /api/v1/adoption/requests/
@@ -75,7 +75,7 @@ export async function rejectRequest(id: number) {
 // GET /api/v1/adoption/adoptions/   — role-filtered
 export async function fetchAdoptions() {
   const res = await api.get('/adoption/adoptions/');
-  return (res.data?.results || []) as Adoption[];
+  return (res.data?.results || res.data?.data?.results || res.data?.data || res.data || []) as Adoption[];
 }
 
 // POST /api/v1/adoption/adoptions/

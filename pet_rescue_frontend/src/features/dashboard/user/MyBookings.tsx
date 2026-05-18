@@ -11,7 +11,7 @@ function MyBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'Pending' | 'Confirmed' | 'Completed'>('Confirmed');
+  const [activeTab, setActiveTab] = useState<'Confirmed' | 'Cancelled' | 'Completed'>('Confirmed');
 
   useEffect(() => {
     fetchBookings()
@@ -37,8 +37,8 @@ function MyBookings() {
         </div>
         <div className="flex bg-stone-100 p-1 rounded-xl">
           {[
-            { label: 'Pending', value: 'Pending' },
-            { label: 'Upcoming', value: 'Confirmed' },
+            { label: 'Confirmed', value: 'Confirmed' },
+            { label: 'Cancelled', value: 'Cancelled' },
             { label: 'Completed', value: 'Completed' },
           ].map(tab => (
             <button
@@ -95,7 +95,7 @@ function MyBookings() {
                        b.status === 'Cancelled' ? 'badge-red' : 
                        b.status === 'Completed' ? 'badge-blue' : 'badge-yellow'
                      }`}>
-                       {b.status === 'Confirmed' ? 'Upcoming' : b.status}
+                       {b.status}
                      </span>
                   </td>
                   <td className="text-right">
