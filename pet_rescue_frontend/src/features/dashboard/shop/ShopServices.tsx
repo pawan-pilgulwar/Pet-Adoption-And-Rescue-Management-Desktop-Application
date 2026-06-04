@@ -94,6 +94,7 @@ function ShopServices({ allServices = false }: ShopServicesProps) {
 
   useEffect(() => {
     loadServices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const resetForm = () => {

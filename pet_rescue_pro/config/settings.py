@@ -100,9 +100,9 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),  # Or the IP address of your PostgreSQL server
         'PORT': os.getenv('POSTGRES_PORT', '5432'),        # Or the port your PostgreSQL server is listening on
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+        # 'OPTIONS': {
+        #     'sslmode': 'require',
+        # },
     }
 }
 
@@ -178,13 +178,15 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
+    os.getenv('FRONTEND_URL'),
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
-    "https://pet-adoption-and-rescue-management-wkpz.onrender.com",
+    os.getenv('FRONTEND_URL'),
+    os.getenv('BACKEND_URL'),
 ]
 
 # Custom User Model

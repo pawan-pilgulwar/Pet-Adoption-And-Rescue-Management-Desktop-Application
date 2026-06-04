@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../../services/api';
-import { ChatRoom, UserProfile, ShopOwnerProfile } from '../../../types';
+import { ChatRoom, ShopOwnerProfile } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import Empty from '../../../components/common/Empty';
 import SearchBar from '../../../components/common/SearchBar';

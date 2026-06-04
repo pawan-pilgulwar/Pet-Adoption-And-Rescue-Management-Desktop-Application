@@ -42,6 +42,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const socketRef = useRef<Socket | null>(null);
 
+  const activeRoomIdRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    activeRoomIdRef.current = activeRoomId;
+  }, [activeRoomId]);
+
   const activeRoom = rooms.find(r => r.id === activeRoomId) || null;
 
   // Calculate total unread messages count
@@ -87,7 +93,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   // Send message
   async function sendMessage(content: string) {
     if (!activeRoomId || !user) return;
-    
+
     // Attempt real-time socket emit
     if (socketRef.current?.connected) {
       socketRef.current.emit('send_message', { room_id: activeRoomId, content }, (res: any) => {
@@ -185,8 +191,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     socket.on('connect', () => {
       console.log('Socket.IO connected');
       // If we already had an active room, join its channel
-      if (activeRoomId) {
-        socket.emit('join_room', { room_id: activeRoomId });
+      if (activeRoomIdRef.current) {
+        socket.emit('join_room', { room_id: activeRoomIdRef.current });
       }
     });
 
@@ -196,16 +202,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
     socket.on('new_message', (msg: Message) => {
       // If it belongs to our active room, append it
-      if (msg.room === activeRoomId) {
+      if (msg.room === activeRoomIdRef.current) {
         setMessages(prev => {
           if (prev.some(m => m.id === msg.id)) return prev;
           return [...prev, msg];
         });
-        
+
         // Mark as read immediately on backend
-        api.get(`/chats/rooms/${activeRoomId}/messages/`).catch(() => {});
+        api.get(`/chats/rooms/${activeRoomIdRef.current}/messages/`).catch(() => { });
       }
-      
+
       // Update room list
       refreshRooms();
     });
@@ -235,6 +241,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       socket.disconnect();
       socketRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // Keep joining Socket.IO rooms on room changes if socket connects late

@@ -169,7 +169,7 @@ class Command(BaseCommand):
 
             last_name = fake.last_name()
             raw_shop_name = f"{fake.first_name()}'s {random.choice(shop_name_suffixes)} {random.choice(cities)}"
-            username = raw_shop_name.lower().replace(" ", "").replace("'", "")
+            username = "".join(char for char in raw_shop_name.lower() if char.isalnum())
             username = f"{username}{random.randint(100, 999)}"
             email = f"{username}@petshop.in"
             

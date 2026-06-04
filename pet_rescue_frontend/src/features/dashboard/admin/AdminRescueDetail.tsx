@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../../../services/api';
-import { ChatRoom, Message, ShopOwnerProfile, UserProfile } from '../../../types';
+import { ChatRoom, Message, ShopOwnerProfile } from '../../../types';
 import Spinner from '../../../components/common/Spinner';
 import DetailLayout from '../../../components/common/DetailLayout';
 

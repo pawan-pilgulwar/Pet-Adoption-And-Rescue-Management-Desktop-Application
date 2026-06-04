@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -24,19 +25,30 @@ class AdoptionListingViewSet(viewsets.ModelViewSet, ResponseMixin):
     def get_queryset(self):
         queryset = self.queryset.order_by('-created_at')
         user = self.request.user
-        my_listings = self.request.query_params.get('my_listings') == 'true'
 
-        if user.is_authenticated:
-            if my_listings:
-                # Dashboard view: Show only MY listings
-                return queryset.filter(shop_owner=user)
-            elif user.role == 'SHOP_OWNER':
-                # Public view for Shop Owner: Show everyone ELSE's listings
-                return queryset.filter(is_available=True).exclude(shop_owner=user)
-            elif user.role == 'ADMIN':
-                return queryset
+        if not user.is_authenticated:
+            return queryset.filter(is_available=True)
+
+        if user.role == 'ADMIN':
+            return queryset
+
+        # For detail actions (retrieve, update, partial_update, destroy),
+        # shop owners must be able to access/manage their own listings.
+        if self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
+            if user.role == 'SHOP_OWNER':
+                return queryset.filter(Q(shop_owner=user) | Q(is_available=True))
+            return queryset.filter(is_available=True)
+
+        # For list action
+        my_listings = self.request.query_params.get('my_listings') == 'true'
+        if my_listings:
+            # Dashboard view: Show only MY listings
+            return queryset.filter(shop_owner=user)
+        elif user.role == 'SHOP_OWNER':
+            # Public view for Shop Owner: Show everyone ELSE's listings
+            return queryset.filter(is_available=True).exclude(shop_owner=user)
         
-        # Default public view (USER or Anonymous)
+        # Default view for normal authenticated users
         return queryset.filter(is_available=True)
     
     @action(detail=False, methods=['get'], url_path='search', permission_classes=[IsAuthenticated])

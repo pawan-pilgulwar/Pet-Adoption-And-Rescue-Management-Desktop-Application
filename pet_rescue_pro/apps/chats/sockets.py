@@ -77,7 +77,8 @@ def connect(sid, environ, auth=None):
         'role': user.role
     })
     sid_to_user[sid] = user.id
-    print(f"Socket.IO connection accepted: {sid} for User {user.username}")
+    sio.enter_room(sid, f"user_{user.id}")
+    print(f"Socket.IO connection accepted: {sid} for User {user.username} (joined user_{user.id})")
     
     # Broadcast to other users that this user is online
     try:
@@ -143,7 +144,8 @@ def send_message(sid, data):
         room.save() # update room's updated_at
         
         msg_data = MessageSerializer(message).data
-        sio.emit('new_message', msg_data, room=f"room_{room_id}")
+        sio.emit('new_message', msg_data, room=f"user_{room.reporter_id}")
+        sio.emit('new_message', msg_data, room=f"user_{room.rescuer_id}")
         return {'status': 'success', 'message': msg_data}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
@@ -177,7 +179,8 @@ def mark_completed(sid, data):
         room.save()
         
         room_data = ChatRoomSerializer(room).data
-        sio.emit('room_updated', room_data, room=f"room_{room_id}")
+        sio.emit('room_updated', room_data, room=f"user_{room.reporter_id}")
+        sio.emit('room_updated', room_data, room=f"user_{room.rescuer_id}")
         return {'status': 'success', 'room': room_data}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}

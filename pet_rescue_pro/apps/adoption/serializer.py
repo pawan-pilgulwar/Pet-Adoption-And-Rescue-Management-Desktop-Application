@@ -4,13 +4,17 @@ from apps.pets.serializer import PetSerializer
 from apps.users.serializer import UserReadSerializer
 
 class AdoptionListingSerializer(serializers.ModelSerializer):
-    pet = PetSerializer(read_only=True)
-    shop_owner = UserReadSerializer(read_only=True)
 
     class Meta:
         model = AdoptionListing
         fields = '__all__'
         read_only_fields = ['created_at', 'shop_owner']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['pet'] = PetSerializer(instance.pet, context=self.context).data
+        representation['shop_owner'] = UserReadSerializer(instance.shop_owner, context=self.context).data
+        return representation
 
 class AdoptionSerializer(serializers.ModelSerializer):
     user = UserReadSerializer(read_only=True)

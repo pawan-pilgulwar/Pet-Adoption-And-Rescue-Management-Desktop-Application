@@ -49,10 +49,14 @@ class ReportCreateSerializer(serializers.ModelSerializer):
 
 class RescueRequestSerializer(serializers.ModelSerializer):
     user = UserReadSerializer(read_only=True)
-    report = ReportSerializer(read_only=True)
 
     class Meta:
         model = RescueRequest
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at', 'user']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['report'] = ReportSerializer(instance.report, context=self.context).data
+        return representation
 
