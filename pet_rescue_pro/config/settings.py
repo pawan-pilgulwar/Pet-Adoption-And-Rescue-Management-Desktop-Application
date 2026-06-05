@@ -34,7 +34,19 @@ SECRET_KEY = 'django-insecure-@$z3*wct8t00xwoy-zf%w*_21o&u#8#z8!)#s=x=r0!#9j(mp+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.31.75", "pet-adoption-and-rescue-management-wkpz.onrender.com"]
+
+# CORS setting
+frontend_url = os.getenv('FRONTEND_URL')
+if frontend_url:
+    frontend_url = frontend_url.rstrip('/')
+
+backend_url = os.getenv('BACKEND_URL')
+if backend_url:
+    backend_url = backend_url.rstrip('/')
+
+
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.31.75", frontend_url, backend_url]
 
 
 # Application definition
@@ -172,16 +184,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
-
-
-# CORS setting
-frontend_url = os.getenv('FRONTEND_URL')
-if frontend_url:
-    frontend_url = frontend_url.rstrip('/')
-
-backend_url = os.getenv('BACKEND_URL')
-if backend_url:
-    backend_url = backend_url.rstrip('/')
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
