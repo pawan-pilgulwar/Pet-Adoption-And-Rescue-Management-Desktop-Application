@@ -5,7 +5,11 @@ from .models import ChatRoom, Message
 from .serializer import MessageSerializer, ChatRoomSerializer
 from apps.rescue.models import Report
 
-sio = socketio.Server(cors_allowed_origins='*')
+sio = socketio.Server(cors_allowed_origins=[
+        "https://pet-adoption-rescue-management.vercel.app",
+        "http://localhost:3000",
+        "https://pet-adoption-rescue-management.vercel.app"
+    ])
 
 # In-memory mapping of session IDs to authenticated user IDs
 sid_to_user = {}
