@@ -176,12 +176,12 @@ SIMPLE_JWT = {
 
 # CORS setting
 frontend_url = os.getenv('FRONTEND_URL')
-# if frontend_url:
-#     frontend_url = frontend_url.rstrip('/')
+if frontend_url:
+    frontend_url = frontend_url.rstrip('/')
 
 backend_url = os.getenv('BACKEND_URL')
-# if backend_url:
-#     backend_url = backend_url.rstrip('/')
+if backend_url:
+    backend_url = backend_url.rstrip('/')
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
