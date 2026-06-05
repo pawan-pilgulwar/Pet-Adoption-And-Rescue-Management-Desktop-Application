@@ -175,31 +175,29 @@ SIMPLE_JWT = {
 
 
 # CORS setting
-frontend_url = os.getenv('FRONTEND_URL')
-# if frontend_url:
-#     frontend_url = frontend_url.rstrip('/')
+# frontend_url = os.getenv('FRONTEND_URL')
 
-backend_url = os.getenv('BACKEND_URL')
-# if backend_url:
-#     backend_url = backend_url.rstrip('/')
-
+# backend_url = os.getenv('BACKEND_URL')
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
+    "https://pet-adoption-rescue-management.vercel.app",
 ]
-if frontend_url:
-    CORS_ALLOWED_ORIGINS.append(frontend_url)
+# if frontend_url:
+#     CORS_ALLOWED_ORIGINS.append(frontend_url)
 
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.31.75:3000",
+    "https://pet-adoption-rescue-management.vercel.app",
+    "https://pet-adoption-and-rescue-management-wkpz.onrender.com"
 ]
-if frontend_url:
-    CSRF_TRUSTED_ORIGINS.append(frontend_url)
-if backend_url:
-    CSRF_TRUSTED_ORIGINS.append(backend_url)
+# if frontend_url:
+#     CSRF_TRUSTED_ORIGINS.append(frontend_url)
+# if backend_url:
+#     CSRF_TRUSTED_ORIGINS.append(backend_url)
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
