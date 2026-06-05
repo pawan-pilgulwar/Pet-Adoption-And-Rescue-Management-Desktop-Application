@@ -34,9 +34,8 @@ SECRET_KEY = 'django-insecure-@$z3*wct8t00xwoy-zf%w*_21o&u#8#z8!)#s=x=r0!#9j(mp+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.31.75", "pet-adoption-and-rescue-management-wkpz.onrender.com", "pet-adoption-rescue-management.vercel.app"]
-
-
+# ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.31.75", "pet-adoption-and-rescue-management-wkpz.onrender.com", "pet-adoption-rescue-management.vercel.app"]
+ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
